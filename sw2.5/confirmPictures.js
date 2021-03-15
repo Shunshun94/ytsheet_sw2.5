@@ -13,6 +13,18 @@ const getJsonData = (id) => {
     });
 };
 
+const getQueries = (opt_query) => {
+	var query = opt_query ? '?' + opt_query : location.search;
+	var params = (query.slice(1)).split('&');
+	var paramLength = params.length;
+	var result = {};
+	for(var i = 0; i < paramLength; i++) {
+		var pair = params[i].split('=');
+		result[pair[0]] = pair[1];
+	}
+	return result;
+};
+
 const getFromInfo = (json) => {
     if( json.imageCopyrightURL && json.imageCopyright ) {
         return `<a href="${json.imageCopyrightURL}">${json.imageCopyright}</a>`;
@@ -38,4 +50,8 @@ for(let i = 0; i < trsLength; i++) {
     (err)=>{
         console.log(err);
     });
+}
+
+if(getQueries().player) {
+    document.getElementById(`goNext`).href = document.getElementById(`goNext`).href + getQueries().player;
 }

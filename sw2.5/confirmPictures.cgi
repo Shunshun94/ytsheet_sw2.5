@@ -55,5 +55,5 @@ foreach (@list) {
 
 print "</table>";
 Encode::decode('utf8', $PLAYER_QUERY);
-print "<p><a href='./confirmPictures.cgi?from=$lastNumber&count=$FROM_COUNT&player=$PLAYER_QUERY'>次のページに進む</a></p>";
+print "<p><a id='goNext' href='./confirmPictures.cgi?from=$lastNumber&count=$FROM_COUNT&player='>次のページに進む</a></p>";
 print "<script src='./confirmPictures.js'></script></body></html>";
