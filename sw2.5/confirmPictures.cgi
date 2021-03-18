@@ -41,12 +41,16 @@ foreach (@list) {
   ) = (split /<>/, $_)[0..18];
   if($image && ( !($PLAYER_QUERY) || ($PLAYER_QUERY eq $player) )) {
       if( (!($FROM) || ($FROM >= $number)) && ($count > 0)) {
-        print "<tr id='$id' class='hidden_$hide'>";
+        print "<tr title='$number' id='$id' class='hidden_$hide'>";
         print "<td><a target='_blank' href='./?id=$id'>$name</a></td>";
         print "<td><a href='./confirmPictures.cgi?player=$player'>$player</a></td>";
         print "<td><img id='image_$id' width='200' height='200' /><br/>";
         print "<span id='from_$id'></span>";
-        print "</td></tr>";
+        print "</td>";
+        print "<td><input type='checkbox' value='check1' id='check1_$id' />消す</td>";
+        print "<td><input type='checkbox' value='check2' id='check2_$id' />本当に？</td>";
+        print "<td><input type='checkbox' value='check3' id='check3_$id' />本当に消す？</td>";
+        print "</tr>";
         $count--;
         $lastNumber = $number;
       }
