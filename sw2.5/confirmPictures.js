@@ -13,6 +13,20 @@ const getJsonData = (id) => {
     });
 };
 
+const deleteImagePicture = (id, check1='', check2='', check3='') => {
+    return new Promise((resolve, reject)=>{
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', `./?id=${id}&mode=img-delete&check1=${check1}&check2=${check2}&check3=${check3}`, true);
+        xhr.onload = (e) => {
+            resolve(`succeeded to delete ${id}`);
+        };
+        xhr.onerror = () => reject(`failed to delete ${id}`);
+        xhr.onabort = () => reject(`failed to delete ${id}`);
+        xhr.ontimeout = () => reject(`failed to delete ${id}`);
+        xhr.send();
+    });
+};
+
 const getQueries = (opt_query) => {
 	var query = opt_query ? '?' + opt_query : location.search;
 	var params = (query.slice(1)).split('&');
@@ -48,7 +62,7 @@ for(let i = 0; i < trsLength; i++) {
         document.getElementById(`from_${target.id}`).innerHTML = getFromInfo(json);
     },
     (err)=>{
-        console.log(err);
+        console.error(err);
     });
 }
 
@@ -69,6 +83,31 @@ const updateCheck = (e)=>{
     }
 };
 
-Array.from(document.getElementsByClassName('check1')).forEach((elem)=>{elem.addEventListener('input', updateCheck)});
-Array.from(document.getElementsByClassName('check2')).forEach((elem)=>{elem.addEventListener('input', updateCheck)});
-Array.from(document.getElementsByClassName('check3')).forEach((elem)=>{elem.addEventListener('input', updateCheck)});
+Array.from(document.getElementsByClassName('check1')).forEach((elem)=>{elem.addEventListener('input', updateCheck);});
+Array.from(document.getElementsByClassName('check2')).forEach((elem)=>{elem.addEventListener('input', updateCheck);});
+Array.from(document.getElementsByClassName('check3')).forEach((elem)=>{elem.addEventListener('input', updateCheck);});
+
+document.getElementById('execDelete').addEventListener('click', (e)=>{
+    const ids = Array.from(document.getElementsByTagName('tr')).map((tr)=>{
+        return { number: tr.title, id: tr.id };
+    });
+    const checkes = [
+        Array.from(document.getElementsByClassName('check1')).map((d)=>{return d.checked;}),
+        Array.from(document.getElementsByClassName('check2')).map((d)=>{return d.checked;})
+    ];
+    const comments = Array.from(document.getElementsByClassName('check3')).map((d)=>{return d.value;});
+    const deleteTargets = ids.map((id, i)=>{
+        id.check = checkes[0][i] && checkes[1][i];
+        id.comment = comments[i];
+        return id;
+    }).filter((id, i)=>{
+        return id.check && id.comment;
+    });
+    Promise.all(deleteTargets.map((target)=>{
+        return deleteImagePicture(target.id, target.check, target.check, target.comment);
+    })).then((resolve)=>{
+        console.log(resolve);
+    }, (err)=>{
+        console.error(err);
+    });
+});
