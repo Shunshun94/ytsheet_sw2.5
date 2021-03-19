@@ -55,3 +55,20 @@ for(let i = 0; i < trsLength; i++) {
 if(getQueries().player) {
     document.getElementById(`goNext`).href = document.getElementById(`goNext`).href + getQueries().player;
 }
+
+const updateCheck = (e)=>{
+    const characterId = e.target.id.replace(/check\d_/, '');
+    if(
+        document.getElementById(`check1_${characterId}`).checked &&
+        document.getElementById(`check2_${characterId}`).checked &&
+        document.getElementById(`check3_${characterId}`).value
+    ) {
+        document.getElementById(`${characterId}`).style.backgroundColor = 'peachpuff';
+    } else {
+        document.getElementById(`${characterId}`).style.backgroundColor = 'white';
+    }
+};
+
+Array.from(document.getElementsByClassName('check1')).forEach((elem)=>{elem.addEventListener('input', updateCheck)});
+Array.from(document.getElementsByClassName('check2')).forEach((elem)=>{elem.addEventListener('input', updateCheck)});
+Array.from(document.getElementsByClassName('check3')).forEach((elem)=>{elem.addEventListener('input', updateCheck)});

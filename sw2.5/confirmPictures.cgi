@@ -30,7 +30,7 @@ close($FH);
 
 print "Status: 200 OK\n";
 print "Content-type: text/html\n\n";
-print "<html><head><style>td{max-width:240px;}</style><meta charset='UTF-8'></head><body><table border='1' id='list'>";
+print "<html><head><style>td{max-width:240px;}textarea{resize: none;}</style><meta charset='UTF-8'></head><body><table border='1' id='list'>";
 
 my $lastNumber;
 foreach (@list) {
@@ -47,9 +47,10 @@ foreach (@list) {
         print "<td><img id='image_$id' width='200' height='200' /><br/>";
         print "<span id='from_$id'></span>";
         print "</td>";
-        print "<td><input type='checkbox' value='check1' id='check1_$id' />消す</td>";
-        print "<td><input type='checkbox' value='check2' id='check2_$id' />本当に？</td>";
-        print "<td><input type='checkbox' value='check3' id='check3_$id' />本当に消す？</td>";
+        # 削除フローチャート（ゆとらいず工房）https://twitter.com/yutorize/status/1369201449339482112
+        print "<td><input type='checkbox' value='check1' class='check1' id='check1_$id' />転載である</td>";
+        print "<td><input type='checkbox' value='check2' class='check2' id='check2_$id' />ルール外の転載である</td>";
+        print "<td>詳細<br/><textarea rows='15' cols='15' class='check3' id='check3_$id'></textarea></td>";
         print "</tr>";
         $count--;
         $lastNumber = $number;
@@ -60,4 +61,5 @@ foreach (@list) {
 print "</table>";
 Encode::decode('utf8', $PLAYER_QUERY);
 print "<p><a id='goNext' href='./confirmPictures.cgi?from=$lastNumber&count=$FROM_COUNT&player='>次のページに進む</a></p>";
+print "<p style='text-align:right;'><button style='background-color:peachpuff;' id='execDelete'>チェックしたものを削除する</button></p>";
 print "<script src='./confirmPictures.js'></script></body></html>";
