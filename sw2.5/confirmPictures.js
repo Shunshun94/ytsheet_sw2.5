@@ -146,7 +146,7 @@ document.getElementById('execDelete').addEventListener('click', (e)=>{
         ).join('\n');
         const textUrl = window.URL.createObjectURL(new Blob([ reportStr ], { "type" : 'text/plain;charset=utf-8;' }));
         download(`${date}_画像削除実施報告.md`, textUrl);
-        alert(`${deleteTargets.length}件について削除しました`);
+        alert(`${deleteTargets.length}件について削除しました\nキャッシュの削除とハード再読み込み実施してください`);
     }, (err)=>{
         console.error(err);
     });
