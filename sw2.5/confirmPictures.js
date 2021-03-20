@@ -16,7 +16,7 @@ const getJsonData = (id) => {
 const deleteImagePicture = (id, check1='', check2='', check3='') => {
     return new Promise((resolve, reject)=>{
         let xhr = new XMLHttpRequest();
-        xhr.open('POST', `./?id=${id}&mode=img-delete&check1=${check1}&check2=${check2}&check3=${check3}`, true);
+        xhr.open('GET', `./?id=${id}&mode=img-delete&check1=${check1}&check2=${check2}&check3=${check3}&pass=1`, true);
         xhr.onload = (e) => {
             resolve(`succeeded to delete ${id}`);
         };
@@ -60,6 +60,9 @@ for(let i = 0; i < trsLength; i++) {
     getJsonData(target.id).then((json)=>{
         document.getElementById(`image_${target.id}`).src = json.imageURL;
         document.getElementById(`from_${target.id}`).innerHTML = getFromInfo(json);
+        document.getElementById(`name_${target.id}`).textContent = json.characterName;
+        document.getElementById(`user_${target.id}`).textContent = json.playerName;
+        document.getElementById(`user_${target.id}`).setAttribute('href', `./confirmPictures.cgi?player=${json.playerName}`);
     },
     (err)=>{
         console.error(err);
@@ -67,7 +70,7 @@ for(let i = 0; i < trsLength; i++) {
 }
 
 if(getQueries().player) {
-    document.getElementById(`goNext`).href = document.getElementById(`goNext`).href + getQueries().player;
+    document.getElementById(`goNext`).setAttribute('href', `${document.getElementById('goNext').href}${getQueries().player}`);
 }
 
 const updateCheck = (e)=>{
@@ -96,9 +99,13 @@ document.getElementById('execDelete').addEventListener('click', (e)=>{
         Array.from(document.getElementsByClassName('check2')).map((d)=>{return d.checked;})
     ];
     const comments = Array.from(document.getElementsByClassName('check3')).map((d)=>{return d.value;});
+    const names = Array.from(document.getElementsByClassName('name')).map((d)=>{return d.innerText;});
+    const users = Array.from(document.getElementsByClassName('user')).map((d)=>{return d.innerText;});
     const deleteTargets = ids.map((id, i)=>{
         id.check = checkes[0][i] && checkes[1][i];
         id.comment = comments[i];
+        id.name = names[i];
+        id.user = users[i];
         return id;
     }).filter((id, i)=>{
         return id.check && id.comment;
@@ -106,7 +113,8 @@ document.getElementById('execDelete').addEventListener('click', (e)=>{
     Promise.all(deleteTargets.map((target)=>{
         return deleteImagePicture(target.id, target.check, target.check, target.comment);
     })).then((resolve)=>{
-        console.log(resolve);
+        alert(`${deleteTargets.length}件について削除しました`);
+        // console.log(resolve);
     }, (err)=>{
         console.error(err);
     });

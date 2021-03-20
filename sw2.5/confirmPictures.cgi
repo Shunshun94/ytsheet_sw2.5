@@ -42,8 +42,8 @@ foreach (@list) {
   if($image && ( !($PLAYER_QUERY) || ($PLAYER_QUERY eq $player) )) {
       if( (!($FROM) || ($FROM >= $number)) && ($count > 0)) {
         print "<tr title='$number' id='$id' class='hidden_$hide'>";
-        print "<td><a target='_blank' href='./?id=$id'>$name</a></td>";
-        print "<td><a href='./confirmPictures.cgi?player=$player'>$player</a></td>";
+        print "<td><a target='_blank' href='./?id=$id' class='name' id='name_$id'>dummy</a></td>";
+        print "<td><a class='user' id='user_$id'>dummy</a></td>";
         print "<td><img id='image_$id' width='200' height='200' /><br/>";
         print "<span id='from_$id'></span>";
         print "</td>";
@@ -62,4 +62,5 @@ print "</table>";
 Encode::decode('utf8', $PLAYER_QUERY);
 print "<p><a id='goNext' href='./confirmPictures.cgi?from=$lastNumber&count=$FROM_COUNT&player='>次のページに進む</a></p>";
 print "<p style='text-align:right;'><button style='background-color:peachpuff;' id='execDelete'>チェックしたものを削除する</button></p>";
+print "実態は $set::beheaded で置換です";
 print "<script src='./confirmPictures.js'></script></body></html>";
