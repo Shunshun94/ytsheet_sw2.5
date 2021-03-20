@@ -52,8 +52,18 @@ const getFromInfo = (json) => {
     return '<span style="color:red;">出典情報なし</span>';
 };
 
+const removeNoImageSheet = (e) => {
+    const id = e.target.id.replace('image_', '');
+    const target = document.getElementById(id);
+    target.parentNode.removeChild(target);
+};
+
 const trs = document.getElementsByTagName('tr');
 const trsLength = trs.length;
+
+
+
+Array.from(document.getElementsByClassName('image')).forEach((elem)=>{elem.addEventListener('error', removeNoImageSheet);});
 
 for(let i = 0; i < trsLength; i++) {
     const target = trs[i];

@@ -44,7 +44,7 @@ foreach (@list) {
         print "<tr title='$number' id='$id' class='hidden_$hide'>";
         print "<td><a target='_blank' href='./?id=$id' class='name' id='name_$id'>dummy</a></td>";
         print "<td><a class='user' id='user_$id'>dummy</a></td>";
-        print "<td><img id='image_$id' width='200' height='200' /><br/>";
+        print "<td><img class='image' id='image_$id' width='200' height='200' /><br/>";
         print "<span id='from_$id'></span>";
         print "</td>";
         # 削除フローチャート（ゆとらいず工房）https://twitter.com/yutorize/status/1369201449339482112
