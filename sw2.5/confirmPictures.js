@@ -86,6 +86,20 @@ const updateCheck = (e)=>{
     }
 };
 
+const download = (title, url) => {
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.download = title;
+    a.href = url;
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+};
+
+const convertDateFormat = (date) => {
+    return `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+};
+
 Array.from(document.getElementsByClassName('check1')).forEach((elem)=>{elem.addEventListener('input', updateCheck);});
 Array.from(document.getElementsByClassName('check2')).forEach((elem)=>{elem.addEventListener('input', updateCheck);});
 Array.from(document.getElementsByClassName('check3')).forEach((elem)=>{elem.addEventListener('input', updateCheck);});
@@ -113,8 +127,25 @@ document.getElementById('execDelete').addEventListener('click', (e)=>{
     Promise.all(deleteTargets.map((target)=>{
         return deleteImagePicture(target.id, target.check, target.check, target.comment);
     })).then((resolve)=>{
+        const date = convertDateFormat(new Date());
+        const reportStr = [`# ${date} 画像削除実施報告`].concat(
+            deleteTargets.sort((a,b)=>{
+                return a.user > b.user;
+            }).map((target)=>{
+                return [
+                    `## ${target.id} (${target.number})`,
+                    '### キャラクター名',
+                    target.name,
+                    '### ユーザ名',
+                    target.user,
+                    '### 事由',
+                    target.comment
+                ];
+            }).flat()
+        ).join('\n');
+        const textUrl = window.URL.createObjectURL(new Blob([ reportStr ], { "type" : 'text/plain;charset=utf-8;' }));
+        download(`${date}_画像削除実施報告.md`, textUrl);
         alert(`${deleteTargets.length}件について削除しました`);
-        // console.log(resolve);
     }, (err)=>{
         console.error(err);
     });
