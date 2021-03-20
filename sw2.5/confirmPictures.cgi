@@ -62,5 +62,4 @@ print "</table>";
 Encode::decode('utf8', $PLAYER_QUERY);
 print "<p><a id='goNext' href='./confirmPictures.cgi?from=$lastNumber&count=$FROM_COUNT&player='>次のページに進む</a></p>";
 print "<p style='text-align:right;'><button style='background-color:peachpuff;' id='execDelete'>チェックしたものを削除する</button></p>";
-print "実態は $set::beheaded で置換です";
 print "<script src='./confirmPictures.js'></script></body></html>";
