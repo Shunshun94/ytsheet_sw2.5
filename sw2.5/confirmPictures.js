@@ -133,6 +133,7 @@ document.getElementById('execDelete').addEventListener('click', (e)=>{
                 return a.user > b.user;
             }).map((target)=>{
                 return [
+                    '',
                     `## ${target.id} (${target.number})`,
                     '### キャラクター名',
                     target.name,
