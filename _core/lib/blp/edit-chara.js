@@ -1,9 +1,10 @@
 "use strict";
-const gameSystem = 'sw2';
+const gameSystem = 'blp';
 
 // ----------------------------------------
 window.onload = function() {
   
+  nameSet();
   calcGrow();
   changeFactor();
   

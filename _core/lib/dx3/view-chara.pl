@@ -203,15 +203,10 @@ if($::in{'url'}){
   $SHEET->param("convertUrl" => $::in{'url'});
 }
 ### キャラクター名 --------------------------------------------------
-{
-  my($name, $ruby) = split(/:/,$pc{'characterName'});
-  $SHEET->param("characterName" => "<ruby>$name<rt>$ruby</rt></ruby>") if $ruby;
-}
+$SHEET->param("characterName" => "<ruby>$pc{'characterName'}<rt>$pc{'characterNameRuby'}</rt></ruby>") if $pc{'characterNameRuby'};
 ### 二つ名 --------------------------------------------------
-{
-  my($aka, $ruby) = split(/:/,$pc{'aka'});
-  $SHEET->param("aka" => "<ruby>$aka<rt>$ruby</rt></ruby>") if $ruby;
-}
+$SHEET->param("aka" => "<ruby>$pc{'aka'}<rt>$pc{'akaRuby'}</rt></ruby>") if $pc{'akaRuby'};
+
 ### プレイヤー名 --------------------------------------------------
 if($set::playerlist){
   my $pl_id = (split(/-/, $::in{'id'}))[0];
@@ -252,6 +247,9 @@ $pc{'words'} =~ s/\n/<br>/g;
 $SHEET->param("words" => $pc{'words'});
 $SHEET->param("wordsX" => ($pc{'wordsX'} eq '左' ? 'left:0;' : 'right:0;'));
 $SHEET->param("wordsY" => ($pc{'wordsY'} eq '下' ? 'bottom:0;' : 'top:0;'));
+
+### ステージ --------------------------------------------------
+if($pc{'stage'} =~ /クロウリングケイオス/){ $SHEET->param(ccOn => 1); }
 
 ### ブリード --------------------------------------------------
 $SHEET->param("breed" => 
@@ -396,6 +394,24 @@ sub textShrink {
   return $text;
 }
 
+### 術式 --------------------------------------------------
+my @magics;
+foreach (1 .. $pc{'magicNum'}){
+  next if(
+    !$pc{'magic'.$_.'Name'}     && !$pc{'magic'.$_.'Type'}     && !$pc{'magic'.$_.'Exp'} &&
+    !$pc{'magic'.$_.'Activate'} && !$pc{'magic'.$_.'Encroach'} && !$pc{'magic'.$_.'Note'} 
+  );
+  push(@magics, {
+    "NAME"     => $pc{'magic'.$_.'Name'},
+    "TYPE"     => textShrink(5,5,5,5,$pc{'magic'.$_.'Type'}),
+    "EXP"      => $pc{'magic'.$_.'Exp'},
+    "ACTIVATE" => $pc{'magic'.$_.'Activate'},
+    "ENCROACH" => $pc{'magic'.$_.'Encroach'},
+    "NOTE"     => $pc{'magic'.$_.'Note'},
+  });
+}
+$SHEET->param(Magics => \@magics);
+
 ### コンボ --------------------------------------------------
 my @combos;
 foreach (1 .. $pc{'comboNum'}){
@@ -446,11 +462,11 @@ $SHEET->param(Combos => \@combos);
 sub textCombo {
   my $text = shift;
   if($text =~ /《.*?》/){
-    $text =~ s#(《.*?》)#<span>$1</span>#g
+    $text =~ s#(《.*?》)#<span class="thin">$1</span>#g
   }
   elsif($text){
     my @array = split(/[+＋]/, $text);
-    $text = '<span>'.join('</span>+<span>',@array).'</span>';
+    $text = '<span class="thin">'.join('</span>＋<span class="thin">',@array).'</span>';
   }
   
   return $text;

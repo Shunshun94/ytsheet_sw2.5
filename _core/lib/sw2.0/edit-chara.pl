@@ -140,8 +140,7 @@ Content-type: text/html\n
 
   <main>
     <article>
-      <aside class="message">$message</aside>
-      <form name="sheet" method="post" action="./" enctype="multipart/form-data">
+      <form name="sheet" method="post" action="./" enctype="multipart/form-data" onsubmit="return formCheck();">
       <input type="hidden" name="ver" value="${main::ver}">
 HTML
 if($mode_make){
@@ -149,28 +148,46 @@ if($mode_make){
 }
 print <<"HTML";
       <input type="hidden" name="mode" value="@{[ $mode eq 'edit' ? 'save' : 'make' ]}">
-      <div id="area-name">
-        <div id="character-name">
-          <div>キャラクター名@{[input('characterName','text','','required')]}</div>
-          <div>二つ名　　　　@{[input('aka','text','','placeholder="漢字:ルビ　（※「:」は半角）"')]}</div>
-        </div>
-        <div>
-        <p id="update-time"></p>
-        <p id="player-name">プレイヤー名@{[input('playerName')]}</p>
-        </div>
+      
+      <div id="header-menu">
+        <h2><span></span></h2>
+        <ul>
+          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span></li>
+          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>
+          <li onclick="sectionSelect('color');"><span>カラー</span><span>カスタム</span></li>
+          <li class="button">
 HTML
 if($mode eq 'edit'){
 print <<"HTML";
-        <input type="button" value="複製" onclick="window.open('./?mode=copy&id=$::in{'id'}@{[ $::in{'backup'}?"&backup=$::in{'backup'}":'' ]}');">
+            <input type="button" value="複製" onclick="window.open('./?mode=copy&id=$::in{'id'}@{[  $::in{'backup'}?"&backup=$::in{'backup'}":'' ]}');">
 HTML
 }
 print <<"HTML";
-        <input type="submit" value="保存">
-        <ul id="header-menu">
-          <li onclick="sectionSelect('common');">キャラクターデータ</li>
-          <li onclick="sectionSelect('palette');">チャットパレット</li>
-          <li onclick="sectionSelect('color');">カラーカスタム</li>
+            <input type="submit" value="保存">
+          </li>
         </ul>
+      </div>
+
+      <aside class="message">$message</aside>
+      
+      <section id="section-common">
+      <div class="box" id="name-form">
+        <div>
+          <dl id="character-name">
+            <dt>キャラクター名</dt>
+            <dd>@{[input('characterName','text',"nameSet")]}</dd>
+          </dl>
+          <dl id="aka">
+            <dt>二つ名</dt>
+            <dd>@{[input('aka','text',"nameSet")]}</dd>
+            <dt class="ruby">フリガナ</dt>
+            <dd>@{[input('akaRuby','text',"nameSet")]}</dd>
+          </dl>
+        </div>
+        <dl id="player-name">
+          <dt>プレイヤー名</dt>
+          <dd>@{[input('playerName')]}</dd>
+        </dl>
       </div>
 HTML
 if($set::user_reqd){
@@ -205,7 +222,6 @@ HTML
 HTML
 }
   print <<"HTML";
-      <section id="section-common">
       <dl class="box" id="hide-options">
         <dt>閲覧可否設定</dt>
         <dd id="forbidden-checkbox">
@@ -1345,7 +1361,7 @@ print <<"HTML";
               <td>@{[input("history${num}Exp",'text','calcExp')]}</td>
               <td>@{[input("history${num}Honor",'text','calcHonor')]}</td>
               <td>@{[input("history${num}Money",'text','calcCash')]}</td>
-              <td>@{[input("history${num}Grow",'text','','list="list-grow"')]}</td>
+              <td>@{[input("history${num}Grow",'text','calcStt','list="list-grow"')]}</td>
               <td>@{[input("history${num}Gm")]}</td>
               <td>@{[input("history${num}Member")]}</td>
             </tr>
@@ -1355,7 +1371,17 @@ HTML
 }
 print <<"HTML";
           <tfoot>
-            <tr><th></th><th>日付</th><th>タイトル</th><th>経験点</th><th>GM</th><th>参加者</th></tr>
+            <tr>
+              <th></th>
+              <th>日付</th>
+              <th>タイトル</th>
+              <th>経験点</th>
+              <th>名誉点</th>
+              <th>ガメル</th>
+              <th>成長<span id="history-grow-total">(<span id="history-grow-total-value"></span><span id="history-grow-max-value"></span>)</th>
+              <th>GM</th>
+              <th>参加者</th>
+            </tr>
           </tfoot>
         </table>
         <div class="add-del-button"><a onclick="addHistory()">▼</a><a onclick="delHistory()">▲</a></div>
@@ -1393,7 +1419,6 @@ print <<"HTML";
         ※成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
         　また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
         　<code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
-        ※成長はリアルタイムでの自動計算はされません。反映するには一度保存してください。
         </div>
       </div>
       </section>
@@ -1570,12 +1595,6 @@ print <<"HTML";
 HTML
 print 'const featsLv = ["'. join('","', @set::feats_lv) . '"];'."\n";
 foreach (
-  'sttHistGrowA',
-  'sttHistGrowB',
-  'sttHistGrowC',
-  'sttHistGrowD',
-  'sttHistGrowE',
-  'sttHistGrowF',
   'raceAbilityDef',
   'raceAbilityMp',
   'raceAbilityMndResist',
