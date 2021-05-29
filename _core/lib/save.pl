@@ -229,10 +229,10 @@ sub passfile_write_save {
     if ($data[0] eq $id){
       my $passwrite = $data[1];
       if   ($protect eq 'account')  {
-        if($passwrite !~ /\[.+?\]/) { $passwrite = '['.$LOGIN_ID.']'; }
+        if($passwrite !~ /^\[.+?\]$/) { $passwrite = '['.$LOGIN_ID.']'; }
       }
       elsif($protect eq 'password') {
-        if(!$passwrite || $passwrite =~ /\[.+?\]/) { $passwrite = e_crypt($pass); }
+        if(!$passwrite || $passwrite =~ /^\[.+?\]$/) { $passwrite = e_crypt($pass); }
       }
       elsif($protect eq 'none') {
         $passwrite = '';
@@ -284,18 +284,12 @@ sub list_save {
   flock($FH, 2);
   my @list = sort { (split(/<>/,$b))[3] cmp (split(/<>/,$a))[3] } <$FH>;
   seek($FH, 0, 0);
-  my $listhit;
+  print $FH "$newline\n";
   foreach (@list){
     my( $id, undef ) = split /<>/;
-    if ($id eq $pc{'id'}){
-      print $FH "$newline\n";
-      $listhit = 1;
-    }else{
+    if ($id ne $pc{'id'}){
       print $FH $_;
     }
-  }
-  if(!$listhit){
-    print $FH "$newline\n";
   }
   truncate($FH, tell($FH));
   close($FH);
