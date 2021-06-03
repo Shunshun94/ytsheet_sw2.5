@@ -4,7 +4,6 @@ use strict;
 use utf8;
 use open ":utf8";
 use feature 'say';
-use Encode;
 use JSON::PP;
 
 my $LOGIN_ID = $::LOGIN_ID;
@@ -44,7 +43,7 @@ if($mode eq 'edit' || ($mode eq 'convert' && $pc{'ver'})){
     foreach (sort keys %{$pc{'updateMessage'}}){
       $message .= '<dt>'.$_.'</dt><dd>'.$pc{'updateMessage'}{$_}.'</dd>';
     }
-    (my $lasttimever = $pc{'ver'}) =~ s/([0-9]{3})$/\.$1/;
+    (my $lasttimever = $pc{'lasttimever'}) =~ s/([0-9]{3})$/\.$1/;
     $message .= "</dl><small>前回保存時のバージョン:$lasttimever</small>";
   }
 }
@@ -58,7 +57,7 @@ elsif($mode eq 'blanksheet' && !$::make_error){
   
   if($::in{'stt'}){
     ($pc{'sttBaseTec'}, $pc{'sttBasePhy'}, $pc{'sttBaseSpi'}, $pc{'sttBaseA'}, $pc{'sttBaseB'}, $pc{'sttBaseC'}, $pc{'sttBaseD'}, $pc{'sttBaseE'}, $pc{'sttBaseF'}) = split(/_/, $::in{'stt'});
-    $pc{'race'} = Encode::decode('utf8', $::in{'race'});
+    $pc{'race'} = decode('utf8', $::in{'race'});
     $pc{'race'} = 'ナイトメア（人間）' if $pc{'race'} eq 'ナイトメア';
     $pc{'race'} = 'ウィークリング（ガルーダ）' if $pc{'race'} eq 'ウィークリング';
   }

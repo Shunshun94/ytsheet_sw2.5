@@ -4,7 +4,6 @@ use strict;
 use utf8;
 use open ":utf8";
 use feature 'say';
-use Encode;
 use JSON::PP;
 
 my $LOGIN_ID = $::LOGIN_ID;
@@ -44,7 +43,7 @@ if($mode eq 'edit' || ($mode eq 'convert' && $pc{'ver'})){
     foreach (sort keys %{$pc{'updateMessage'}}){
       $message .= '<dt>'.$_.'</dt><dd>'.$pc{'updateMessage'}{$_}.'</dd>';
     }
-    (my $lasttimever = $pc{'ver'}) =~ s/([0-9]{3})$/\.$1/;
+    (my $lasttimever = $pc{'lasttimever'}) =~ s/([0-9]{3})$/\.$1/;
     $message .= "</dl><small>前回保存時のバージョン:$lasttimever</small>";
   }
 }

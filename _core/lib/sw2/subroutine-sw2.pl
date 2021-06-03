@@ -3,7 +3,6 @@ use strict;
 use utf8;
 use open ":utf8";
 use CGI::Cookie;
-use Encode qw/encode decode/;
 use List::Util qw/max min/;
 use Fcntl;
 
@@ -186,6 +185,7 @@ sub data_update_chara {
     ($pc{'aka'},$pc{'akaRuby'}) = split(':', $pc{'aka'});
   }
   $pc{'ver'} = $main::ver;
+  $pc{'lasttimever'} = $ver;
   return %pc;
 }
 

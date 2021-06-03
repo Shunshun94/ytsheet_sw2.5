@@ -3,7 +3,6 @@ use strict;
 use utf8;
 use open ":utf8";
 use CGI::Cookie;
-use Encode qw/encode decode/;
 use List::Util qw/max min/;
 use Fcntl;
 
@@ -54,12 +53,14 @@ sub tag_unescape_ytc {
 ### バージョンアップデート --------------------------------------------------
 sub data_update_chara {
   my %pc = %{$_[0]};
-  $pc{'ver'} =~ s/^([0-9]+)\.([0-9]+)\.([0-9]+)$/$1.$2$3/;
-  if($pc{'ver'} < 1.13002){
+  my $ver = $pc{'ver'};
+  $ver =~ s/^([0-9]+)\.([0-9]+)\.([0-9]+)$/$1.$2$3/;
+  if($ver < 1.13002){
     ($pc{'characterName'},$pc{'characterNameRuby'}) = split(':', $pc{'characterName'});
     ($pc{'aka'},$pc{'akaRuby'}) = split(':', $pc{'aka'});
   }
   $pc{'ver'} = $main::ver;
+  $pc{'lasttimever'} = $ver;
   return %pc;
 }
 
