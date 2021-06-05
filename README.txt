@@ -4,6 +4,9 @@
 ##    https://yutorize.2-d.jp     ##
 ####################################
 
+Develop から forEnjoySwServer へのマージショートカット
+https://github.com/Shunshun94/ytsheet_sw2.5/compare/forEnjoySwServer...yutorize:develop
+
 ### 設置の手順 #######################################################################################
  1. config.cgi.defaultのファイル名をconfig.cgiに変更する（.defaultを消す）
 
