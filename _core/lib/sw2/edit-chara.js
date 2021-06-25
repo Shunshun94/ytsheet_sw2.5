@@ -212,25 +212,12 @@ function checkRace(){
   raceAbilityMp        = 0;
   raceAbilityMagicPower= 0;
   
-  document.getElementById("classFig").classList.remove('fail');
-  document.getElementById("classGra").classList.remove('fail');
-  document.getElementById("classFen").classList.remove('fail');
-  document.getElementById("classSho").classList.remove('fail');
-  document.getElementById("classSor").classList.remove('fail');
-  document.getElementById("classCon").classList.remove('fail');
-  document.getElementById("classPri").classList.remove('fail');
-  document.getElementById("classFai").classList.remove('fail');
-  document.getElementById("classMag").classList.remove('fail');
-  document.getElementById("classSco").classList.remove('fail');
-  document.getElementById("classRan").classList.remove('fail');
-  document.getElementById("classSag").classList.remove('fail');
-  document.getElementById("classEnh").classList.remove('fail');
-  document.getElementById("classBar").classList.remove('fail');
-  document.getElementById("classRid").classList.remove('fail');
-  document.getElementById("classAlc").classList.remove('fail');
+  for (const name of ['Fig', 'Gra', 'Fen', 'Sho', 'Sor', 'Con', 'Pri', 'Fai', 'Mag', 'Dru', 'Sco', 'Ran', 'Sag', 'Enh', 'Bar', 'Rid','Alc']) {
+    document.getElementById("class"+name).classList.remove('fail');
+  }
+  
   if(AllClassOn) document.getElementById("classWar").classList.remove('fail');
   if(AllClassOn) document.getElementById("classMys").classList.remove('fail');
-  if(AllClassOn) document.getElementById("classDem").classList.remove('fail');
   if(AllClassOn) document.getElementById("classPhy").classList.remove('fail');
   if(AllClassOn) document.getElementById("classGri").classList.remove('fail');
   if(AllClassOn) document.getElementById("classArt").classList.remove('fail');
@@ -270,6 +257,7 @@ function checkRace(){
       raceAbilityMp += 30;
     }
     document.getElementById("race-ability-def-name").innerHTML = '晶石の身体';
+    document.getElementById("classEnh").classList.add('fail');
   }
   else if(race === 'フィー'){
     document.getElementById("classPri").classList.add('fail');
@@ -292,7 +280,8 @@ function checkRace(){
     document.getElementById("classPri").classList.add('fail');
     document.getElementById("classFai").classList.add('fail');
     document.getElementById("classMag").classList.add('fail');
-    if(AllClassOn) document.getElementById("classDem").classList.add('fail');
+    document.getElementById("classDru").classList.add('fail');
+    document.getElementById("classDem").classList.add('fail');
     if(AllClassOn) document.getElementById("classGri").classList.add('fail');
   }
   else if(race === 'ダークトロール'){
@@ -857,6 +846,8 @@ function checkFeats(){
       else if(feat === "呪歌追加Ⅰ"){ feats['呪歌追加'] = 1; }
       else if(feat === "呪歌追加Ⅱ"){ feats['呪歌追加'] = 2; }
       else if(feat === "呪歌追加Ⅲ"){ feats['呪歌追加'] = 3; }
+      else if(feat === "抵抗強化Ⅰ"){ feats['抵抗強化'] = 1; }
+      else if(feat === "抵抗強化Ⅱ"){ feats['抵抗強化'] = 2; }
       
       cL.remove("fail","hidden");
     }
@@ -917,8 +908,8 @@ function calcSubStt() {
   
   const vitResistBase = level + bonusVit;
   const mndResistBase = level + bonusMnd;
-  const vitResistAutoAdd = 0 + seekerResistAdd;
-  const mndResistAutoAdd = raceAbilityMndResist + seekerResistAdd;
+  const vitResistAutoAdd = 0 + (feats['抵抗強化'] || 0) + seekerResistAdd;
+  const mndResistAutoAdd = raceAbilityMndResist + (feats['抵抗強化'] || 0) + seekerResistAdd;
   document.getElementById("vit-resist-base").innerHTML = vitResistBase;
   document.getElementById("mnd-resist-base").innerHTML = mndResistBase;
   document.getElementById("vit-resist-auto-add").innerHTML = vitResistAutoAdd;
@@ -992,13 +983,13 @@ function calcPackage() {
   const initWar = lv['War'] + bonusAgi;
   let init = initWar > initSco ? initWar : initSco;
       init += Number(form.initiativeAdd.value);
-  document.getElementById("initiative-value").innerHTML   = (lv['Sco'] || lv['War'])  > 0 ? init : 0;
+  document.getElementById("initiative-value").innerHTML = (lv['Sco'] || lv['War']) > 0 ? init : 0;
 }
 
 // 魔力計算 ----------------------------------------
 let magicPowers = {};
 function calcMagic() {
-  const addPower = Number(form.magicPowerAdd.value) + feats['魔力強化'] || 0;
+  const addPower = Number(form.magicPowerAdd.value) + (feats['魔力強化'] || 0);
   document.getElementById("magic-power-magicenhance-value").innerHTML = feats['魔力強化'] || 0;
   const addCast = Number(form.magicCastAdd.value);
   const addDamage = Number(form.magicDamageAdd.value);
@@ -1239,8 +1230,8 @@ function calcArmour(evaBase,defBase,maxReqd) {
     document.getElementById(`defense-total${i}-def`).innerHTML = def;
   }
   
-  form.armour1Reqd.classList.toggle(  'error', (safeEval(form.armour1Reqd.value)   || 0)   > maxReqd);
-  form.shield1Reqd.classList.toggle(  'error', (safeEval(form.shield1Reqd.value)   || 0)   > maxReqd);
+  form.armour1Reqd.classList.toggle(  'error', (safeEval(form.armour1Reqd.value)   || 0) > maxReqd);
+  form.shield1Reqd.classList.toggle(  'error', (safeEval(form.shield1Reqd.value)   || 0) > maxReqd);
   form.defOther1Reqd.classList.toggle('error', (safeEval(form.defOther1Reqd.value) || 0) > maxReqd);
   form.defOther2Reqd.classList.toggle('error', (safeEval(form.defOther2Reqd.value) || 0) > maxReqd);
   form.defOther3Reqd.classList.toggle('error', (safeEval(form.defOther3Reqd.value) || 0) > maxReqd);
