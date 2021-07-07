@@ -36,15 +36,22 @@ sub data_calc {
 
   ### 経験点／名誉点／ガメル計算 --------------------------------------------------
   ## 履歴から 
-  $pc{'moneyTotal'} = 0;
+  $pc{'moneyTotal'}   = 0;
   $pc{'depositTotal'} = 0;
-  $pc{'debtTotal'} = 0;
-  $pc{'honor'} = 0;
-  foreach my $i (0 .. $pc{'historyNum'}){
+  $pc{'debtTotal'}    = 0;
+  $pc{'expTotal'}   = s_eval($pc{"history0Exp"});
+  $pc{'moneyTotal'} = s_eval($pc{"history0Money"});
+  $pc{'honor'}         = s_eval($pc{"history0Honor"});
+  $pc{'honorBarbaros'} = s_eval($pc{"history0HonorB"});
+  $pc{'honorDragon'}   = s_eval($pc{"history0HonorD"});
+  foreach my $i (1 .. $pc{'historyNum'}){
     $pc{'expTotal'} += s_eval($pc{"history${i}Exp"});
     $pc{'moneyTotal'} += s_eval($pc{"history${i}Money"});
-    foreach (split /[|｜]/, $pc{"history${i}Honor"}) {
-      $pc{'honor'} += s_eval($_);
+    
+    if   ($pc{"history${i}HonorType"} eq 'barbaros'){ $pc{'honorBarbaros'} += s_eval($pc{"history${i}Honor"}); }
+    elsif($pc{"history${i}HonorType"} eq 'dragon'  ){ $pc{'honorDragon'}   += s_eval($pc{"history${i}Honor"}); }
+    else {
+      $pc{'honor'} += s_eval($pc{"history${i}Honor"});
     }
   }
   ## 収支履歴計算
@@ -62,12 +69,18 @@ sub data_calc {
     }
     $pc{'honor'} -= $pc{'dishonor'};
     $pc{'honorMax'} = $pc{'honor'};
+    $pc{'honorBarbarosMax'} = $pc{'honorBarbaros'};
+    $pc{'honorDragonMax'}   = $pc{'honorDragon'};
     ## 消費
     foreach (1 .. $pc{'honorItemsNum'}){
-      $pc{'honor'} -= $pc{'honorItem'.$_.'Pt'};
+      if   ($pc{"honorItem${_}PtType"} eq 'barbaros'){ $pc{'honorBarbaros'} -= $pc{'honorItem'.$_.'Pt'}; }
+      elsif($pc{"honorItem${_}PtType"} eq 'dragon'  ){ $pc{'honorDragon'}   -= $pc{'honorItem'.$_.'Pt'}; }
+      else { $pc{'honor'} -= $pc{'honorItem'.$_.'Pt'}; }
     }
     foreach (1 .. $pc{'mysticArtsNum'}){
-      $pc{'honor'} -= $pc{'mysticArts'.$_.'Pt'};
+      if   ($pc{"mysticArts${_}PtType"} eq 'barbaros'){ $pc{'honorBarbaros'} -= $pc{'mysticArts'.$_.'Pt'}; }
+      elsif($pc{"mysticArts${_}PtType"} eq 'dragon'  ){ $pc{'honorDragon'}   -= $pc{'mysticArts'.$_.'Pt'}; }
+      else { $pc{'honor'} -= $pc{'mysticArts'.$_.'Pt'}; }
     }
   }
   ## 名誉点2.5
@@ -100,7 +113,7 @@ sub data_calc {
   }
   
   ### 求道者 --------------------------------------------------
-  $pc{'expRest'} += $expS[$pc{'lvSeeker'}];
+  $pc{'expRest'} -= $expS[$pc{'lvSeeker'}];
   if($pc{'lvSeeker'}){
     $pc{'lvMonster'} = $pc{'level'};
     $pc{'lvMonster'} += $expS[$pc{'lvSeeker'}] >= 90001 ? 7 :
@@ -280,6 +293,7 @@ sub data_calc {
   $pc{'sttMnd'} = $pc{'sttBaseSpi'} + $pc{'sttBaseF'} + $pc{'sttGrowF'};
     # ウィークリング補正
     $pc{'sttAgi'} += 3 if $pc{'race'} eq 'ウィークリング（ガルーダ）';
+    $pc{'sttMnd'} += 3 if $pc{'race'} eq 'ウィークリング（タンノズ）';
     $pc{'sttStr'} += 3 if $pc{'race'} eq 'ウィークリング（ミノタウロス）';
     $pc{'sttInt'} += 3 if $pc{'race'} eq 'ウィークリング（バジリスク）';
     $pc{'sttMnd'} += 3 if $pc{'race'} eq 'ウィークリング（マーマン）';
@@ -328,17 +342,17 @@ sub data_calc {
   if($pc{'lvGra'} >= 7) { push(@abilities, "カウンター"); }
   if($pc{'lvFig'} >=13 || $pc{'lvGra'} >=13) { push(@abilities, "バトルマスター"); }
   if($pc{'lvCaster'} >= 11){ push(@abilities, "ルーンマスター"); }
-  if($pc{'lvSco'} >= 5) { push(@abilities, "トレジャーハント"); }
+  if($pc{'lvSco'} >= 5) { push(@abilities, $pc{'combatFeatsExcSco5'} || "トレジャーハント"); }
   if($pc{'lvSco'} >= 7) { push(@abilities, "ファストアクション"); }
   if($pc{'lvSco'} >=12) { push(@abilities, "トレジャーマスター"); }
   if($pc{'lvSco'} >=15) { push(@abilities, "匠の技"); }
   if($pc{'lvSco'} >= 9) { push(@abilities, "影走り"); }
-  if($pc{'lvRan'} >= 5) { push(@abilities, $::SW2_0?"治癒適性":"サバイバビリティ"); }
+  if($pc{'lvRan'} >= 5) { push(@abilities, $pc{'combatFeatsExcRan5'} || ($::SW2_0?"治癒適性":"サバイバビリティ")); }
   if($pc{'lvRan'} >= 7) { push(@abilities, "不屈"); }
   if($pc{'lvRan'} >= 9) { push(@abilities, "ポーションマスター"); }
   if($pc{'lvRan'} >=12) { push(@abilities, "縮地"); }
   if($pc{'lvRan'} >=15) { push(@abilities, "ランアンドガン"); }
-  if($pc{'lvSag'} >= 5) { push(@abilities, "鋭い目"); }
+  if($pc{'lvSag'} >= 5) { push(@abilities, $pc{'combatFeatsExcSag5'} || "鋭い目"); }
   if($pc{'lvSag'} >= 7) { push(@abilities, "弱点看破"); }
   if($pc{'lvSag'} >= 9) { push(@abilities, "マナセーブ"); }
   if($pc{'lvSag'} >=12) { push(@abilities, "マナ耐性"); }
@@ -379,17 +393,19 @@ sub data_calc {
       elsif($feat eq '呪歌追加Ⅰ')  { $pc{'songAddition'} = 1; }
       elsif($feat eq '呪歌追加Ⅱ')  { $pc{'songAddition'} = 2; }
       elsif($feat eq '呪歌追加Ⅲ')  { $pc{'songAddition'} = 3; }
+      elsif($feat eq '抵抗強化Ⅰ')  { $pc{'resistEnhance'} = 1; }
+      elsif($feat eq '抵抗強化Ⅱ')  { $pc{'resistEnhance'} = 2; }
     }
   }
 
   ### サブステータス --------------------------------------------------
   ## 生命抵抗力
   $pc{'vitResistBase'} = $st{'LvD'};
-  $pc{'vitResistAddTotal'} = s_eval($pc{'vitResistAdd'}) + $pc{'seekerAbilityResist'};
+  $pc{'vitResistAddTotal'} = s_eval($pc{'vitResistAdd'}) + $pc{'resistEnhance'} + $pc{'seekerAbilityResist'};
   $pc{'vitResistTotal'}  = $pc{'vitResistBase'} + $pc{'vitResistAddTotal'};
   ## 精神抵抗力
   $pc{'mndResistBase'} = $st{'LvF'};
-  $pc{'mndResistAddTotal'} = s_eval($pc{'mndResistAdd'}) + $pc{'raceAbilityMndResist'} + $pc{'seekerAbilityResist'};
+  $pc{'mndResistAddTotal'} = s_eval($pc{'mndResistAdd'}) + $pc{'raceAbilityMndResist'} + $pc{'resistEnhance'} + $pc{'seekerAbilityResist'};
   $pc{'mndResistTotal'}  = $pc{'mndResistBase'} + $pc{'mndResistAddTotal'};
   ## ＨＰＭＰ：装飾品
   foreach (
@@ -453,10 +469,17 @@ sub data_calc {
   $pc{'initiative'}  = max(@ini_class) + $pc{'initiativeAdd'};
 
   ## 魔力
-  foreach my $name (@data::class_names){
+  foreach my $name (@data::class_caster){
     next if (!$data::class{$name}{'magic'}{'jName'});
     my $id = $data::class{$name}{'id'};
     $pc{'magicPower'.$id} = $pc{'lv'.$id} ? ( $pc{'lv'.$id} + int(($pc{'sttInt'} + $pc{'sttAddE'} + ($pc{'magicPowerOwn'.$id} ? 2 : 0)) / 6) + $pc{'magicPowerAdd'.$id} + $pc{'magicPowerAdd'} + $pc{'magicPowerEnhance'} ) : 0;
+    
+    if($pc{'race'} eq 'ハイマン'){
+      $pc{'magicPower'.$id} += $pc{'level'} >= 11 ? 2 : 1;
+    }
+    elsif($pc{'race'} =~ /^センティアン/ && $name eq 'プリースト'){
+      $pc{'magicPower'.$id} += $pc{'level'} >= 11 ? 2 : $pc{'level'} >= 6 ? 1 : 0;
+    }
     $pc{'magicPower'.$id} += $pc{'seekerAbilityMagic'} if $pc{'lv'.$id} >= 15; #求道者
   }
   ## 奏力ほか

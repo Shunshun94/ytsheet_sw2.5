@@ -206,30 +206,18 @@ function changeRace(){
 let raceAbilityDef       = 0;
 let raceAbilityMp        = 0;
 let raceAbilityMndResist = 0;
+let raceAbilityMagicPower= 0;
 function checkRace(){
   raceAbilityDef       = 0;
   raceAbilityMp        = 0;
-  raceAbilityMndResist = 0;
+  raceAbilityMagicPower= 0;
   
-  document.getElementById("classFig").classList.remove('fail');
-  document.getElementById("classGra").classList.remove('fail');
-  document.getElementById("classFen").classList.remove('fail');
-  document.getElementById("classSho").classList.remove('fail');
-  document.getElementById("classSor").classList.remove('fail');
-  document.getElementById("classCon").classList.remove('fail');
-  document.getElementById("classPri").classList.remove('fail');
-  document.getElementById("classFai").classList.remove('fail');
-  document.getElementById("classMag").classList.remove('fail');
-  document.getElementById("classSco").classList.remove('fail');
-  document.getElementById("classRan").classList.remove('fail');
-  document.getElementById("classSag").classList.remove('fail');
-  document.getElementById("classEnh").classList.remove('fail');
-  document.getElementById("classBar").classList.remove('fail');
-  document.getElementById("classRid").classList.remove('fail');
-  document.getElementById("classAlc").classList.remove('fail');
+  for (const name of ['Fig', 'Gra', 'Fen', 'Sho', 'Sor', 'Con', 'Pri', 'Fai', 'Mag', 'Dru', 'Sco', 'Ran', 'Sag', 'Enh', 'Bar', 'Rid','Alc']) {
+    document.getElementById("class"+name).classList.remove('fail');
+  }
+  
   if(AllClassOn) document.getElementById("classWar").classList.remove('fail');
   if(AllClassOn) document.getElementById("classMys").classList.remove('fail');
-  if(AllClassOn) document.getElementById("classDem").classList.remove('fail');
   if(AllClassOn) document.getElementById("classPhy").classList.remove('fail');
   if(AllClassOn) document.getElementById("classGri").classList.remove('fail');
   if(AllClassOn) document.getElementById("classArt").classList.remove('fail');
@@ -269,10 +257,22 @@ function checkRace(){
       raceAbilityMp += 30;
     }
     document.getElementById("race-ability-def-name").innerHTML = '晶石の身体';
+    document.getElementById("classEnh").classList.add('fail');
   }
   else if(race === 'フィー'){
     document.getElementById("classPri").classList.add('fail');
     document.getElementById("classMag").classList.add('fail');
+  }
+  else if(race === 'ハイマン'){
+    raceAbilityMagicPower += (level >= 11) ? 2 : 1;
+    document.getElementById("magic-power-raceability-value" ).innerHTML = raceAbilityMagicPower || 0;
+    document.getElementById("magic-power-raceability-name").innerHTML = '魔法の申し子';
+    document.getElementById("magic-power-raceability-type").innerHTML = '魔法全般';
+  }
+  else if(race.match(/^センティアン/)){
+    document.getElementById("magic-power-raceability-value" ).innerHTML = (level >= 11) ? 2 : (level >= 6) ? 1 : 0;
+    document.getElementById("magic-power-raceability-name").innerHTML = race.match('ルミエル') ? '神の御名と共に' : race.match('イグニス') ? '神への礼賛' : race.match('カルディア') ? '神への祈り' : '';
+    document.getElementById("magic-power-raceability-type").innerHTML = '神聖魔法';
   }
   else if(race === 'マナフレア'){
     document.getElementById("classSor").classList.add('fail');
@@ -280,7 +280,8 @@ function checkRace(){
     document.getElementById("classPri").classList.add('fail');
     document.getElementById("classFai").classList.add('fail');
     document.getElementById("classMag").classList.add('fail');
-    if(AllClassOn) document.getElementById("classDem").classList.add('fail');
+    document.getElementById("classDru").classList.add('fail');
+    document.getElementById("classDem").classList.add('fail');
     if(AllClassOn) document.getElementById("classGri").classList.add('fail');
   }
   else if(race === 'ダークトロール'){
@@ -413,6 +414,7 @@ function calcStt() {
   sttMnd = Number(form.sttBaseSpi.value) + Number(form.sttBaseF.value) + growMnd;
   
   if      (race === 'ウィークリング（ガルーダ）')     sttAgi += 3;
+  else if (race === 'ウィークリング（タンノズ）')     sttMnd += 3;
   else if (race === 'ウィークリング（ミノタウロス）') sttStr += 3;
   else if (race === 'ウィークリング（バジリスク）')   sttInt += 3;
   else if (race === 'ウィークリング（マーマン）')     sttMnd += 3;
@@ -462,6 +464,14 @@ function calcStt() {
 let feats = {};
 function checkFeats(){
   feats = {};
+
+  const featsVagrantsOn = form.featsVagrantsOn.checked;
+  const featsZeroOn     = form.featsZeroOn.checked;
+  document.querySelectorAll(`#combat-feats option.vagrants` ).forEach(obj=>{ obj.style.display = featsVagrantsOn ? '' : 'none'; });
+  document.querySelectorAll(`#combat-feats option.zero-data`).forEach(obj=>{ obj.style.display = featsZeroOn     ? '' : 'none'; });
+  document.getElementById('combat-feat-vagrants-sco5').style.display = (featsVagrantsOn && lv['Sco'] >= 5) ? '' : 'none';
+  document.getElementById('combat-feat-vagrants-ran5').style.display = (featsVagrantsOn && lv['Ran'] >= 5) ? '' : 'none';
+  document.getElementById('combat-feat-vagrants-sag5').style.display = (featsVagrantsOn && lv['Sag'] >= 5) ? '' : 'none';
   
   const array = featsLv;
   let acquire = '';
@@ -836,6 +846,8 @@ function checkFeats(){
       else if(feat === "呪歌追加Ⅰ"){ feats['呪歌追加'] = 1; }
       else if(feat === "呪歌追加Ⅱ"){ feats['呪歌追加'] = 2; }
       else if(feat === "呪歌追加Ⅲ"){ feats['呪歌追加'] = 3; }
+      else if(feat === "抵抗強化Ⅰ"){ feats['抵抗強化'] = 1; }
+      else if(feat === "抵抗強化Ⅱ"){ feats['抵抗強化'] = 2; }
       
       cL.remove("fail","hidden");
     }
@@ -896,8 +908,8 @@ function calcSubStt() {
   
   const vitResistBase = level + bonusVit;
   const mndResistBase = level + bonusMnd;
-  const vitResistAutoAdd = 0 + seekerResistAdd;
-  const mndResistAutoAdd = raceAbilityMndResist + seekerResistAdd;
+  const vitResistAutoAdd = 0 + (feats['抵抗強化'] || 0) + seekerResistAdd;
+  const mndResistAutoAdd = raceAbilityMndResist + (feats['抵抗強化'] || 0) + seekerResistAdd;
   document.getElementById("vit-resist-base").innerHTML = vitResistBase;
   document.getElementById("mnd-resist-base").innerHTML = mndResistBase;
   document.getElementById("vit-resist-auto-add").innerHTML = vitResistAutoAdd;
@@ -971,13 +983,13 @@ function calcPackage() {
   const initWar = lv['War'] + bonusAgi;
   let init = initWar > initSco ? initWar : initSco;
       init += Number(form.initiativeAdd.value);
-  document.getElementById("initiative-value").innerHTML   = (lv['Sco'] || lv['War'])  > 0 ? init : 0;
+  document.getElementById("initiative-value").innerHTML = (lv['Sco'] || lv['War']) > 0 ? init : 0;
 }
 
 // 魔力計算 ----------------------------------------
 let magicPowers = {};
 function calcMagic() {
-  const addPower = Number(form.magicPowerAdd.value) + feats['魔力強化'] || 0;
+  const addPower = Number(form.magicPowerAdd.value) + (feats['魔力強化'] || 0);
   document.getElementById("magic-power-magicenhance-value").innerHTML = feats['魔力強化'] || 0;
   const addCast = Number(form.magicCastAdd.value);
   const addDamage = Number(form.magicDamageAdd.value);
@@ -992,7 +1004,10 @@ function calcMagic() {
       if(lv[key]){ openMagic++; }
       
       const seekerMagicAdd = (lvSeeker && checkSeekerAbility('魔力上昇') && lv[key] >= 15) ? 3 : 0;
-      const power = lv[key] + parseInt((sttInt + sttAddE + (form["magicPowerOwn"+key].checked ? 2 : 0)) / 6) + Number(form["magicPowerAdd"+key].value) + addPower + seekerMagicAdd;
+      let power = lv[key] + parseInt((sttInt + sttAddE + (form["magicPowerOwn"+key].checked ? 2 : 0)) / 6) + Number(form["magicPowerAdd"+key].value) + addPower + seekerMagicAdd + raceAbilityMagicPower;
+      if(key === 'Pri' && race.match(/^センティアン/)){
+        power += (level >= 11) ? 2 : (level >= 6) ? 1 : 0;
+      }
       document.getElementById("magic-power-"+eName+"-value").innerHTML  = power;
       document.getElementById("magic-cast-"+eName+"-value").innerHTML   = power + Number(form["magicCastAdd"+key].value) + addCast;
       document.getElementById("magic-damage-"+eName+"-value").innerHTML = Number(form["magicDamageAdd"+key].value) + addDamage;
@@ -1023,7 +1038,8 @@ function calcMagic() {
   });
   // 全体／その他の開閉
   document.getElementById("magic-power").style.display = (openMagic || openCraft) ? '' : 'none';
-  
+
+  document.getElementById("magic-power-raceability" ).style.display = race.match(/^ハイマン|^センティアン/)  ? '' : 'none';
   document.getElementById("magic-power-magicenhance").style.display = feats['魔力強化']      ? '' : 'none';
   document.getElementById("magic-power-common"      ).style.display = openMagic              ? '' : 'none';
   document.getElementById("magic-power-hr"          ).style.display = openMagic && openCraft ? '' : 'none';
@@ -1214,8 +1230,8 @@ function calcArmour(evaBase,defBase,maxReqd) {
     document.getElementById(`defense-total${i}-def`).innerHTML = def;
   }
   
-  form.armour1Reqd.classList.toggle(  'error', (safeEval(form.armour1Reqd.value)   || 0)   > maxReqd);
-  form.shield1Reqd.classList.toggle(  'error', (safeEval(form.shield1Reqd.value)   || 0)   > maxReqd);
+  form.armour1Reqd.classList.toggle(  'error', (safeEval(form.armour1Reqd.value)   || 0) > maxReqd);
+  form.shield1Reqd.classList.toggle(  'error', (safeEval(form.shield1Reqd.value)   || 0) > maxReqd);
   form.defOther1Reqd.classList.toggle('error', (safeEval(form.defOther1Reqd.value) || 0) > maxReqd);
   form.defOther2Reqd.classList.toggle('error', (safeEval(form.defOther2Reqd.value) || 0) > maxReqd);
   form.defOther3Reqd.classList.toggle('error', (safeEval(form.defOther3Reqd.value) || 0) > maxReqd);
@@ -1300,7 +1316,9 @@ function calcHonor(){
   document.getElementById("honor-value-MA").innerHTML = pointTotal;
   document.getElementById("rank-honor-value").innerHTML = rankNum;
   document.getElementById("mystic-arts-honor-value").innerHTML = mysticArtsPt;
+  document.getElementById('honor-items-mystic-arts').style.display = mysticArtsPt ? '' : 'none';
 }
+// 不名誉点計算
 function calcDishonor(){
   let pointTotal = 0;
   const dishonorItemsNum = form.dishonorItemsNum.value;
@@ -1446,6 +1464,7 @@ function delMysticArts(){
     num--;
     form.mysticArtsNum.value = num;
   }
+  calcHonor();
 }
 // ソート
 let mysticArtsSortable = Sortable.create(document.querySelector('#mystic-arts-list'), {
@@ -1601,7 +1620,7 @@ function addWeapons(copy){
   for(let i = 0; i < classes.length; i++){
     let op = document.createElement("option");
     op.text = classes[i];
-    op.selected = categories[i] === ini.category ? true : false;
+    op.selected = classes[i] === ini.class ? true : false;
     form["weapon"+num+"Class"].appendChild(op);
   }
   
@@ -1680,6 +1699,7 @@ function delHonorItems(){
     num--;
     form.honorItemsNum.value = num;
   }
+  calcHonor();
 }
 // ソート
 let honorSortable = Sortable.create(document.querySelector('#honor-items-table tbody'), {
@@ -1728,6 +1748,7 @@ function delDishonorItems(){
     num--;
     form.dishonorItemsNum.value = num;
   }
+  calcDishonor();
 }
 // ソート
 let dishonorSortable = Sortable.create(document.querySelector('#dishonor-items-table tbody'), {

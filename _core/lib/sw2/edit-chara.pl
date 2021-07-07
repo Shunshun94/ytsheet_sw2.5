@@ -475,8 +475,13 @@ foreach my $lv (@set::feats_lv) {
       next if $lv < @$feats[1];
       next if $type ne @$feats[0];
       next if @$feats[3] =~ /2.0/ && !$set::all_class_on;
-      if(@$feats[3] =~ /2.0/){
+      if(@$feats[3] =~ /ヴァグランツ/){
+        print '<option class="vagrants"'.(($pc{"combatFeatsLv$lv"} eq @$feats[2])?' selected':'').' value="'.@$feats[2].'">'.@$feats[2];
+        $pc{'featsVagrantsOn'} = 1 if $pc{"combatFeatsLv$lv"} eq @$feats[2];
+      }
+      elsif(@$feats[3] =~ /2.0/){
         print '<option class="zero-data"'.(($pc{"combatFeatsLv$lv"} eq @$feats[2])?' selected':'').' value="'.@$feats[2].'">[2.0]'.@$feats[2];
+        $pc{'featsZeroOn'} = 1 if $pc{"combatFeatsLv$lv"} eq @$feats[2];
       }
       else { print '<option'.(($pc{"combatFeatsLv$lv"} eq @$feats[2])?' selected':'').'>'.@$feats[2]; }
     }
@@ -486,8 +491,19 @@ foreach my $lv (@set::feats_lv) {
 }
 print <<"HTML";
             </ul>
-            <p>置き換え可能な場合<span class="mark">この表示</span>になります。</p>
-            <p>@{[ input 'featsAutoOn','checkbox','checkFeats' ]}自動置き換え（非推奨）</p>
+            <ul id="combat-feat-vagrants-auto">
+              <li id="combat-feat-vagrants-sco5" data-label="スカウト5"  ><select name="combatFeatsExcSco5">@{[ option 'combatFeatsExcSco5', 'def=トレジャーハント','掠め取り','クルードテイク' ]}</select></li>
+              <li id="combat-feat-vagrants-ran5" data-label="レンジャー5"><select name="combatFeatsExcRan5">@{[ option 'combatFeatsExcRan5', 'def=サバイバビリティ','掠め取り','クルードテイク' ]}</select></li>
+              <li id="combat-feat-vagrants-sag5" data-label="セージ5"    ><select name="combatFeatsExcSag5">@{[ option 'combatFeatsExcSag5', 'def=鋭い目','掠め取り','クルードテイク' ]}</select></li>
+            </ul>
+            <div class="feats-options">
+              <ul>
+                <li>@{[ input 'featsVagrantsOn','checkbox','checkFeats' ]}<span>ヴァグランツ戦闘特技を追加</span></li>
+                <li>@{[ input 'featsZeroOn','checkbox','checkFeats' ]}<span>2.0戦闘特技を追加</span></li>
+                <li>@{[ input 'featsAutoOn','checkbox','checkFeats' ]}<span>特技自動置き換え（非推奨）</span></li>
+              </ul>
+            </div>
+            <p>置き換え可能な場合<span class="mark">強調</span>されます。</p>
           </div>
           <div class="box" id="mystic-arts" @{[ display $set::mystic_arts_on ]}>
             <h2>秘伝</h2>
@@ -712,6 +728,14 @@ print <<"HTML";
               <th></th><th></th><th>専用化</th><th>魔力／奏力</th><th>行使<small>／演奏など</small></th><th class="small">ダメージ<br>上昇効果</th>
             </tr>
             </thead>
+            <tr id="magic-power-raceability">
+              <td>［<span id="magic-power-raceability-name"></span>］</td>
+              <td id="magic-power-raceability-type"></td>
+              <td></td>
+              <td class="center">+<span id="magic-power-raceability-value">0</span></td>
+              <td></td>
+              <td></td>
+            </tr>
             <tr id="magic-power-magicenhance">
               <td>《魔力強化》</td>
               <td>魔法全般</td>
@@ -1201,7 +1225,7 @@ print <<"HTML";
               </thead>
               <tbody>
                 <tr><td class="center" colspan="2">冒険者ランク</td><td id="rank-honor-value">0</td></tr>
-                <tr @{[ display $set::mystic_arts_on ]}><td class="center" class="center" colspan="2">秘伝</td><td id="mystic-arts-honor-value">0</td></tr>
+                <tr id="honor-items-mystic-arts" @{[ display $set::mystic_arts_on ]}><td class="center" class="center" colspan="2">秘伝</td><td id="mystic-arts-honor-value">0</td></tr>
 HTML
 foreach my $num (1 .. $pc{'honorItemsNum'}){
   print '<tr id="honor-item'.$num.'"><td class="handle"></td><td>'.(input "honorItem${num}", "text").'</td><td>'.(input "honorItem${num}Pt", "number", "calcHonor").'</td></tr>';
@@ -1748,7 +1772,7 @@ function calcPointBuy() {
   const E = Number(form.sttBaseE.value);
   const F = Number(form.sttBaseF.value);
   
-  const _race = race.match(/ナイトメア/) ? 'ナイトメア' : race;
+  const _race = race.match(/(ナイトメア|ウィークリング)/) ? RegExp.\$1 : race;
   
   let ptA;
   let ptB;
