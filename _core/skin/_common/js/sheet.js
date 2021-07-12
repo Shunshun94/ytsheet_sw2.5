@@ -79,15 +79,21 @@ function downloadFile(title, url) {
   URL.revokeObjectURL(url);
 }
 
-function getAbsoluteUrl(path) {
-  const dummyLink = document.createElement('a');
-  dummyLink.href = path;
-  return dummyLink.href;
+function copyToClipboard(text) {
+  // navigator.clipboard.writeText(text); は許可されていなければ動作せず、
+  // 非 SSL で繋いでいる場合は許可することすらできないので利用できない。
+  const textarea = document.createElement('textarea');
+  document.getElementById('downloadlist').appendChild(textarea);
+  textarea.value = text;
+  textarea.focus();
+  textarea.setSelectionRange(0, textarea.value.length);
+  document.execCommand('copy');
+  textarea.remove();
 }
 
 async function downloadAsUdonarium() {
   const characterDataJson = await getJsonData();
-  const characterId = characterDataJson.birthTime;
+  const characterId = characterDataJson.characterName || characterDataJson.monsterName || characterDataJson.aka || '無題';
   const image = await io.github.shunshun94.trpg.ytsheet.getPicture(characterDataJson.imageURL || defaultImage);
   const udonariumXml = io.github.shunshun94.trpg.udonarium[`generateCharacterXmlFromYtSheet2${generateType}`](characterDataJson, location.href, image.hash);
   const udonariumUrl = await generateUdonariumZipFile((characterDataJson.characterName||characterDataJson.aka), udonariumXml, image);
@@ -96,10 +102,9 @@ async function downloadAsUdonarium() {
 
 async function downloadAsCcfolia() {
   const characterDataJson = await getJsonData();
-  console.log(`generateCharacterJsonFromYtSheet2${generateType}`);
   const json = io.github.shunshun94.trpg.ccfolia[`generateCharacterJsonFromYtSheet2${generateType}`](characterDataJson, location.href);
   json.then((result)=>{
-    navigator.clipboard.writeText(result);
+    copyToClipboard(result);
     alert('クリップボードにコピーしました。ココフォリアにペーストすることでデータを取り込めます');
   });
   
@@ -107,7 +112,7 @@ async function downloadAsCcfolia() {
 
 async function donloadAsText() {
   const characterDataJson = await getJsonData();
-  const characterId = characterDataJson.birthTime;
+  const characterId = characterDataJson.characterName || characterDataJson.monsterName || characterDataJson.aka || '無題';
   const textData = io.github.shunshun94.trpg.ytsheet[`generateCharacterTextFromYtSheet2${generateType}`](characterDataJson);
   const textUrl = window.URL.createObjectURL(new Blob([ textData ], { "type" : 'text/plain;charset=utf-8;' }));
   downloadFile(`data_${characterId}.txt`, textUrl);
@@ -115,7 +120,7 @@ async function donloadAsText() {
 
 async function donloadAsJson() {
   const characterDataJson = await getJsonData();
-  const characterId = characterDataJson.birthTime;
+  const characterId = characterDataJson.characterName || characterDataJson.monsterName || characterDataJson.aka || '無題';
   const jsonUrl = window.URL.createObjectURL(new Blob([ JSON.stringify(characterDataJson) ], { "type" : 'text/json;charset=utf-8;' }));
   downloadFile(`data_${characterId}.json`, jsonUrl);
 }

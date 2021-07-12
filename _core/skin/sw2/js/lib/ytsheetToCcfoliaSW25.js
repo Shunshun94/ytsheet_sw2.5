@@ -167,4 +167,3 @@ io.github.shunshun94.trpg.ccfolia.generateCharacterJsonFromYtSheet2SwordWorld2En
 	result.data = character;
 	return JSON.stringify(result);
 };
-
