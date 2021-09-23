@@ -1255,6 +1255,7 @@ function calcExp(){
   }
   document.getElementById("exp-rest").innerHTML = expTotal - expUse;
   document.getElementById("exp-total").innerHTML = expTotal;
+  document.getElementById("history-exp-total").innerHTML = expTotal;
   
   // 最大成長回数
   let growMax = 0;
@@ -1271,7 +1272,7 @@ function calcExp(){
   else if(growType === 'O') {
     growMax = Math.floor((expTotal - 3000) / 1000);
   }
-  else { document.getElementById('history-grow-total').style.display = 'none'; return; }
+  else { return; }
   document.getElementById("stt-grow-max-value").innerHTML = ' / ' + growMax;
   document.getElementById("history-grow-max-value").innerHTML = '/' + growMax;
 }
@@ -1280,12 +1281,8 @@ function calcExp(){
 // 名誉点計算 ----------------------------------------
 function calcHonor(){
   let pointTotal = 0;
-  let mysticArtsPt = 0;
-  const rank = form["rank"].options[form["rank"].selectedIndex].value;
-  const rankNum = (adventurerRank[rank]["num"] === undefined) ? 0 : adventurerRank[rank]["num"];
-  const free = (adventurerRank[rank]["free"] === undefined) ? 0 : adventurerRank[rank]["free"];
+  // 履歴
   const historyNum = form.historyNum.value;
-  pointTotal -= rankNum;
   for (let i = 0; i <= historyNum; i++){
     const obj = form['history'+i+'Honor'];
     let point = safeEval(obj.value);
@@ -1297,6 +1294,13 @@ function calcHonor(){
       obj.classList.remove('error');
     }
   }
+  document.getElementById("history-honor-total").innerHTML = pointTotal;
+  // ランク
+  const rank = form["rank"].options[form["rank"].selectedIndex].value;
+  const rankNum = (adventurerRank[rank]["num"] === undefined) ? 0 : adventurerRank[rank]["num"];
+  const free = (adventurerRank[rank]["free"] === undefined) ? 0 : adventurerRank[rank]["free"];
+  pointTotal -= rankNum;
+  // 名誉アイテム
   const honorItemsNum = form.honorItemsNum.value;
   for (let i = 1; i <= honorItemsNum; i++){
     let point = safeEval(form['honorItem'+i+'Pt'].value) || 0;
@@ -1306,12 +1310,15 @@ function calcHonor(){
     if(point && point <= free) { cL.add("mark"); }
     else { cL.remove("mark"); }
   }
+  // 流派
+  let mysticArtsPt = 0;
   const mysticArtsNum = form.mysticArtsNum.value;
   for (let i = 1; i <= mysticArtsNum; i++){
     let point = safeEval(form['mysticArts'+i+'Pt'].value) || 0;
     mysticArtsPt += point;
   }
   pointTotal -= mysticArtsPt;
+  //
   pointTotal -= Number(form.honorOffset.value);
   document.getElementById("honor-value"   ).innerHTML = pointTotal;
   document.getElementById("honor-value-MA").innerHTML = pointTotal;
@@ -1354,6 +1361,7 @@ function calcCash(){
       obj
     }
   }
+  document.getElementById("history-money-total").innerHTML = cash;
   let s = form.cashbook.value;
   s.replace(
     /::([\+\-\*\/]?[0-9]+)+/g,
