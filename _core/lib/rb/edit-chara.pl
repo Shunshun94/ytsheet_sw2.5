@@ -11,6 +11,12 @@ my $LOGIN_ID = $::LOGIN_ID;
 require $set::lib_palette_sub;
 ### 各種データライブラリ読み込み --------------------------------------------------
 require $set::data_syndrome;
+my @skillLevel = (
+  '普通', '得意', '不得意'
+);
+
+
+
 my @awakens;
 my @impulses;
 push(@awakens , @$_[0]) foreach(@data::awakens);
@@ -77,10 +83,9 @@ $pc{'colorBaseBgH'} = $pc{'colorBaseBgH'} eq '' ? 210 : $pc{'colorBaseBgH'};
 $pc{'colorBaseBgS'} = $pc{'colorBaseBgS'} eq '' ?   0 : $pc{'colorBaseBgS'};
 $pc{'colorBaseBgL'} = $pc{'colorBaseBgL'} eq '' ? 100 : $pc{'colorBaseBgL'};
 
-$pc{'skillRideNum'} ||= 2;
+$pc{'skillCompNum'} ||= 2;
 $pc{'skillArtNum'}  ||= 2;
 $pc{'skillKnowNum'} ||= 2;
-$pc{'skillInfoNum'} ||= 2;
 $pc{'effectNum'}  ||= 5;
 $pc{'magicNum'}   ||= 2;
 $pc{'weaponNum'}  ||= 1;
@@ -373,37 +378,55 @@ print <<"HTML";
           <dt></dt>
           <dd>
             <dl id="skill-body-table">
-              <dt class="left">当身</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">威圧</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">運動</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">隠密</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">解錠</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">回避</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">観察</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">当身</dt><dd><select name="skillAtemi">@{[option "skillAtemi",@skillLevel]}</select></dd>
+              <dt class="left">威圧</dt><dd><select name="skillDominate">@{[option "skillDominate",@skillLevel]}</select></dd>
+              <dt class="left">運動</dt><dd><select name="skillExercise">@{[option "skillExercise",@skillLevel]}</select></dd>
+              <dt class="left">隠密</dt><dd><select name="skillHide">@{[option "skillHide",@skillLevel]}</select></dd>
+              <dt class="left">解錠</dt><dd><select name="skillPicking">@{[option "skillPicking",@skillLevel]}</select></dd>
+              <dt class="left">回避</dt><dd><select name="skillDodge">@{[option "skillDodge",@skillLevel]}</select></dd>
+HTML
+foreach my $num (1 .. $pc{'skillCompNum'}) {
+print <<"HTML";
+              <dt>@{[input "skillComp${num}Name",'','','list="list-comp"']}</dt><dd><select>@{[option "skillComp$num",@skillLevel]}</select></dd>
+HTML
+}
+print <<"HTML";
             </dl>
           </dd>
           <dt></dt>
           <dd>
             <dl id="skill-body-table">
-              <dt class="left">近接武器</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">攻撃魔法</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">交渉</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">修理</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">乗馬</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">探索</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">調査</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">観察</dt><dd><select name="skillObserve">@{[option "skillObserve",@skillLevel]}</select></dd>
+              <dt class="left">近接武器</dt><dd><select name="skillWeapon">@{[option "skillWeapon",@skillLevel]}</select></dd>
+              <dt class="left">攻撃魔法</dt><dd><select name="skillMagic">@{[option "skillMagic",@skillLevel]}</select></dd>
+              <dt class="left">交渉</dt><dd><select name="skillNegotiation">@{[option "skillNegotiation",@skillLevel]}</select></dd>
+              <dt class="left">修理</dt><dd><select name="skillRepair">@{[option "skillRepair",@skillLevel]}</select></dd>
+              <dt class="left">乗馬</dt><dd><select name="skillHorse">@{[option "skillHorse",@skillLevel]}</select></dd>
+HTML
+foreach my $num (1 .. $pc{'skillArtNum'}) {
+print <<"HTML";
+              <dt>@{[input "skillArt${num}Name",'','','list="list-art"']}</dt><dd><select>@{[option "skillArt$num",@skillLevel]}</select></dd>
+HTML
+}
+print <<"HTML";
             </dl>
           </dd>
           <dt></dt>
           <dd>
             <dl id="skill-body-table">
-              <dt class="left">追跡/逃走</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">抵抗力</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">飛び道具</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">魔法機械操作</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">競技</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
-              <dt class="left">芸術</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-              <dt class="left">知識</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">探索</dt><dd><select name="skillSearch">@{[option "skillSearch",@skillLevel]}</select></dd>
+              <dt class="left">調査</dt><dd><select name="skillInvestigate">@{[option "skillInvestigate",@skillLevel]}</select></dd>
+              <dt class="left">追跡/逃走</dt><dd><select name="skillTrace">@{[option "skillTrace",@skillLevel]}</select></dd>
+              <dt class="left">抵抗力</dt><dd><select name="skillRegist">@{[option "skillRegist",@skillLevel]}</select></dd>
+              <dt class="left">飛び道具</dt><dd><select name="skillProjectile">@{[option "skillProjectile",@skillLevel]}</select></dd>
+              <dt class="left">魔法機械操作</dt><dd><select name="skillMachine">@{[option "skillMachine",@skillLevel]}</select></dd>
+HTML
+foreach my $num (1 .. $pc{'skillKnowNum'}) {
+print <<"HTML";
+              <dt>@{[input "skillKnow${num}Name",'','','list="list-know"']}</dt><dd><select>@{[option "skillKnow$num",@skillLevel]}</select></dd>
+HTML
+}
+print <<"HTML";
             </dl>
           </dd>
         </dl>
@@ -1159,50 +1182,46 @@ print <<"HTML";
     <option value="敵愾心">
     <option value="無関心">
   </datalist>
-  <datalist id="list-ride">
-    <option value="運転:">
-    <option value="運転:二輪">
-    <option value="運転:四輪">
-    <option value="運転:船舶">
-    <option value="運転:航空機">
-    <option value="運転:馬">
-    <option value="運転:多脚戦車">
-    <option value="運転:宇宙船">
+  <datalist id="list-comp" >
+    <option value="競技:">
+    <option value="競技:陸上">
+    <option value="競技:水泳">
+    <option value="競技:球技">
+    <option value="競技:持久">
+    <option value="競技:政治">
+    <option value="競技:商業">
+    <option value="競技:盤上遊戯">
+    <option value="競技:戦術">
+    <option value="競技:戦略">
+    <option value="競技:寿司">
   </datalist>
   <datalist id="list-art" >
     <option value="芸術:">
     <option value="芸術:音楽">
-    <option value="芸術:歌唱">
     <option value="芸術:演技">
     <option value="芸術:絵画">
-    <option value="芸術:写真">
-    <option value="芸術:彫刻">
-    <option value="芸術:ゲーム">
+    <option value="芸術:舞踊">
+    <option value="芸術:文学">
+    <option value="芸術:工芸">
+    <option value="芸術:建築">
+    <option value="芸術:裁縫">
+    <option value="芸術:料理">
+    <option value="芸術:サーヴィス">
   </datalist>
   <datalist id="list-know">
     <option value="知識:">
-    <option value="知識:レネゲイド">
-    <option value="知識:医療">
-    <option value="知識:心理">
-    <option value="知識:機械工学">
-    <option value="知識:機械操作">
-    <option value="知識:オカルト">
-    <option value="知識:遺産">
+    <option value="知識:アカデミー">
+    <option value="知識:フォーチュンアース">
+    <option value="知識:魔法">
+    <option value="知識:政治">
+    <option value="知識:医学">
+    <option value="知識:経済">
+    <option value="知識:宗教">
+    <option value="知識:歴史">
+    <option value="知識:噂話">
+    <option value="知識:マナー">
   </datalist>
-  <datalist id="list-info">
-    <option value="情報:">
-    <option value="情報:UGN">
-    <option value="情報:FH">
-    <option value="情報:ゼノス">
-    <option value="情報:噂話">
-    <option value="情報:裏社会">
-    <option value="情報:警察">
-    <option value="情報:軍事">
-    <option value="情報:学問">
-    <option value="情報:ウェブ">
-    <option value="情報:メディア">
-    <option value="情報:ビジネス">
-  </datalist>
+
   <datalist id="list-lois-color">
     <option value="BK">ブラック
     <option value="BL">ブルー
@@ -1277,34 +1296,6 @@ print <<"HTML";
     <option value="〈白兵〉">
     <option value="〈射撃〉">
     <option value="〈白兵〉〈射撃〉">
-    <option value="効果参照">
-  </datalist>
-  <datalist id="list-vehicle-skill">
-    <option value="〈運転:〉">
-    <option value="〈運転:二輪〉">
-    <option value="〈運転:四輪〉">
-    <option value="〈運転:船舶〉">
-    <option value="〈運転:航空機〉">
-    <option value="〈運転:馬〉">
-    <option value="〈運転:多脚戦車〉">
-    <option value="〈運転:宇宙船〉">
-  </datalist>
-  <datalist id="list-item-skill">
-    <option value="―">
-    <option value="〈調達〉">
-    <option value="〈知識:〉">
-    <option value="〈情報:〉">
-    <option value="〈情報:UGN〉">
-    <option value="〈情報:FH〉">
-    <option value="〈情報:ゼノス〉">
-    <option value="〈情報:噂話〉">
-    <option value="〈情報:裏社会〉">
-    <option value="〈情報:警察〉">
-    <option value="〈情報:軍事〉">
-    <option value="〈情報:学問">
-    <option value="〈情報:ウェブ〉">
-    <option value="〈情報:メディア〉">
-    <option value="〈情報:ビジネス〉">
     <option value="効果参照">
   </datalist>
   <datalist id="list-weapon-type">
