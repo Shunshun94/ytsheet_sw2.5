@@ -167,16 +167,17 @@ window.onload = function() {
         <div id="personal" class="box-union">
           <dl class="box"><dt>年齢</dt><dd><TMPL_VAR age></dd></dl>
           <dl class="box"><dt>性別</dt><dd><TMPL_VAR gender></dd></dl>
-          <dl class="box"><dt>星座</dt><dd><TMPL_VAR sign></dd></dl>
           <dl class="box"><dt>身長</dt><dd><TMPL_VAR height></dd></dl>
-          <dl class="box"><dt>体重</dt><dd><TMPL_VAR weight></dd></dl>
-          <dl class="box"><dt>血液型</dt><dd><TMPL_VAR blood></dd></dl>
+          <dl class="box"><dt>髪の色</dt><dd><TMPL_VAR hair></dd></dl>
+          <dl class="box"><dt>瞳の色</dt><dd><TMPL_VAR eye></dd></dl>
+          <dl class="box"><dt>肌の色</dt><dd><TMPL_VAR skin></dd></dl>
+          
         </div>
         <div id="works-cover" class="box-union">
-          <dl class="box"><dt>ワークス</dt><dd><TMPL_VAR works></dd></dl>
-          <dl class="box"><dt>カヴァー</dt><dd><TMPL_VAR cover></dd></dl>
+          <dl class="box"><dt>IGR</dt><dd><TMPL_VAR igr></dd></dl>
+          <dl class="box"><dt>エレメント</dt><dd><TMPL_VAR element></dd></dl>
         </div>
-
+        <!--
         <div id="renegade" class="box-union">
           <dl class="box" id="breed">
             <dt>ブリード</dt><dd><TMPL_VAR breed></dd>
@@ -416,7 +417,7 @@ window.onload = function() {
       </section></TMPL_IF>
       
       </div><!-- / COLUMN -->
-      
+      <!--
       <div id="area-battle">
         <section class="box effects" id="effect">
           <h2>エフェクト</h2>
@@ -671,7 +672,7 @@ window.onload = function() {
             <tr><th>Efct.Lv</th><td>+0</td><td>+1</td><td>+2</td><td>+3</td><td>+4</td></tr>
           </table>
         </details>
-      </div>
+      </div>-->
       <script>
       let EA; let OR;
       encroachBonusSet(<TMPL_VAR currentEncroach>);

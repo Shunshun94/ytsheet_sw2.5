@@ -203,11 +203,10 @@ print <<"HTML";
           <dl id="character-name">
             <dt>キャラクター名</dt>
             <dd>@{[input('characterName','text',"nameSet")]}</dd>
-            <dt class="ruby">ふりがな</dt>
-            <dd>@{[input('characterNameRuby','text',"nameSet")]}</dd>
+
           </dl>
           <dl id="aka">
-            <dt>コードネーム</dt>
+            <dt>ふたつ名</dt>
             <dd>@{[input('aka','text',"nameSet")]}</dd>
             <dt class="ruby">フリガナ</dt>
             <dd>@{[input('akaRuby','text',"nameSet")]}</dd>
@@ -284,203 +283,130 @@ print <<"HTML";
           <dt>タグ</dt><dd>@{[ input 'tags','','checkStage','' ]}</dd>
         </dl>
       </div>
-
-      <details class="box" id="regulation" @{[$mode eq 'edit' ? '':'open']}>
-        <summary>作成レギュレーション</summary>
-        <dl>
-          <dt>ステージ</dt>
-          <dd>@{[input("stage",'','checkStage','list="list-stage"')]}</dd>
-          <dt>経験点</dt>
-          <dd>@{[input("history0Exp",'number','changeRegu',($set::make_fix?' readonly':''))]}</dd>
-        </dl>
-        <div class="annotate">※ステージの入力値に「クロウリングケイオス」が含まれる場合、専用項目が表示されます。</div>
-      </details>
-
       <div id="area-status">
         @{[ image_form ]}
 
         <div class="box-union" id="personal">
           <dl class="box"><dt>年齢  </dt><dd>@{[input "age"]}</dd></dl>
           <dl class="box"><dt>性別  </dt><dd>@{[input "gender",'','','list="list-gender"']}</dd></dl>
-          <dl class="box"><dt>星座  </dt><dd>@{[input "sign",'','','list="list-sign"']}</dd></dl>
           <dl class="box"><dt>身長  </dt><dd>@{[input "height"]}</dd></dl>
-          <dl class="box"><dt>体重  </dt><dd>@{[input "weight"]}</dd></dl>
-          <dl class="box"><dt>血液型</dt><dd>@{[input "blood",'','','list="list-blood"']}</dd></dl>
+          
+          <dl class="box"><dt>髪の色</dt><dd>@{[input "hair"]}</dd></dl>
+          <dl class="box"><dt>瞳の色</dt><dd>@{[input "eyes"]}</dd></dl>
+          <dl class="box"><dt>肌の色</dt><dd>@{[input "skin"]}</dd></dl>
+          
+          <dl class="box"><dt>IGR</dt><dd>@{[input "igr",'','','list="list-igr"']}</dd></dl>
+          <dl class="box"><dt>エレメント</dt><dd>@{[input "element",'','','list="list-element"']}</dd></dl>
+          <dl class="box"><dt>出身</dt><dd>@{[input "home",'','','list="list-home"']}</dd></dl>
         </div>
-        <div class="box-union" id="works-cover">
-          <dl class="box"><dt>ワークス</dt><dd>@{[input "works"]}</dd></dl>
-          <dl class="box"><dt>カヴァー</dt><dd>@{[input "cover"]}</dd></dl>
-        </div>
-
         <div class="box" id="syndrome-status">
-          <h2>シンドローム／能力値 [<span id="exp-status">0</span>]</h2>
+          <h2>能力値 [<span id="exp-status">0</span>]</h2>
           <table>
             <thead>
-              <tr><th colspan="2">シンドローム</th><th>肉体</th><th>感覚</th><th>精神</th><th>社会</th></tr>
+              <tr><th></th><th>身体</th><th>感覚</th><th>知力</th><th>意志</th><th>魅力</th><th>社会</th></tr>
             </thead>
             <tbody>
               <tr>
-                <th>ピュア</th>
-                <td><select name="syndrome1" oninput="changeSyndrome(1,this.value);">@{[ option 'syndrome1',@data::syndromes ]}</select></td>
-                <td id="stt-syn1-body"  ></td>
-                <td id="stt-syn1-sense" ></td>
-                <td id="stt-syn1-mind"  ></td>
-                <td id="stt-syn1-social"></td>
+                <th></th>
+                <td id="stt-base-body"         ></td>
+                <td id="stt-base-sense"        ></td>
+                <td id="stt-base-intelligence" ></td>
+                <td id="stt-base-will"         ></td>
+                <td id="stt-base-charm"        ></td>
+                <td id="stt-base-social"       ></td>
               </tr>
               <tr>
-                <th>クロス</th>
-                <td><select name="syndrome2" oninput="changeSyndrome(2,this.value);">@{[ option 'syndrome2',@data::syndromes ]}</select></td>
-                <td id="stt-syn2-body"  ></td>
-                <td id="stt-syn2-sense" ></td>
-                <td id="stt-syn2-mind"  ></td>
-                <td id="stt-syn2-social"></td>
+                <th>ボーナス</th>
+                <td>@{[input "sttBonusBody"  ,'number','calcStt']}</td>
+                <td>@{[input "sttBonusSense"  ,'number','calcStt']}</td>
+                <td>@{[input "sttBonusIntelligence"  ,'number','calcStt']}</td>
+                <td>@{[input "sttBonusWill"  ,'number','calcStt']}</td>
+                <td>@{[input "sttBonusCharm"  ,'number','calcStt']}</td>
+                <td>@{[input "sttBonusSocial"  ,'number','calcStt']}</td>
               </tr>
+
               <tr>
-                <th>トライ</th>
-                <td><select name="syndrome3" oninput="changeSyndrome(3,this.value);">@{[ option 'syndrome3',@data::syndromes ]}</select></td>
-                <td colspan="4"></td>
-              </tr>
-              <tr>
-                <th colspan="2" class="right">ワークスによる修正</th>
-                <td><input type="radio" name="sttWorks" value="body"   onchange="calcStt();" @{[ $pc{'sttWorks'} eq 'body'   ? 'checked':'' ]}></td>
-                <td><input type="radio" name="sttWorks" value="sense"  onchange="calcStt();" @{[ $pc{'sttWorks'} eq 'sense'  ? 'checked':'' ]}></td>
-                <td><input type="radio" name="sttWorks" value="mind"   onchange="calcStt();" @{[ $pc{'sttWorks'} eq 'mind'   ? 'checked':'' ]}></td>
-                <td><input type="radio" name="sttWorks" value="social" onchange="calcStt();" @{[ $pc{'sttWorks'} eq 'social' ? 'checked':'' ]}></td>
-              </tr>
-              </tr>
-              <tr>
-                <th colspan="2" class="right">成長</th>
+                <th>成長</th>
                 <td>@{[input "sttGrowBody"  ,'number','calcStt']}</td>
-                <td>@{[input "sttGrowSense" ,'number','calcStt']}</td>
-                <td>@{[input "sttGrowMind"  ,'number','calcStt']}</td>
-                <td>@{[input "sttGrowSocial",'number','calcStt']}</td>
+                <td>@{[input "sttGrowSense"  ,'number','calcStt']}</td>
+                <td>@{[input "sttGrowIntelligence"  ,'number','calcStt']}</td>
+                <td>@{[input "sttGrowWill"  ,'number','calcStt']}</td>
+                <td>@{[input "sttGrowCharm"  ,'number','calcStt']}</td>
+                <td>@{[input "sttGrowSocial"  ,'number','calcStt']}</td>
               </tr>
               <tr>
-                <th colspan="2" class="right">その他の修正</th>
-                <td>@{[input "sttAddBody"  ,'number','calcStt']}</td>
-                <td>@{[input "sttAddSense" ,'number','calcStt']}</td>
-                <td>@{[input "sttAddMind"  ,'number','calcStt']}</td>
-                <td>@{[input "sttAddSocial",'number','calcStt']}</td>
+                <th>その他</th>
+                <td>@{[input "sttOtherBody"  ,'number','calcStt']}</td>
+                <td>@{[input "sttOtherSense"  ,'number','calcStt']}</td>
+                <td>@{[input "sttOtherIntelligence"  ,'number','calcStt']}</td>
+                <td>@{[input "sttOtherWill"  ,'number','calcStt']}</td>
+                <td>@{[input "sttOtherCharm"  ,'number','calcStt']}</td>
+                <td>@{[input "sttOtherSocial"  ,'number','calcStt']}</td>
               </tr>
               <tr>
-                <th colspan="2" class="right">合計</th>
-                <td id="stt-total-body"  >0</td>
-                <td id="stt-total-sense" >0</td>
-                <td id="stt-total-mind"  >0</td>
-                <td id="stt-total-social">0</td>
+                <th>合計</th>
+                <td id="stt-total-body"         >0</td>
+                <td id="stt-total-sense"        >0</td>
+                <td id="stt-total-intelligence" >0</td>
+                <td id="stt-total-will"         >0</td>
+                <td id="stt-total-charm"        >0</td>
+                <td id="stt-total-social"       >0</td>
               </tr>
             </tbody>
           </table>
         </div>
         <div class="box-union" id="sub-status">
           <dl class="box" id="max-hp">
-            <dt>HP最大値</dt>
-            <dd>+@{[input "maxHpAdd",'number','calcMaxHp']}=<b id="max-hp-total"></b></dd>
-          </dl>
-          <dl class="box" id="stock-pt">
-            <dt>常備化ポイント</dt>
-            <dd>+@{[input "stockAdd",'number','calcStock']}=<b id="stock-total"></b></dd>
-          </dl>
-          <dl class="box" id="saving">
-            <dt>財産ポイント</dt>
-            <dd>+@{[input "savingAdd",'number','calcSaving']}=<b id="saving-total"></b></dd>
+            <dt>FP</dt>
+            <dd>+@{[input "maxFpAdd",'number','calcMaxFp']}=<b id="max-fp-total"></b></dd>
           </dl>
           <dl class="box" id="initiative">
             <dt>行動値</dt>
             <dd>+@{[input "initiativeAdd",'number','calcInitiative']}=<b id="initiative-total"></b></dd>
-          </dl>
-          <dl class="box" id="move">
-            <dt>戦闘移動</dt>
-            <dd>+@{[input "moveAdd",'number','calcMove']}=<b id="move-total"></b></dd>
-          </dl>
-          <dl class="box" id="dash">
-            <dt>全力移動</dt>
-            <dd><b id="dash-total"></b></dd>
-          </dl>
-          <dl class="box cc-only" id="magic-dice">
-            <dt>魔術ダイス</dt>
-            <dd>+@{[input "magicAdd",'number','calcMagicDice']}=<b id="magic-total"></b></dd>
           </dl>
         </div>
       </div>
 
       <details class="box" id="status" $open{'skill'}>
         <summary>技能 [<span id="exp-skill">0</span>]</summary>
-        @{[input 'skillRideNum','hidden']}
-        @{[input 'skillArtNum' ,'hidden']}
-        @{[input 'skillKnowNum','hidden']}
-        @{[input 'skillInfoNum','hidden']}
-        <dl id="status-table">
-          <dt>肉体</dt><dd id="skill-body"  >0</dd>
-          <dt>感覚</dt><dd id="skill-sense" >0</dd>
-          <dt>精神</dt><dd id="skill-mind"  >0</dd>
-          <dt>社会</dt><dd id="skill-social">0</dd>
-        </dl>
         <dl id="skill-table">
-          <dt>【肉体】を使用する技能</dt>
+          <dt></dt>
           <dd>
             <dl id="skill-body-table">
-              <dt class="left">白兵</dt><dd>@{[input "skillMelee"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">当身</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">威圧</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">運動</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">隠密</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">解錠</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
               <dt class="left">回避</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
-HTML
-foreach my $num (1 .. $pc{'skillRideNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillRide${num}Name",'','comboSkillSetAll','list="list-ride"']}</dt><dd>@{[input "skillRide$num",'number','calcSkill']}+@{[input "skillAddRide$num",'number','calcSkill']}</dd>
-HTML
-}
-print <<"HTML";
+              <dt class="left">観察</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
             </dl>
-            <div class="add-del-button"><a onclick="addSkill('Ride')">▼</a><a onclick="delSkill('Ride')">▲</a></div>
           </dd>
-          <dt>【感覚】を使用する技能</dt>
+          <dt></dt>
           <dd>
-            <dl id="skill-sense-table">
-              <dt class="left">射撃</dt><dd>@{[input "skillRanged" ,'number','calcSkill']}+@{[input "skillAddRanged"    ,'number','calcSkill']}</dd>
-              <dt class="left">知覚</dt><dd>@{[input "skillPercept",'number','calcSkill']}+@{[input "skillAddPercept",'number','calcSkill']}</dd>
-HTML
-foreach my $num (1 .. $pc{'skillArtNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillArt${num}Name" ,'','comboSkillSetAll','list="list-art"' ]}</dt><dd>@{[input "skillArt$num" ,'number','calcSkill']}+@{[input "skillAddArt$num" ,'number','calcSkill']}</dd>
-HTML
-}
-print <<"HTML";
+            <dl id="skill-body-table">
+              <dt class="left">近接武器</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">攻撃魔法</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">交渉</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">修理</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">乗馬</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">探索</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">調査</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
             </dl>
-            <div class="add-del-button"><a onclick="addSkill('Art')">▼</a><a onclick="delSkill('Art')">▲</a></div>
           </dd>
-          <dt>【精神】を使用する技能</dt>
+          <dt></dt>
           <dd>
-            <dl id="skill-mind-table">
-              <dt class="left">ＲＣ</dt><dd>@{[input "skillRC"  ,'number','calcSkill']}+@{[input "skillAddRC"  ,'number','calcSkill']}</dd>
-              <dt class="left">意志</dt><dd>@{[input "skillWill",'number','calcSkill']}+@{[input "skillAddWill",'number','calcSkill']}</dd>
-HTML
-foreach my $num (1 .. $pc{'skillKnowNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillKnow${num}Name",'','comboSkillSetAll','list="list-know"']}</dt><dd>@{[input "skillKnow$num",'number','calcSkill']}+@{[input "skillAddKnow$num",'number','calcSkill']}</dd>
-HTML
-}
-print <<"HTML";
+            <dl id="skill-body-table">
+              <dt class="left">追跡/逃走</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">抵抗力</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">飛び道具</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">魔法機械操作</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">競技</dt><dd>@{[input "skillAtemi"  ,'number','calcSkill']}+@{[input "skillAddMelee"  ,'number','calcSkill']}</dd>
+              <dt class="left">芸術</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
+              <dt class="left">知識</dt><dd>@{[input "skillDodge"  ,'number','calcSkill']}+@{[input "skillAddDodge"  ,'number','calcSkill']}</dd>
             </dl>
-            <div class="add-del-button"><a onclick="addSkill('Know')">▼</a><a onclick="delSkill('Know')">▲</a></div>
-          </dd>
-          <dt>【社会】を使用する技能</dt>
-          <dd>
-            <dl id="skill-social-table">
-              <dt class="left">交渉</dt><dd>@{[input "skillNegotiate",'number','calcSkill']}+@{[input "skillAddNegotiate",'number']}</dd>
-              <dt class="left">調達</dt><dd>@{[input "skillProcure"  ,'number','calcSkill();calcStock']}+@{[input "skillAddProcure",  'number','calcSkill();calcStock']}</dd>
-HTML
-foreach my $num (1 .. $pc{'skillInfoNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillInfo${num}Name",'','comboSkillSetAll','list="list-info"']}</dt><dd>@{[input "skillInfo$num",'number','calcSkill']}+@{[input "skillAddInfo$num",'number','calcSkill']}</dd>
-HTML
-}
-print <<"HTML";
-            </dl>
-            <div class="add-del-button"><a onclick="addSkill('Info')">▼</a><a onclick="delSkill('Info')">▲</a></div>
           </dd>
         </dl>
-        <div class="annotate">
-        ※右側は、DロイスなどによるLv補正の欄です（経験点が計算されません）
-        </div>
       </details>
       <details class="box" id="lifepath" $open{'lifepath'}>
         <summary>ライフパス</summary>
@@ -1155,23 +1081,12 @@ print <<"HTML";
     <p class="notes"><span>転生サバイバルRPG　ルーインブレイカーズは有限会社ファーイースト・アミューズメント・リサーチの著作物です</span></p>
     <!--<p class="copyright">ゆとシートⅡ for DX3rd ver.<TMPL_VAR ver> - <a href="https://yutorize.2-d.jp">ゆとらいず工房</a></p>-->
   </footer>
-  <datalist id="list-stage">
-    <option value="基本ステージ">
-    <option value="オーヴァードアカデミア">
-    <option value="ナイトメアプリズン">
-    <option value="デモンズシティ">
-    <option value="陽炎の戦場">
-    <option value="エンドライン">
-    <option value="ホーリーグレイル">
-    <option value="平安京物怪録">
-    <option value="モダンタイムス">
-    <option value="エピックヒーローズ">
-    <option value="クロノスガーディアン">
-    <option value="レネゲイドウォー">
-    <option value="バッドシティ">
-    <option value="ウィアードエイジ">
-    <option value="カオスガーデン">
-    <option value="クロウリングケイオス">
+  <datalist id="list-igr">
+    <option value="攻略対象">
+    <option value="悪役">
+    <option value="主人公">
+    <option value="モブ">
+    <option value="不在">
   </datalist>
   <datalist id="list-gender">
     <option value="男">
@@ -1181,24 +1096,20 @@ print <<"HTML";
     <option value="不明">
     <option value="不詳">
   </datalist>
-  <datalist id="list-sign">
-    <option value="牡羊座">
-    <option value="牡牛座">
-    <option value="双子座">
-    <option value="蟹座">
-    <option value="獅子座">
-    <option value="乙女座">
-    <option value="天秤座">
-    <option value="蠍座">
-    <option value="射手座">
-    <option value="山羊座">
-    <option value="水瓶座">
-    <option value="魚座">
-    <option value="不明">
-    <option value="不詳">
+  <datalist id="list-element">
+    <option value="罪人">
+    <option value="無垢">
+    <option value="賢人">
+    <option value="近待">
+    <option value="芸人">
+    <option value="天才">
+    <option value="貴族">
+    <option value="豪商">
+    <option value="市民">
+    <option value="異邦人">
   </datalist>
-  <datalist id="list-blood">
-    <option value="A型"><option value="B型"><option value="AB型"><option value="O型"><option value="不明"><option value="不詳">
+  <datalist id="list-home">
+    <option value="転生者"><option value="現地人">
   </datalist>
   <datalist id="list-emotionP">
     <option value="傾倒">
