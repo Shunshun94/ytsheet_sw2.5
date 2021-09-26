@@ -293,7 +293,7 @@ function changeLoisColor(num){
 function changeLoisState(id){
   const obj = document.querySelector(`#${id} [name$="State"]`);
   let state = obj.value;
-  state = (state == 'ロイス') ? 'タイタス' : (state == 'タイタス') ? '昇華' : 'ロイス';
+  state = (state == '未回収') ? '回収済' : '未回収';
   obj.value = state;
   document.getElementById(id+'-state').dataset.state = state;
 }

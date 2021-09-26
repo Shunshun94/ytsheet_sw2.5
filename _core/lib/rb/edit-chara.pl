@@ -155,7 +155,7 @@ Content-type: text/html\n
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/dx3/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
-  <script src="${main::core_dir}/lib/dx3/edit-chara.js?${main::ver}" defer></script>
+  <script src="${main::core_dir}/lib/rb/edit-chara.js?${main::ver}" defer></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   <style>
     #image,
@@ -439,7 +439,6 @@ print <<"HTML";
             <th>前歴</th>
             <td>@{[input "lifepathPast"]}</td>
             <td colspan="2" class="left">@{[input "lifepathPastNote",'','','placeholder="備考"']}</td>
-            <td>@{[input "lifepathPastFlag",'','','placeholder="フラグ"']}</td>
           </tr>
           </tbody>
           <tbody>
@@ -447,7 +446,6 @@ print <<"HTML";
             <th>秘密</th>
             <td>@{[input "lifepathSecret"]}</td>
             <td colspan="2" class="left">@{[input "lifepathSecretNote",'','','placeholder="備考"']}</td>
-            <td>@{[input "lifepathSecretFlag",'','','placeholder="フラグ"']}</td>
           </tr>
           </tbody>
           <tbody>
@@ -455,12 +453,42 @@ print <<"HTML";
             <th>破滅</th>
             <td>@{[input "lifepathRuin"]}</td>
             <td colspan="2" class="left">@{[input "lifepathRuinNote",'','','placeholder="備考"']}</td>
-            <td>@{[input "lifepathRuinFlag",'','','placeholder="フラグ"']}</td>
           </tr>
           </tbody>
         </table>
       </details>
-      
+      <details class="box" id="lois" $open{'flag'} style="position:relative">
+        <summary>フラグ</summary>
+        <table class="edit-table" id="lois-table">
+          <thead>
+            <tr>
+              <th>関係</th>
+              <th>名前</th>
+              <th>説明</th>
+              <th>状態</th>
+            </tr>
+          </thead>
+          <tbody>
+HTML
+foreach my $num (1 .. 7) {
+if(!$pc{"flag${num}State"}){ $pc{"flag${num}State"} = '未回収' }
+print <<"HTML";
+            <tr id="flag${num}">
+              <td><span class="handle"></span>@{[input "flag${num}Relation"]}</td>
+              <td>@{[input "flag${num}Name"]}</td>
+              <td>@{[input "flag${num}Note"]}</td>
+              <td onclick="changeLoisState(this.parentNode.id)"><span id="flag${num}-state" data-state="$pc{"flag${num}State"}"></span>@{[input "flag${num}State",'hidden']}</td>
+            </tr>
+HTML
+}
+print <<"HTML";
+          </tbody>
+        </table>
+        <div class="right" style="position: absolute; top: 0; right: 0;">
+          <a class="button small" onclick="resetLoisAll()">全ロイスをリセット</a>
+          <a class="button small" onclick="resetLoisAdd()">4番目以降をリセット</a>
+        </div>
+      </details>
       <details class="box box-union" id="items" $open{'item'}>
       <summary>アイテム [<span id="exp-item">0</span>]</summary>
       <div class="box">
