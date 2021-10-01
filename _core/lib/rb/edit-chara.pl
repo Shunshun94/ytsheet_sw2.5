@@ -495,7 +495,7 @@ print <<"HTML";
         @{[input 'weaponNum','hidden']}
         <table class="edit-table" id="weapon-table">
           <thead>
-            <tr><th>武器</th><th>常備化</th><th>経験点</th><th>種別</th><th>技能</th><th>命中</th><th>攻撃力</th><th><span class="small">ガード値</span></th><th>射程</th><th>解説</th></tr>
+            <tr><th>武器</th><th>常備化</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>行動</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -504,13 +504,12 @@ print <<"HTML";
             <tr id="weapon${num}">
               <td>@{[input "weapon${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "weapon${num}Stock",'number','calcItem']}</td>
-              <td>@{[input "weapon${num}Exp",'number','calcItem']}</td>
               <td>@{[input "weapon${num}Type",'','','list="list-weapon-type"']}</td>
-              <td>@{[input "weapon${num}Skill",'','','list="list-weapon-skill"']}</td>
-              <td>@{[input "weapon${num}Acc"]}</td>
+              <td>@{[input "weapon${num}Effect",'','','list="list-weapon-effect"']}</td>
               <td>@{[input "weapon${num}Atk"]}</td>
-              <td>@{[input "weapon${num}Guard"]}</td>
+              <td>@{[input "weapon${num}Target",'','','list="list-weapon-target"']}</td>
               <td>@{[input "weapon${num}Range"]}</td>
+              <td>@{[input "weapon${num}Initiative", 'number']}</td>
               <td><textarea name="weapon${num}Note" rows="2">$pc{"weapon${num}Note"}</textarea></td>
             </tr>
 HTML
@@ -524,7 +523,7 @@ print <<"HTML";
         @{[input 'armorNum','hidden']}
         <table class="edit-table" id="armor-table">
           <thead>
-            <tr><th>防具</th><th>常備化</th><th>経験点</th><th>種別</th><th></th><th>行動</th><th>ドッジ</th><th>装甲値</th><th>解説</th></tr>
+            <tr><th>防具</th><th>常備化</th><th>種別</th><th></th><th>行動</th><th>ドッジ</th><th>装甲値</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -533,7 +532,6 @@ print <<"HTML";
             <tr id="armor${num}">
               <td>@{[input "armor${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "armor${num}Stock",'number','calcItem']}</td>
-              <td>@{[input "armor${num}Exp",'number','calcItem']}</td>
               <td>@{[input "armor${num}Type",'','','list="list-armor-type"']}</td>
               <td></td>
               <td>@{[input "armor${num}Initiative"]}</td>
@@ -1047,17 +1045,25 @@ print <<"HTML";
     <option value="【社会】">
     <option value="効果参照">
   </datalist>
-  <datalist id="list-weapon-skill">
-    <option value="―">
-    <option value="〈白兵〉">
-    <option value="〈射撃〉">
-    <option value="〈白兵〉〈射撃〉">
-    <option value="効果参照">
+  <datalist id="list-weapon-effect">
+    <option value="〈切断〉">
+    <option value="〈貫通〉">
+    <option value="〈衝撃〉">
+    <option value="〈地〉">
+    <option value="〈水〉">
+    <option value="〈火〉">
+    <option value="〈風〉">
+    <option value="〈光〉">
+    <option value="〈闇〉">
   </datalist>
   <datalist id="list-weapon-type">
-    <option value="白兵">
-    <option value="射撃">
-    <option value="白兵／射撃">
+    <option value="近接">
+    <option value="飛">
+    <option value="魔">
+  </datalist>
+  <datalist id="list-weapon-target">
+    <option value="単">
+    <option value="S">
   </datalist>
   <datalist id="list-armor-type">
     <option value="防具">
