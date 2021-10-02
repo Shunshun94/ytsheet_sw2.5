@@ -15,8 +15,6 @@ my @skillLevel = (
   '普通', '得意', '不得意'
 );
 
-
-
 my @awakens;
 my @impulses;
 push(@awakens , @$_[0]) foreach(@data::awakens);
@@ -57,15 +55,6 @@ elsif($mode eq 'blanksheet' && !$::make_error){
   
   $pc{'history0Exp'}   = $set::make_exp;
   
-  ($pc{'effect1Type'},$pc{'effect1Name'},$pc{'effect1Lv'},$pc{'effect1Timing'},$pc{'effect1Skill'},$pc{'effect1Dfclty'},$pc{'effect1Target'},$pc{'effect1Range'},$pc{'effect1Encroach'},$pc{'effect1Restrict'},$pc{'effect1Note'})
-    = ('auto','リザレクト',1,'オート','―','自動成功','自身','至近','効果参照','―','(Lv)D点HP回復、侵蝕値上昇');
-  ($pc{'effect2Type'},$pc{'effect2Name'},$pc{'effect2Lv'},$pc{'effect2Timing'},$pc{'effect2Skill'},$pc{'effect2Dfclty'},$pc{'effect2Target'},$pc{'effect2Range'},$pc{'effect2Encroach'},$pc{'effect2Restrict'},$pc{'effect2Note'})
-    = ('auto','ワーディング',1,'オート','―','自動成功','シーン','視界','0','―','非オーヴァードをエキストラ化');
-  
-  $pc{'comboNum'} = 1;
-  $pc{'combo1Condition1'} = '100%未満';
-  $pc{'combo1Condition2'} = '100%以上';
-  
   $pc{'paletteUseBuff'} = 1;
 }
 
@@ -86,8 +75,8 @@ $pc{'colorBaseBgL'} = $pc{'colorBaseBgL'} eq '' ? 100 : $pc{'colorBaseBgL'};
 $pc{'skillCompNum'} ||= 2;
 $pc{'skillArtNum'}  ||= 2;
 $pc{'skillKnowNum'} ||= 2;
-$pc{'effectNum'}  ||= 5;
-$pc{'magicNum'}   ||= 2;
+$pc{'talentNum'}  ||= 2;
+$pc{'cheatNum'}   ||= 2;
 $pc{'weaponNum'}  ||= 1;
 $pc{'armorNum'}   ||= 1;
 $pc{'itemNum'}    ||= 2;
@@ -150,9 +139,9 @@ Content-type: text/html\n
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/base.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/sheet.css?${main::ver}">
-  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/dx3/css/chara.css?${main::ver}">
+  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/rb/css/chara.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/edit.css?${main::ver}">
-  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/dx3/css/edit.css?${main::ver}">
+  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/rb/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/rb/edit-chara.js?${main::ver}" defer></script>
@@ -485,31 +474,83 @@ print <<"HTML";
           </tbody>
         </table>
         <div class="right" style="position: absolute; top: 0; right: 0;">
-          <a class="button small" onclick="resetLoisAll()">全ロイスをリセット</a>
+          <a class="button small" onclick="resetLoisAll()">全フラグをリセット</a>
           <a class="button small" onclick="resetLoisAdd()">4番目以降をリセット</a>
         </div>
       </details>
+      <details class="box" id="effect" $open{'effect'}>
+        <summary>特技 [<span id="exp-effect">0</span>]</summary>
+        @{[input 'effectNum','hidden']}
+        <table class="edit-table line-tbody" id="effect-table">
+          <thead>
+            <tr><th></th><th>名称</th><th>効果</th></tr>
+          </thead>
+HTML
+foreach my $num (1 .. $pc{'talentNum'}) {
+print <<"HTML";
+          <tbody id="talent${num}">
+            <tr>
+              <td class="handle"> </td>
+              <td>@{[input "talent${num}Name",'','','placeholder="名称"']}</td>
+              <td>@{[input "talent${num}Note"]}</td>
+            </tr>
+          </tbody>
+HTML
+}
+print <<"HTML";
+          <tfoot>
+            <tr><th></th><th>名称</th><th>効果</th></tr>
+          </tfoot>
+        </table>
+      </details>
+
+      <details class="box" id="magic" $open{'magic'}>
+        <summary>チートパワー [<span id="exp-magic">0</span>]</summary>
+        @{[input 'cheatNum','hidden']}
+        <table class="edit-table line-tbody" id="magic-table">
+          <thead>
+            <tr><th></th><th>名称</th><th>コスト</th><th>効果</th></tr>
+          </thead>
+HTML
+foreach my $num (1 .. $pc{'cheatNum'}) {
+print <<"HTML";
+          <tbody id="magic${num}">
+            <tr>
+              <td class="handle"> </td>
+              <td>@{[input "cheat${num}Name"    ,'','','placeholder="名称"']}</td>
+              <td>@{[input "cheat${num}Cost",'','','placeholder="コスト"']}</td>
+              <td>@{[input "cheat${num}Note"    ,'','','placeholder="効果"']}</td>
+            </tr>
+          </tbody>
+HTML
+}
+print <<"HTML";
+        <tfoot></tfoot>
+        </table>
+        <div class="add-del-button"><a onclick="addMagic()">▼</a><a onclick="delMagic()">▲</a></div>
+      </details>
+
       <details class="box box-union" id="items" $open{'item'}>
       <summary>アイテム [<span id="exp-item">0</span>]</summary>
       <div class="box">
         @{[input 'weaponNum','hidden']}
         <table class="edit-table" id="weapon-table">
           <thead>
-            <tr><th>武器</th><th>常備化</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>行動</th><th>解説</th></tr>
+            <tr><th>武器</th><th>常備化</th><th>行動</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
 foreach my $num (1 .. $pc{'weaponNum'}) {
 print <<"HTML";
-            <tr id="weapon${num}">
+            <tr id="weapon${num}" class="weapon${num}">
               <td>@{[input "weapon${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "weapon${num}Stock",'number','calcItem']}</td>
+              <td>@{[input "weapon${num}Initiative", 'number']}</td>
               <td>@{[input "weapon${num}Type",'','','list="list-weapon-type"']}</td>
               <td>@{[input "weapon${num}Effect",'','','list="list-weapon-effect"']}</td>
               <td>@{[input "weapon${num}Atk"]}</td>
               <td>@{[input "weapon${num}Target",'','','list="list-weapon-target"']}</td>
               <td>@{[input "weapon${num}Range"]}</td>
-              <td>@{[input "weapon${num}Initiative", 'number']}</td>
               <td><textarea name="weapon${num}Note" rows="2">$pc{"weapon${num}Note"}</textarea></td>
             </tr>
 HTML
@@ -523,7 +564,11 @@ print <<"HTML";
         @{[input 'armorNum','hidden']}
         <table class="edit-table" id="armor-table">
           <thead>
-            <tr><th>防具</th><th>常備化</th><th>種別</th><th></th><th>行動</th><th>ドッジ</th><th>装甲値</th><th>解説</th></tr>
+            <tr>
+              <th>防具</th><th>常備化</th><th>行動</th>
+              <th>切</th><th>貫</th><th>衝</th>
+              <th>地</th><th>水</th><th>火</th><th>風</th><th>光</th><th>闇</th>
+              <th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -532,11 +577,16 @@ print <<"HTML";
             <tr id="armor${num}">
               <td>@{[input "armor${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "armor${num}Stock",'number','calcItem']}</td>
-              <td>@{[input "armor${num}Type",'','','list="list-armor-type"']}</td>
-              <td></td>
+              <td>@{[input "armor${num}ArmorCut",'number']}</td>
+              <td>@{[input "armor${num}ArmorPenetration",'number']}</td>
+              <td>@{[input "armor${num}ArmorImpact",'number']}</td>
+              <td>@{[input "armor${num}ArmorGround",'number']}</td>
+              <td>@{[input "armor${num}ArmorWater",'number']}</td>
+              <td>@{[input "armor${num}ArmorFire",'number']}</td>
+              <td>@{[input "armor${num}ArmorWind",'number']}</td>
+              <td>@{[input "armor${num}ArmorLight",'number']}</td>
+              <td>@{[input "armor${num}ArmorDark",'number']}</td>
               <td>@{[input "armor${num}Initiative"]}</td>
-              <td>@{[input "armor${num}Dodge"]}</td>
-              <td>@{[input "armor${num}Armor"]}</td>
               <td><textarea name="armor${num}Note" rows="2">$pc{"armor${num}Note"}</textarea></td>
             </tr>
 HTML
@@ -547,39 +597,10 @@ print <<"HTML";
         <div class="add-del-button"><a onclick="addArmor()">▼</a><a onclick="delArmor()">▲</a></div>
       </div>
       <div class="box">
-        @{[input 'vehicleNum','hidden']}
-        <table class="edit-table" id="vehicle-table">
-          <thead>
-            <tr><th>ヴィークル</th><th>常備化</th><th>経験点</th><th>種別</th><th>技能</th><th>行動</th><th>攻撃力</th><th>装甲値</th><th><span class="small">全力移動</span></th><th>解説</th></tr>
-          </thead>
-          <tbody>
-HTML
-foreach my $num (1 .. $pc{'vehicleNum'}) {
-print <<"HTML";
-            <tr id="vehicle${num}">
-              <td>@{[input "vehicle${num}Name"]}<span class="handle"></span></td>
-              <td>@{[input "vehicle${num}Stock",'number','calcItem']}</td>
-              <td>@{[input "vehicle${num}Exp",'number','calcItem']}</td>
-              <td>@{[input "vehicle${num}Type",'','','list="list-vehicle-type"']}</td>
-              <td>@{[input "vehicle${num}Skill",'','','list="list-vehicle-skill"']}</td>
-              <td>@{[input "vehicle${num}Initiative"]}</td>
-              <td>@{[input "vehicle${num}Atk"]}</td>
-              <td>@{[input "vehicle${num}Armor"]}</td>
-              <td>@{[input "vehicle${num}Dash"]}</td>
-              <td><textarea name="vehicle${num}Note" rows="2">$pc{"vehicle${num}Note"}</textarea></td>
-            </tr>
-HTML
-}
-print <<"HTML";
-          </tbody>
-        </table>
-        <div class="add-del-button"><a onclick="addVehicle()">▼</a><a onclick="delVehicle()">▲</a></div>
-      </div>
-      <div class="box">
         @{[input 'itemNum','hidden']}
         <table class="edit-table" id="item-table">
           <thead>
-            <tr><th>一般アイテム</th><th>常備化</th><th>経験点</th><th>種別</th><th>技能</th><th>解説</th></tr>
+            <tr><th>一般アイテム</th><th>常備化</th><th>種別</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -588,9 +609,7 @@ print <<"HTML";
             <tr id="item${num}">
               <td>@{[input "item${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "item${num}Stock",'number','calcItem']}</td>
-              <td>@{[input "item${num}Exp",'number','calcItem']}</td>
               <td>@{[input "item${num}Type",'','','list="list-item-type"']}</td>
-              <td>@{[input "item${num}Skill",'','','list="list-item-skill"']}</td>
               <td><textarea name="item${num}Note" rows="2">$pc{"item${num}Note"}</textarea></td>
             </tr>
 HTML
@@ -1070,9 +1089,10 @@ print <<"HTML";
     <option value="防具※">
   </datalist>
   <datalist id="list-item-type">
-    <option value="コネ">
-    <option value="その他">
-    <option value="使い捨て">
+    <option value="携帯品">
+    <option value="所持品">
+    <option value="ライフスタイル">
+    <option value="サーヴィス">
   </datalist>
   <datalist id="list-dfclty">
     <option value="―">
