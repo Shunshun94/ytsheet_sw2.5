@@ -6,17 +6,10 @@ let status = {};
 let syndromes = [];
 // ----------------------------------------
 window.onload = function() {
-  syndromes = [form.syndrome1.value, form.syndrome2.value, form.syndrome3.value];
+  //syndromes = [form.syndrome1.value, form.syndrome2.value, form.syndrome3.value];
   
   nameSet();
-  checkStage();
-  calcStt();
-  calcEffect();
-  calcMagic();
   calcItem();
-  calcMemory();
-  calcEncroach();
-  for(let i = 1; i <= 7; i++){ changeLoisColor(i); }
   imagePosition();
   changeColor();
   
@@ -26,7 +19,7 @@ window.onload = function() {
 // 送信前チェック ----------------------------------------
 function formCheck(){
   if(form.characterName.value === '' && form.aka.value === ''){
-    alert('キャラクター名かコードネームのいずれかを入力してください。');
+    alert('キャラクター名か二つ名のいずれかを入力してください。');
     form.characterName.focus();
     return false;
   }
@@ -203,25 +196,14 @@ function calcItem(){
   exps['item'] = 0;
   for (let num = 1; num <= Number(form.weaponNum.value); num++){
     stockUsed    += Number(form['weapon'+num+'Stock'].value);
-    exps['item'] += Number(form['weapon'+num+'Exp'  ].value);
   }
   for (let num = 1; num <= Number(form.armorNum.value); num++){
     stockUsed    += Number(form['armor'+num+'Stock'].value);
-    exps['item'] += Number(form['armor'+num+'Exp'  ].value);
-  }
-  for (let num = 1; num <= Number(form.vehicleNum.value); num++){
-    stockUsed    += Number(form['vehicle'+num+'Stock'].value);
-    exps['item'] += Number(form['vehicle'+num+'Exp'  ].value);
   }
   for (let num = 1; num <= Number(form.itemNum.value); num++){
     stockUsed    += Number(form['item'+num+'Stock'].value);
-    exps['item'] += Number(form['item'+num+'Exp'  ].value);
   }
   document.getElementById("item-total-stock").innerHTML = stockUsed;
-  document.getElementById("item-total-exp").innerHTML = exps['item'];
-  document.getElementById("exp-item").innerHTML = exps['item'];
-  calcSaving();
-  calcExp();
 }
 // メモリー
 function calcMemory() {
@@ -539,35 +521,31 @@ function effectSortAfter(){
 
 // 術式欄 ----------------------------------------
 // 追加
-function addMagic(){
-  let num = Number(form.magicNum.value) + 1;
+function addTalent(){
+  let num = Number(form.talentNum.value) + 1;
   let tbody = document.createElement('tbody');
-  tbody.setAttribute('id',idNumSet('magic'));
+  tbody.setAttribute('id',idNumSet('talent'));
   tbody.innerHTML = `<tr>
     <td class="handle"></td>
     <td><input name="magic${num}Name"     type="text"   placeholder="名称"></td>
-    <td><input name="magic${num}Type"     type="text"   placeholder="種別" list="list-magic-type"></td>
-    <td><input name="magic${num}Exp"      type="number" placeholder="" oninput="calcMagic()"></td>
-    <td><input name="magic${num}Activate" type="text"   placeholder="発動値"></td>
-    <td><input name="magic${num}Encroach" type="text"   placeholder="侵蝕値"></td>
     <td><input name="magic${num}Note"     type="text"   placeholder="効果"></td>
   </tr>`;
-  const target = document.querySelector("#magic-table tfoot");
-  target.parentNode.insertBefore(tbody, target);
+  const target = document.querySelector("#effect-table");
+  target.appendChild(tbody);
   
-  form.magicNum.value = num;
+  form.talentNum.value = num;
 }
 // 削除
-function delMagic(){
-  let num = Number(form.magicNum.value);
+function delTalent(){
+  let num = Number(form.talentNum.value);
   if(num > 2){
-    if(form[`magic${num}Name`].value || form[`magic${num}Type`].value || form[`magic${num}Exp`].value || form[`magic${num}Activate`].value || form[`magic${num}Encroach`].value || form[`magic${num}Note`].value){
+    if(form[`magic${num}Name`].value || form[`magic${num}Note`].value){
       if (!confirm(delConfirmText)) return false;
     }
-    const target = document.querySelector("#magic-table tbody:last-of-type");
+    const target = document.querySelector("#effect-table tbody:last-of-type");
     target.parentNode.removeChild(target);
     num--;
-    form.magicNum.value = num;
+    form.talentNum.value = num;
     calcMagic();
   }
 }
@@ -1034,9 +1012,7 @@ function addItem(){
   tbody.innerHTML = `
     <td><input name="item${num}Name"  type="text"><span class="handle"></span></td>
     <td><input name="item${num}Stock" type="number" oninput="calcItem()"></td>
-    <td><input name="item${num}Exp"   type="number" oninput="calcItem()"></td>
     <td><input name="item${num}Type"  type="text" list="list-item-type"></td>
-    <td><input name="item${num}Skill" type="text" list="list-item-skill"></td>
     <td><textarea name="item${num}Note" rows="2"></textarea></td>
   `;
   const target = document.querySelector("#item-table tbody");
@@ -1048,7 +1024,8 @@ function addItem(){
 function delItem(){
   let num = Number(form.itemNum.value);
   if(num > 1){
-    if(form[`item${num}Name`].value || form[`item${num}Stock`].value || form[`item${num}Exp`].value || form[`item${num}Type`].value || form[`item${num}Skill`].value || form[`item${num}Note`].value){
+    console.log(num, form.itemNum);
+    if(form[`item${num}Name`].value || form[`item${num}Stock`].value || form[`item${num}Type`].value || form[`item${num}Note`].value){
       if (!confirm(delConfirmText)) return false;
     }
     const target = document.querySelector("#item-table tbody tr:last-of-type");

@@ -480,7 +480,7 @@ print <<"HTML";
       </details>
       <details class="box" id="effect" $open{'effect'}>
         <summary>特技 [<span id="exp-effect">0</span>]</summary>
-        @{[input 'effectNum','hidden']}
+        @{[input 'talentNum','hidden']}
         <table class="edit-table line-tbody" id="effect-table">
           <thead>
             <tr><th></th><th>名称</th><th>効果</th></tr>
@@ -498,10 +498,8 @@ print <<"HTML";
 HTML
 }
 print <<"HTML";
-          <tfoot>
-            <tr><th></th><th>名称</th><th>効果</th></tr>
-          </tfoot>
         </table>
+        <div class="add-del-button"><a onclick="addTalent()">▼</a><a onclick="delTalent()">▲</a></div>
       </details>
 
       <details class="box" id="magic" $open{'magic'}>
@@ -527,7 +525,6 @@ HTML
 print <<"HTML";
         <tfoot></tfoot>
         </table>
-        <div class="add-del-button"><a onclick="addMagic()">▼</a><a onclick="delMagic()">▲</a></div>
       </details>
 
       <details class="box box-union" id="items" $open{'item'}>
@@ -754,7 +751,7 @@ print <<"HTML";
         　経験点欄の右の適用チェックを入れると、その経験点が適用されます。
         </div>
       </div>
-      
+      <!--
       <div class="box" id="exp-footer">
         <p>
         経験点[<b id="exp-total"></b>] - 
@@ -766,7 +763,7 @@ print <<"HTML";
         - メモリー[<b id="exp-used-memory"></b>]
         ) = 残り[<b id="exp-rest"></b>]点
         </p>
-      </div>
+      </div>-->
       </section>
       
       <section id="section-palette" style="display:none;">
