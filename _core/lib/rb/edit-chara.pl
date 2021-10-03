@@ -10,9 +10,9 @@ my $LOGIN_ID = $::LOGIN_ID;
 ### 読込前処理 #######################################################################################
 require $set::lib_palette_sub;
 ### 各種データライブラリ読み込み --------------------------------------------------
-require $set::data_syndrome;
+require $set::consts;
 my @skillLevel = (
-  '普通', '得意', '不得意'
+  '得意', '不得意'
 );
 
 my @awakens;
@@ -174,7 +174,7 @@ print <<"HTML";
         <h2><span></span></h2>
         <ul>
           <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span></li>
-          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>
+          <!--<li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>-->
           <li onclick="sectionSelect('color');"><span>カラー</span><span>カスタム</span></li>
           <li class="button">
 HTML
@@ -289,9 +289,16 @@ print <<"HTML";
           <dl class="box"><dt>瞳の色</dt><dd>@{[input "eyes"]}</dd></dl>
           <dl class="box"><dt>肌の色</dt><dd>@{[input "skin"]}</dd></dl>
           
-          <dl class="box"><dt>IGR</dt><dd>@{[input "igr",'','','list="list-igr"']}</dd></dl>
-          <dl class="box"><dt>エレメント</dt><dd>@{[input "element",'','','list="list-element"']}</dd></dl>
-          <dl class="box"><dt>出身</dt><dd>@{[input "home",'','','list="list-home"']}</dd></dl>
+          <dl class="box"><dt>IGR</dt><dd>
+          <select name="igr" oninput="console.log(1,this.value);">@{[ option 'igr',@data::igrs ]}</select>
+          </dd></dl>
+          <dl class="box"><dt>エレメント</dt><dd>
+          <select name="element" oninput="console.log(1,this.value);">@{[ option 'element',@data::elements ]}</select>
+          </dd></dl>
+
+          <dl class="box"><dt>出身</dt><dd>
+          <select name="home" oninput="console.log(1,this.value);">@{[ option 'home',@data::homes ]}</select>
+          </dd></dl>
         </div>
         <div class="box" id="syndrome-status">
           <h2>能力値 [<span id="exp-status">0</span>]</h2>
@@ -874,13 +881,6 @@ print <<"HTML";
     <p class="notes"><span>転生サバイバルRPG　ルーインブレイカーズは有限会社ファーイースト・アミューズメント・リサーチの著作物です</span></p>
     <!--<p class="copyright">ゆとシートⅡ for DX3rd ver.<TMPL_VAR ver> - <a href="https://yutorize.2-d.jp">ゆとらいず工房</a></p>-->
   </footer>
-  <datalist id="list-igr">
-    <option value="攻略対象">
-    <option value="悪役">
-    <option value="主人公">
-    <option value="モブ">
-    <option value="不在">
-  </datalist>
   <datalist id="list-gender">
     <option value="男">
     <option value="女">
@@ -888,21 +888,6 @@ print <<"HTML";
     <option value="なし">
     <option value="不明">
     <option value="不詳">
-  </datalist>
-  <datalist id="list-element">
-    <option value="罪人">
-    <option value="無垢">
-    <option value="賢人">
-    <option value="近待">
-    <option value="芸人">
-    <option value="天才">
-    <option value="貴族">
-    <option value="豪商">
-    <option value="市民">
-    <option value="異邦人">
-  </datalist>
-  <datalist id="list-home">
-    <option value="転生者"><option value="現地人">
   </datalist>
   <datalist id="list-emotionP">
     <option value="傾倒">
@@ -991,58 +976,6 @@ print <<"HTML";
     <option value="知識:噂話">
     <option value="知識:マナー">
   </datalist>
-
-  <datalist id="list-lois-color">
-    <option value="BK">ブラック
-    <option value="BL">ブルー
-    <option value="GR">グリーン
-    <option value="OR">オレンジ
-    <option value="PU">パープル
-    <option value="RE">レッド
-    <option value="WH">ホワイト
-    <option value="YE">イエロー
-  </datalist>
-  <datalist id="list-timing">
-    <option value="オート">
-    <option value="マイナー">
-    <option value="メジャー">
-    <option value="メジャー／リア">
-    <option value="リアクション">
-    <option value="セットアップ">
-    <option value="イニシアチブ">
-    <option value="クリンナップ">
-    <option value="常時">
-    <option value="効果参照">
-  </datalist>
-  <datalist id="list-effect-skill">
-    <option value="―">
-    <option value="シンドローム">
-    <option value="〈白兵〉">
-    <option value="〈射撃〉">
-    <option value="〈RC〉">
-    <option value="〈交渉〉">
-    <option value="〈白兵〉〈射撃〉">
-    <option value="〈白兵〉〈RC〉">
-    <option value="〈回避〉">
-    <option value="〈知覚〉">
-    <option value="〈意志〉">
-    <option value="〈調達〉">
-    <option value="【肉体】">
-    <option value="【感覚】">
-    <option value="【精神】">
-    <option value="【社会】">
-    <option value="効果参照">
-  </datalist>
-  <datalist id="list-combo-timing">
-    <option value="オート">
-    <option value="マイナー">
-    <option value="メジャー">
-    <option value="リアクション">
-    <option value="セットアップ">
-    <option value="イニシアチブ">
-    <option value="クリンナップ">
-    <option value="常時">
-  </datalist>
   <datalist id="list-combo-skill">
     <option value="―">
     <option value="〈白兵〉">
@@ -1091,52 +1024,12 @@ print <<"HTML";
     <option value="ライフスタイル">
     <option value="サーヴィス">
   </datalist>
-  <datalist id="list-dfclty">
-    <option value="―">
-    <option value="自動成功">
-    <option value="対決">
-    <option value="効果参照">
-  </datalist>
-  <datalist id="list-target">
-    <option value="―">
-    <option value="自身">
-    <option value="単体">
-    <option value="3体">
-    <option value="[LV+1]体">
-    <option value="範囲">
-    <option value="範囲（選択）">
-    <option value="シーン">
-    <option value="シーン（選択）">
-    <option value="効果参照">
-  </datalist>
   <datalist id="list-range">
     <option value="―">
     <option value="至近">
     <option value="武器">
     <option value="視界">
     <option value="効果参照">
-  </datalist>
-  <datalist id="list-restrict">
-    <option value="―">
-    <option value="ピュア">
-    <option value="80%">
-    <option value="100%">
-    <option value="120%">
-    <option value="Dロイス">
-    <option value="リミット">
-    <option value="RB">
-  </datalist>
-  <datalist id="list-magic-type">
-    <option value="通常">
-    <option value="通常／維持">
-    <option value="印形">
-    <option value="儀式">
-    <option value="儀式／維持">
-    <option value="儀式／呪詛">
-    <option value="儀式／召喚">
-    <option value="召喚">
-    <option value="喚起">
-    <option value="喚起／儀式">
   </datalist>
   <script>
 HTML

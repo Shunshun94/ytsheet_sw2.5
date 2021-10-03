@@ -123,7 +123,7 @@ package set;
   our $lib_convert = $::core_dir . '/lib/rb/convert.pl';
 
   # 各種データ
-  our $data_syndrome = $::core_dir . '/lib/rb/data-syndrome.pl';  # シンドロームのデータ
+  our $consts = $::core_dir . '/lib/rb/consts.pl';
 
   # HTMLテンプレート
   our $skin_tmpl  = $::core_dir . '/skin/rb/index.html';      # 一覧／登録フォーム等の大枠

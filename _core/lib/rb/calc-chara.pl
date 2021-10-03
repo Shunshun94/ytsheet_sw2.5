@@ -4,7 +4,7 @@ use strict;
 use utf8;
 use POSIX qw(ceil);
 
-require $set::data_syndrome;
+require $set::consts;
 my %awakens;
 my %impulses;
 $awakens{@$_[0]} = @$_[1] foreach(@data::awakens);
