@@ -62,11 +62,7 @@ function calcStt() {
 
     exps.status += grows * 3;
   });
-  document.getElementById('exp-status').innerText = exps['status'];
-/*
-  document.getElementById('exp-status').innerHTML = exps['status'];
-  
-  calcSkill();*/
+  document.getElementById('exp-status').innerText = exps.status;
   calcSubStt();
 }
 // サブステータス
@@ -94,8 +90,10 @@ function calcInitiative(){
   document.getElementById('initiative-total').innerText = (initiative + (Number(form.initiativeAdd.value) || 0));
   return initiative;
 }
+
 let move = 0;
-function calcMove(){}
+function calcMove(){console.warn('開発用：使わない関数が呼ばれています');}
+
 let stock = 0;
 let stockUsed = 0;
 function calcStock(){
@@ -109,7 +107,7 @@ function calcStock(){
 function calcSaving(){}
 
 let magicDice = 0;
-function calcMagicDice(){}
+function calcMagicDice(){console.warn('開発用：使わない関数が呼ばれています');}
 // 技能
 const skillNameToId = {
   '白兵': 'Melee'    ,
@@ -123,62 +121,11 @@ const skillNameToId = {
 }
 let skillData = {};
 function calcSkill() {
-  exps['skill'] = -9;
-  for (let name of ['Melee','Ranged','RC','Negotiate','Dodge','Percept','Will','Procure']){
-    const lv = Number(form['skill'+name].value);
-    for(let i = 0; i < lv; i++){ exps['skill'] += (i > 20) ? 10 : (i > 10) ? 5 : (i > 5) ? 3 : 2; }
-  }
-  for (let name of ['Ride','Art','Know','Info']){
-    for (let num = 1; num <= Number(form[`skill${name}Num`].value); num++){
-      const lv = Number(form['skill'+name+num].value);
-      for(let i = 0; i < lv; i++){ exps['skill'] += (i > 20) ? 10 : (i > 10) ? 5 : (i > 5) ? 3 : 1; }
-      skillNameToId[form['skill'+name+num+'Name'].value] = name+num;
-    }
-  }
+
   document.getElementById('exp-skill').innerHTML = exps['skill'];
   calcExp();
-  calcComboAll();
 }
-// エフェクト
-function calcEffect() {
-  exps['effect'] = 0;
-  for (let num = 1; num <= Number(form.effectNum.value); num++){
-    const type = form['effect'+num+'Type'].value;
-    const lv = Number(form['effect'+num+'Lv'].value);
-    if(lv >= 1){
-      //イージー
-      if(type == 'easy'){
-        exps['effect'] += lv * 2;
-      }
-      //通常
-      else {
-        exps['effect'] += lv * 5 + 10; //lv×5 + 新規取得の差分10
-        if(type.match(/^(auto|dlois)$/i)){ exps['effect'] += -15; } //自動かDロイスは新規取得ぶん減らす
-        form['effect'+num+'Type'].style.backgroundColor = '';
-      }
-    }
-    exps['effect'] += Number(form['effect'+num+'Exp'].value)
-    const bg = form['effect'+num+'Name'].parentNode.parentNode.parentNode.style;
-    if     (type == 'easy') { bg.backgroundImage = 'linear-gradient(to right,hsla(120,100%, 50%,0.2),transparent)'; }
-    else if(type == 'auto') { bg.backgroundImage = 'linear-gradient(to right,hsla(200,100%, 50%,0.2),transparent)'; }
-    else if(type == 'dlois'){ bg.backgroundImage = 'linear-gradient(to right,hsla(  0,100%, 50%,0.2),transparent)'; }
-    else if(type == 'enemy'){ bg.backgroundImage = 'linear-gradient(to right,hsla(270,100%, 50%,0.2),transparent)'; }
-    else { bg.backgroundImage = ''; }
-  }
-  document.getElementById('exp-effect').innerHTML = exps['effect'];
-  calcExp();
-}
-// 術式
-function calcMagic(){
-  exps['magic'] = 0;
-  if(ccOn){
-    for (let num = 1; num <= Number(form.magicNum.value); num++){
-      exps['magic'] += Number(form['magic'+num+'Exp'].value);
-    }
-    document.getElementById('exp-magic').innerHTML = exps['magic'];
-    calcExp();
-  }
-}
+
 // アイテム
 function calcItem(){
   stockUsed = 0;
@@ -192,15 +139,6 @@ function calcItem(){
     stockUsed    += Number(form['item'+num+'Stock'].value);
   }
   document.getElementById("item-total-stock").innerHTML = stockUsed;
-}
-// メモリー
-function calcMemory() {
-  exps['memory'] = 0;
-  for (let num = 1; num <= 3; num++){
-    if(form['memory'+num+'Gain'].checked){ exps['memory'] += 15; }
-  }
-  document.getElementById('exp-memory').innerHTML = exps['memory'];
-  calcExp();
 }
 
 // 経験点
@@ -236,31 +174,16 @@ function calcExp(){
 
 // 侵蝕値 ----------------------------------------
 function calcEncroach(){
-  const awaken  = awakens[form.lifepathAwaken.value]   || 0;
-  const impulse = impulses[form.lifepathImpulse.value] || 0;
-  const other   = Number(form.lifepathOtherEncroach.value);
-  document.getElementById('awaken-encroach' ).innerHTML = awaken;
-  document.getElementById('impulse-encroach').innerHTML = impulse;
-  document.getElementById('base-encroach').innerHTML = awaken + impulse + other;
+  console.warn('開発用：使わない関数が呼ばれています');
 }
 
 // ロイス ----------------------------------------
-function emoP(num){ form["lois"+num+"EmoNegaCheck"].checked = false; }
-function emoN(num){ form["lois"+num+"EmoPosiCheck"].checked = false; }
+function emoP(num){ console.warn('開発用：使わない関数が呼ばれています'); }
+function emoN(num){ console.warn('開発用：使わない関数が呼ばれています'); }
 function changeLoisColor(num){
-  const obj = form["lois"+num+"Color"];
-  const color = obj.value;
-  if (color.match(/^(BK|BLA|黒)/i)){ obj.style.backgroundColor = 'hsla(  0,  0%,  0%,0.2)'; }
-  else if(color.match(/^(BL|青)/i)){ obj.style.backgroundColor = 'hsla(220,100%, 50%,0.2)'; }
-  else if(color.match(/^(GR|緑)/i)){ obj.style.backgroundColor = 'hsla(120,100%, 50%,0.2)'; }
-  else if(color.match(/^(OR|橙)/i)){ obj.style.backgroundColor = 'hsla( 30,100%, 50%,0.2)'; }
-  else if(color.match(/^(PU|紫)/i)){ obj.style.backgroundColor = 'hsla(270,100%, 50%,0.2)'; }
-  else if(color.match(/^(RE|赤)/i)){ obj.style.backgroundColor = 'hsla(  0,100%, 50%,0.2)'; }
-  else if(color.match(/^(WH|白)/i)){ obj.style.backgroundColor = 'hsla(  0,  0%,100%,0.2)'; }
-  else if(color.match(/^(YE|黄)/i)){ obj.style.backgroundColor = 'hsla( 60,100%, 50%,0.2)'; }
-  else { obj.style.backgroundColor = ''; }
+  console.warn('開発用：使わない関数が呼ばれています');
 }
-function changeLoisState(id){
+function changeFlagState(id){
   const obj = document.querySelector(`#${id} [name$="State"]`);
   let state = obj.value;
   state = (state == '未回収') ? '回収済' : '未回収';
@@ -282,11 +205,6 @@ let loisSortable = Sortable.create(document.querySelector('#lois-table tbody'), 
       if(document.getElementById(id)){
         document.querySelector(`#${id} [name$="Relation"]`    ).setAttribute('name',`lois${num}Relation`);
         document.querySelector(`#${id} [name$="Name"]`        ).setAttribute('name',`lois${num}Name`);
-        document.querySelector(`#${id} [name$="EmoPosiCheck"]`).setAttribute('name',`lois${num}EmoPosiCheck`);
-        document.querySelector(`#${id} [name$="EmoNegaCheck"]`).setAttribute('name',`lois${num}EmoNegaCheck`);
-        document.querySelector(`#${id} [name$="EmoPosi"]`     ).setAttribute('name',`lois${num}EmoPosi`);
-        document.querySelector(`#${id} [name$="EmoNega"]`     ).setAttribute('name',`lois${num}EmoNega`);
-        document.querySelector(`#${id} [name$="Color"]`       ).setAttribute('name',`lois${num}Color`);
         document.querySelector(`#${id} [name$="Note"]`        ).setAttribute('name',`lois${num}Note`);
         document.querySelector(`#${id} [name$="State"]`       ).setAttribute('name',`lois${num}State`);
         num++;
@@ -298,52 +216,22 @@ let loisSortable = Sortable.create(document.querySelector('#lois-table tbody'), 
 function resetLois(num){
   form[`lois${num}Relation`].value = '';
   form[`lois${num}Name`    ].value = '';
-  form[`lois${num}EmoPosiCheck` ].checked = false;
-  form[`lois${num}EmoNegaCheck` ].checked = false;
-  form[`lois${num}EmoPosi` ].value = '';
-  form[`lois${num}EmoNega` ].value = '';
-  form[`lois${num}Color`   ].value = '';
-  form[`lois${num}Color`   ].style.backgroundColor = '';
   form[`lois${num}Note`    ].value = '';
-  form[`lois${num}State`   ].value = 'ロイス';
-  document.getElementById(`lois${num}-state`).dataset.state = 'ロイス';
+  form[`lois${num}State`   ].value = '未回収';
+  document.getElementById(`lois${num}-state`).dataset.state = '未回収';
 }
 function resetLoisAll(){
-  if (!confirm('全てのロイスを削除します。よろしいですか？')) return false;
+  if (!confirm('全てのフラグを削除します。よろしいですか？')) return false;
   for(let num = 1; num <= 7; num++){
     resetLois(num);
   }
 }
 function resetLoisAdd(){
-  if (!confirm('4～7番目のロイスを削除します。よろしいですか？')) return false;
+  if (!confirm('4～7番目のフラグを削除します。よろしいですか？')) return false;
   for(let num = 4; num <= 7; num++){
     resetLois(num);
   }
 }
-
-// メモリー ----------------------------------------
-// ソート
-let memorySortable = Sortable.create(document.querySelector('#memory-table tbody'), {
-  group: "memory",
-  dataIdAttr: 'id',
-  animation: 100,
-  handle: '.handle',
-  filter: 'thead,tfoot',
-  ghostClass: 'sortable-ghost',
-  onUpdate: function (evt) {
-    const order = memorySortable.toArray();
-    let num = 1;
-    for(let id of order) {
-      if(document.getElementById(id)){
-        document.querySelector(`#${id} [name$="Relation"]`).setAttribute('name',`memory${num}Relation`);
-        document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`memory${num}Name`);
-        document.querySelector(`#${id} [name$="Emo"]`     ).setAttribute('name',`memory${num}Emo`);
-        document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`memory${num}Note`);
-        num++;
-      }
-    }
-  }
-});
 
 // 技能欄 ----------------------------------------
 // 追加
@@ -389,54 +277,6 @@ function delSkill(type){
   }
 }
 
-// エフェクト欄 ----------------------------------------
-// 追加
-function addEffect(){
-  let num = Number(form.effectNum.value) + 1;
-  let tbody = document.createElement('tbody');
-  tbody.setAttribute('id',idNumSet('effect'));
-  tbody.innerHTML = `<tr>
-    <td rowspan="2" class="handle"></td>
-    <td><input name="effect${num}Name"     type="text"   placeholder="名称"></td>
-    <td><input name="effect${num}Lv"       type="number" placeholder="Lv" oninput="calcEffect()"></td>
-    <td><input name="effect${num}Timing"   type="text"   placeholder="タイミング" list="list-timing"></td>
-    <td><input name="effect${num}Skill"    type="text"   placeholder="技能"   list="list-effect-skill"></td>
-    <td><input name="effect${num}Dfclty"   type="text"   placeholder="難易度" list="list-dfclty"></td>
-    <td><input name="effect${num}Target"   type="text"   placeholder="対象"   list="list-target"></td>
-    <td><input name="effect${num}Range"    type="text"   placeholder="射程"   list="list-range"></td>
-    <td><input name="effect${num}Encroach" type="text"   placeholder="侵蝕値"></td>
-    <td><input name="effect${num}Restrict" type="text"   placeholder="制限"   list="list-restrict"></td>
-  </tr>
-  <tr><td colspan="9"><div>
-    <b>種別</b><select name="effect${num}Type" oninput="calcEffect()">
-      <option value="">
-      <option value="auto">自動取得
-      <option value="dlois">Dロイス
-      <option value="easy">イージー
-      <option value="enemy">エネミー
-    </select>
-    <b class="small">経験点修正</b><input name="effect${num}Exp" type="number" oninput="calcEffect()">
-    <b>効果</b><input name="effect${num}Note" type="text">
-  </div></td></tr>`;
-  const target = document.querySelector("#effect-table tfoot");
-  target.parentNode.insertBefore(tbody, target);
-  
-  form.effectNum.value = num;
-}
-// 削除
-function delEffect(){
-  let num = Number(form.effectNum.value);
-  if(num > 2){
-    if(form[`effect${num}Name`].value || form[`effect${num}Lv`].value || form[`effect${num}Timing`].value || form[`effect${num}Skill`].value || form[`effect${num}Dfclty`].value || form[`effect${num}Target`].value || form[`effect${num}Range`].value || form[`effect${num}Encroach`].value || form[`effect${num}Restrict`].value || form[`effect${num}Exp`].value || form[`effect${num}Note`].value){
-      if (!confirm(delConfirmText)) return false;
-    }
-    const target = document.querySelector("#effect-table tbody:last-of-type");
-    target.parentNode.removeChild(target);
-    num--;
-    form.effectNum.value = num;
-    calcEffect();
-  }
-}
 // ソート
 let effectSortable = Sortable.create(document.getElementById('effect-table'), {
   group: "effect",
@@ -448,64 +288,19 @@ let effectSortable = Sortable.create(document.getElementById('effect-table'), {
   onSort: function(evt){ effectSortAfter(); },
   onStart: function(evt){
     document.querySelectorAll('.trash-box').forEach((obj) => { obj.style.display = 'none' });
-    document.getElementById('effect-trash').style.display = 'block';
-  },
-  onEnd: function(evt){
-    if(!effectTrashNum) { document.getElementById('effect-trash').style.display = 'none' }
-  },
+  }
 });
-let effectSortableTrash = Sortable.create(document.getElementById('effect-trash-table'), {
-  group: "effect",
-  dataIdAttr: 'id',
-  animation: 100,
-  filter: 'thead,tfoot',
-  ghostClass: 'sortable-ghost'
-});
-let effectTrashNum = 0;
+
 function effectSortAfter(){
   const order = effectSortable.toArray();
-  let num = 1;
   for(let id of order) {
     if(document.getElementById(id)){
-      document.querySelector(`#${id} [name$="Type"]`    ).setAttribute('name',`effect${num}Type`);
       document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`effect${num}Name`);
-      document.querySelector(`#${id} [name$="Lv"]`      ).setAttribute('name',`effect${num}Lv`);
-      document.querySelector(`#${id} [name$="Timing"]`  ).setAttribute('name',`effect${num}Timing`);
-      document.querySelector(`#${id} [name$="Skill"]`   ).setAttribute('name',`effect${num}Skill`);
-      document.querySelector(`#${id} [name$="Dfclty"]`  ).setAttribute('name',`effect${num}Dfclty`);
-      document.querySelector(`#${id} [name$="Target"]`  ).setAttribute('name',`effect${num}Target`);
-      document.querySelector(`#${id} [name$="Range"]`   ).setAttribute('name',`effect${num}Range`);
-      document.querySelector(`#${id} [name$="Encroach"]`).setAttribute('name',`effect${num}Encroach`);
-      document.querySelector(`#${id} [name$="Restrict"]`).setAttribute('name',`effect${num}Restrict`);
       document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`effect${num}Note`);
-      document.querySelector(`#${id} [name$="Exp"]`     ).setAttribute('name',`effect${num}Exp`);
-      num++;
     }
   }
-  form.effectNum.value = num-1;
-  let del = 0;
-  const trashOrder = effectSortableTrash.toArray();
-  for(let id of trashOrder) {
-    if(document.getElementById(id)){
-      del++;
-      document.querySelector(`#${id} [name$="Type"]`    ).setAttribute('name',`effectD${del}Type`);
-      document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`effectD${del}Name`);
-      document.querySelector(`#${id} [name$="Lv"]`      ).setAttribute('name',`effectD${del}Lv`);
-      document.querySelector(`#${id} [name$="Timing"]`  ).setAttribute('name',`effectD${del}Timing`);
-      document.querySelector(`#${id} [name$="Skill"]`   ).setAttribute('name',`effectD${del}Skill`);
-      document.querySelector(`#${id} [name$="Dfclty"]`  ).setAttribute('name',`effectD${del}Dfclty`);
-      document.querySelector(`#${id} [name$="Target"]`  ).setAttribute('name',`effectD${del}Target`);
-      document.querySelector(`#${id} [name$="Range"]`   ).setAttribute('name',`effectD${del}Range`);
-      document.querySelector(`#${id} [name$="Encroach"]`).setAttribute('name',`effectD${del}Encroach`);
-      document.querySelector(`#${id} [name$="Restrict"]`).setAttribute('name',`effectD${del}Restrict`);
-      document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`effectD${del}Note`);
-      document.querySelector(`#${id} [name$="Exp"]`     ).setAttribute('name',`effectD${del}Exp`);
-    }
-  }
-  effectTrashNum = del;
-  if(!del){ document.getElementById('effect-trash').style.display = 'none' }
-  calcEffect();
 }
+
 
 // 術式欄 ----------------------------------------
 // 追加
@@ -522,6 +317,7 @@ function addTalent(){
   target.appendChild(tbody);
   
   form.talentNum.value = num;
+  document.querySelector('#exp-effect').innerText = (Number(form.talentNum.value) - 2) * 15;
 }
 // 削除
 function delTalent(){
@@ -534,16 +330,39 @@ function delTalent(){
     target.parentNode.removeChild(target);
     num--;
     form.talentNum.value = num;
-    calcMagic();
+    document.querySelector('#exp-effect').innerText = (Number(form.talentNum.value) - 2) * 15;
   }
 }
 
 function addCheat() {
+  let num = Number(form.cheatNum.value) + 1;
+  let tbody = document.createElement('tbody');
+  tbody.setAttribute('id',idNumSet('cheat'));
+  tbody.innerHTML = `<tr>
+    <td class="handle"></td>
+    <td><input name="cheat${num}Name"     type="text"   placeholder="名称"></td>
+    <td><input name="cheat${num}Cost"     type="text"   placeholder="効果"></td>
+    <td><input name="cheat${num}Note"     type="text"   placeholder="効果"></td>
+  </tr>`;
+  const target = document.querySelector("#magic-table");
+  target.appendChild(tbody);
 
+  form.cheatNum.value = num;
+  document.querySelector('#exp-magic').innerText = (Number(form.cheatNum.value) - 3) * 30;
 }
 
 function delCheat() {
-  
+  let num = Number(form.cheatNum.value);
+  if(num > 3){
+    if(form[`cheat${num}Name`].value || form[`cheat${num}Cost`].value || form[`cheat${num}Note`].value){
+      if (!confirm(delConfirmText)) return false;
+    }
+    const target = document.querySelector("#magic-table tbody:last-of-type");
+    target.parentNode.removeChild(target);
+    num--;
+    form.cheatNum.value = num;
+    document.querySelector('#exp-magic').innerText = (Number(form.cheatNum.value) - 3) * 30;
+  }
 }
 
 // ソート
@@ -557,257 +376,36 @@ let magicSortable = Sortable.create(document.getElementById('magic-table'), {
   onSort: function(evt){ magicSortAfter(); },
   onStart: function(evt){
     document.querySelectorAll('.trash-box').forEach((obj) => { obj.style.display = 'none' });
-    document.getElementById('magic-trash').style.display = 'block';
-  },
-  onEnd: function(evt){
-    if(!magicTrashNum) { document.getElementById('magic-trash').style.display = 'none' }
-  },
+  }
 });
-let magicSortableTrash = Sortable.create(document.getElementById('magic-trash-table'), {
-  group: "magic",
-  dataIdAttr: 'id',
-  animation: 100,
-  filter: 'thead,tfoot',
-  ghostClass: 'sortable-ghost'
-});
-let magicTrashNum = 0;
+
 function magicSortAfter(){
   const order = magicSortable.toArray();
   let num = 1;
   for(let id of order) {
     if(document.getElementById(id)){
-      document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`magic${num}Name`);
-      document.querySelector(`#${id} [name$="Type"]`    ).setAttribute('name',`magic${num}Type`);
-      document.querySelector(`#${id} [name$="Exp"]`     ).setAttribute('name',`magic${num}Exp`);
-      document.querySelector(`#${id} [name$="Activate"]`).setAttribute('name',`magic${num}Activate`);
-      document.querySelector(`#${id} [name$="Encroach"]`).setAttribute('name',`magic${num}Encroach`);
-      document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`magic${num}Note`);
+      document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`cheat${num}Name`);
+      document.querySelector(`#${id} [name$="Cost"]`).setAttribute('name',`cheat${num}Cost`);
+      document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`cheat${num}Note`);
       num++;
     }
   }
-  form.magicNum.value = num-1;
-  let del = 0;
-  const trashOrder = magicSortableTrash.toArray();
-  for(let id of trashOrder) {
-    if(document.getElementById(id)){
-      del++;
-      document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`magic${del}Name`);
-      document.querySelector(`#${id} [name$="Type"]`    ).setAttribute('name',`magic${del}Type`);
-      document.querySelector(`#${id} [name$="Exp"]`     ).setAttribute('name',`magic${del}Exp`);
-      document.querySelector(`#${id} [name$="Activate"]`).setAttribute('name',`magic${del}Activate`);
-      document.querySelector(`#${id} [name$="Encroach"]`).setAttribute('name',`magic${del}Encroach`);
-      document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`magic${del}Note`);
-    }
-  }
-  magicTrashNum = del;
-  if(!del){ document.getElementById('magic-trash').style.display = 'none' }
-  calcMagic();
+  form.cheatNum.value = num-1;
 }
 
 // コンボ欄 ----------------------------------------
 // 技能セット
 function comboSkillSetAll(){
-  for(let i = 1; i <= Number(form.comboNum.value); i++){
-    comboSkillSet(i);
-  }
+  console.warn('開発用：使わない関数が呼ばれています');
 }
 function comboSkillSet(num){
-  const select = form[`combo${num}Skill`];
-  const nowSelect = select.value;
-  while (0 < select.childNodes.length) {
-    select.removeChild(select.childNodes[0]);
-  }
-  for(let i of ['','―','白兵','射撃','RC','交渉','回避','知覚','意志','調達']){
-    let op = document.createElement("option");
-    op.text = i;
-    select.appendChild(op);
-  }
-  for (let name of ['Ride','Art','Know','Info']){
-    for (let num = 1; num <= Number(form[`skill${name}Num`].value); num++){
-      let op = document.createElement("option");
-      const skillname = form['skill'+name+num+'Name'].value;
-      if(skillname){
-        op.text = skillname;
-        select.appendChild(op);
-      }
-    }
-  }
-  let op = document.createElement("option");
-  op.text = '解説参照';
-  select.appendChild(op);
-  
-  select.value = nowSelect;
+  console.warn('開発用：使わない関数が呼ばれています');
 }
 // 計算
 function calcComboAll(){
-  for(let i = 1; i <= Number(form.comboNum.value); i++){
-    calcCombo(i);
-  }
+  console.warn('開発用：使わない関数が呼ばれています');
 }
-function calcCombo(num){
-  const name = form[`combo${num}Skill`].value;
-  
-  const [lv, stt] = (() => {
-    if(form['comboCalcOff'].checked){ return ['',''] }
-    const id = skillNameToId[name];
-    const sttname = form[`combo${num}Stt`].value
-    let [lv, stt] = ['',''];
-    if(id && name){
-      lv = Number(form['skill'+id].value) + Number(form['skillAdd'+id].value);
-      if     (id.match(/Melee|Dodge|Ride/))      { stt = status['body']   }
-      else if(id.match(/Ranged|Percept|Art/))    { stt = status['sense']  }
-      else if(id.match(/RC|Will|Know/))          { stt = status['mind']   }
-      else if(id.match(/Negotiate|Procure|Info/)){ stt = status['social'] }
-    }
-    if(sttname){ 
-      if     (sttname === '肉体'){ stt = status['body']   }
-      else if(sttname === '感覚'){ stt = status['sense']  }
-      else if(sttname === '精神'){ stt = status['mind']   }
-      else if(sttname === '社会'){ stt = status['social'] }
-      else { stt = 0; }
-    }
-    return [lv, stt];
-  })();
-  
-  for (const i of [1,2,3,4]){
-    document.getElementById(`combo${num}Stt${i}`).innerHTML = stt;
-    document.getElementById(`combo${num}SkillLv${i}`).innerHTML = lv;
-  }
-}
-// 追加
-function addCombo(){
-  let num = Number(form.comboNum.value) + 1;
-  let div = document.createElement('div');
-  div.setAttribute('id',idNumSet('combo'));
-  div.classList.add('combo-table');
-  div.innerHTML = `
-    <div class="handle"></div>
-    <dl class="combo-name"><dt>名称</dt><dd><input name="combo${num}Name" type="text"></dd></dl>
-    <dl class="combo-combo"><dt>組み合わせ</dt><dd><input name="combo${num}Combo" type="text"></dl>
-    <div class="combo-in">
-      <dl><dt>タイミング</dt><dd><input name="combo${num}Timing"   type="text" list="list-timing"></dd></dl>
-      <dl><dt>技能      </dt><dd><select name="combo${num}Skill" oninput="calcCombo(${num})"></select></dd></dl>
-      <dl><dt>能力値    </dt><dd><select name="combo${num}Stt" oninput="calcCombo(${num})">
-        <option value="">自動（技能に合った能力値）
-        <optgroup label="▼エフェクト等による差し替え">
-          <option>肉体
-          <option>感覚
-          <option>精神
-          <option>社会
-        </optgroup>
-      </select></dd></dl>
-      <dl><dt>難易度    </dt><dd><input name="combo${num}Dfclty"   type="text" list="list-dfclty"></dd></dl>
-      <dl><dt>対象      </dt><dd><input name="combo${num}Target"   type="text" list="list-target"></dd></dl>
-      <dl><dt>射程      </dt><dd><input name="combo${num}Range"    type="text" list="list-range"></dd></dl>
-      <dl><dt>侵蝕値    </dt><dd><input name="combo${num}Encroach" type="text"></dd></dl>
-    </div>
-    <dl class="combo-out">
-      <dt class="combo-cond">条件</dt>
-      <dt class="combo-dice">ダイス</dt>
-      <dt class="combo-crit">Ｃ値</dt>
-      <dt class="combo-fixed">判定固定値</dt>
-      <dt class="combo-atk">攻撃力</dt>
-
-      <dd><input name="combo${num}Condition1" type="text" value="100%未満"></dd>
-      <dd id="combo${num}Stt1"></dd>
-      <dd><input name="combo${num}DiceAdd1"   type="text"></dd>
-      <dd><input name="combo${num}Crit1"      type="text"></dd>
-      <dd id="combo${num}SkillLv1"></dd>
-      <dd><input name="combo${num}FixedAdd1"  type="text"></dd>
-      <dd><input name="combo${num}Atk1"       type="text"></dd>
-
-      <dd><input name="combo${num}Condition2" type="text" value="100%以上"></dd>
-      <dd id="combo${num}Stt2"></dd>
-      <dd><input name="combo${num}DiceAdd2"   type="text"></dd>
-      <dd><input name="combo${num}Crit2"      type="text"></dd>
-      <dd id="combo${num}SkillLv2"></dd>
-      <dd><input name="combo${num}FixedAdd2"  type="text"></dd>
-      <dd><input name="combo${num}Atk2"       type="text"></dd>
-
-      <dd><input name="combo${num}Condition3" type="text"></dd>
-      <dd id="combo${num}Stt3"></dd>
-      <dd><input name="combo${num}DiceAdd3"   type="text"></dd>
-      <dd><input name="combo${num}Crit3"      type="text"></dd>
-      <dd id="combo${num}SkillLv3"></dd>
-      <dd><input name="combo${num}FixedAdd3"  type="text"></dd>
-      <dd><input name="combo${num}Atk3"       type="text"></dd>
-
-      <dd><input name="combo${num}Condition4" type="text"></dd>
-      <dd id="combo${num}Stt4"></dd>
-      <dd><input name="combo${num}DiceAdd4"   type="text"></dd>
-      <dd><input name="combo${num}Crit4"      type="text"></dd>
-      <dd id="combo${num}SkillLv4"></dd>
-      <dd><input name="combo${num}FixedAdd4"  type="text"></dd>
-      <dd><input name="combo${num}Atk4"       type="text"></dd>
-    </dl>
-    <p class="combo-note"><textarea name="combo${num}Note" rows="3" placeholder="解説"></textarea></p>
-  `;
-  const target = document.querySelector("#combo-list");
-  target.appendChild(div);
-  comboSkillSet(num);
-  form.comboNum.value = num;
-}
-// 削除
-function delCombo(){
-  let num = Number(form.comboNum.value);
-  if(num > 1){
-    if(form[`combo${num}Name`].value || form[`combo${num}Combo`].value || form[`combo${num}Timing`].value || form[`combo${num}Skill`].value || form[`combo${num}Dfclty`].value || form[`combo${num}Target`].value || form[`combo${num}Range`].value || form[`combo${num}Encroach`].value || form[`combo${num}DiceAdd1`].value || form[`combo${num}Crit1`].value || form[`combo${num}Atk1`].value || form[`combo${num}FixedAdd1`].value || form[`combo${num}Note`].value){
-      if (!confirm(delConfirmText)) return false;
-    }
-    const target = document.querySelector("#combo-list .combo-table:last-child");
-    target.remove();
-    num--;
-    form.comboNum.value = num;
-  }
-}
-// ソート
-let comboSortable = Sortable.create(document.getElementById('combo-list'), {
-  group: "combo",
-  dataIdAttr: 'id',
-  animation: 100,
-  handle: '.handle',
-  filter: '',
-  ghostClass: 'sortable-ghost',
-  onUpdate: function (evt) {
-    const order = comboSortable.toArray();
-    let num = 1;
-    for(let id of order) {
-      if(document.getElementById(id)){
-        document.querySelector(`#${id} [name$="Name"]`    ).setAttribute('name',`combo${num}Name`);
-        document.querySelector(`#${id} [name$="Combo"]`   ).setAttribute('name',`combo${num}Combo`);
-        document.querySelector(`#${id} [name$="Timing"]`  ).setAttribute('name',`combo${num}Timing`);
-        document.querySelector(`#${id} [name$="Skill"]`   ).setAttribute('name',`combo${num}Skill`);
-        document.querySelector(`#${id} [name$="Stt"]`     ).setAttribute('name',`combo${num}Stt`);
-        document.querySelector(`#${id} [name$="Dfclty"]`  ).setAttribute('name',`combo${num}Dfclty`);
-        document.querySelector(`#${id} [name$="Target"]`  ).setAttribute('name',`combo${num}Target`);
-        document.querySelector(`#${id} [name$="Range"]`   ).setAttribute('name',`combo${num}Range`);
-        document.querySelector(`#${id} [name$="Encroach"]`).setAttribute('name',`combo${num}Encroach`);
-        document.querySelector(`#${id} [name$="Note"]`    ).setAttribute('name',`combo${num}Note`);
-        document.querySelector(`#${id} [name$="Condition1"]`).setAttribute('name',`combo${num}Condition1`);
-        document.querySelector(`#${id} [name$="DiceAdd1"]`  ).setAttribute('name',`combo${num}DiceAdd1`);
-        document.querySelector(`#${id} [name$="Crit1"]`     ).setAttribute('name',`combo${num}Crit1`);
-        document.querySelector(`#${id} [name$="Atk1"]`      ).setAttribute('name',`combo${num}Atk1`);
-        document.querySelector(`#${id} [name$="FixedAdd1"]` ).setAttribute('name',`combo${num}FixedAdd1`);
-        document.querySelector(`#${id} [name$="Condition2"]`).setAttribute('name',`combo${num}Condition2`);
-        document.querySelector(`#${id} [name$="DiceAdd2"]`  ).setAttribute('name',`combo${num}DiceAdd2`);
-        document.querySelector(`#${id} [name$="Crit2"]`     ).setAttribute('name',`combo${num}Crit2`);
-        document.querySelector(`#${id} [name$="Atk2"]`      ).setAttribute('name',`combo${num}Atk2`);
-        document.querySelector(`#${id} [name$="FixedAdd2"]` ).setAttribute('name',`combo${num}FixedAdd2`);
-        document.querySelector(`#${id} [name$="Condition3"]`).setAttribute('name',`combo${num}Condition3`);
-        document.querySelector(`#${id} [name$="DiceAdd3"]`  ).setAttribute('name',`combo${num}DiceAdd3`);
-        document.querySelector(`#${id} [name$="Crit3"]`     ).setAttribute('name',`combo${num}Crit3`);
-        document.querySelector(`#${id} [name$="Atk3"]`      ).setAttribute('name',`combo${num}Atk3`);
-        document.querySelector(`#${id} [name$="FixedAdd3"]` ).setAttribute('name',`combo${num}FixedAdd3`);
-        document.querySelector(`#${id} [name$="Condition4"]`).setAttribute('name',`combo${num}Condition4`);
-        document.querySelector(`#${id} [name$="DiceAdd4"]`  ).setAttribute('name',`combo${num}DiceAdd4`);
-        document.querySelector(`#${id} [name$="Crit4"]`     ).setAttribute('name',`combo${num}Crit4`);
-        document.querySelector(`#${id} [name$="Atk4"]`      ).setAttribute('name',`combo${num}Atk4`);
-        document.querySelector(`#${id} [name$="FixedAdd4"]` ).setAttribute('name',`combo${num}FixedAdd4`);
-        num++;
-      }
-    }
-  }
-});
+function calcCombo(num){console.warn('開発用：使わない関数が呼ばれています');}
 
 // 武器欄 ----------------------------------------
 // 追加
@@ -935,70 +533,6 @@ let armorSortable = Sortable.create(document.querySelector('#armor-table tbody')
     }
   }
 });
-// ヴィークル欄 ----------------------------------------
-// 追加
-function addVehicle(){
-  let num = Number(form.vehicleNum.value) + 1;
-  let tbody = document.createElement('tr');
-  tbody.setAttribute('id',idNumSet('vehicle'));
-  tbody.innerHTML = `
-    <td><input name="vehicle${num}Name"  type="text"><span class="handle"></span></td>
-    <td><input name="vehicle${num}Stock" type="number" oninput="calcItem()"></td>
-    <td><input name="vehicle${num}Exp"   type="number" oninput="calcItem()"></td>
-    <td><input name="vehicle${num}Type"  type="text" value="ヴィークル"></td>
-    <td><input name="vehicle${num}Skill" type="text" list="list-vehicle-skill"></td>
-    <td><input name="vehicle${num}Initiative" type="text"></td>
-    <td><input name="vehicle${num}Atk"        type="text"></td>
-    <td><input name="vehicle${num}Armor"      type="text"></td>
-    <td><input name="vehicle${num}Dash"       type="text"></td>
-    <td><textarea name="vehicle${num}Note" rows="2"></textarea></td>
-  `;
-  const target = document.querySelector("#vehicle-table tbody");
-  target.appendChild(tbody, target);
-  form.vehicleNum.value = num;
-}
-// 削除
-function delVehicle(){
-  let num = Number(form.vehicleNum.value);
-  if(num > 0){
-    if(form[`vehicle${num}Name`].value || form[`vehicle${num}Stock`].value || form[`vehicle${num}Exp`].value || form[`vehicle${num}Skill`].value || form[`vehicle${num}Initiative`].value || form[`vehicle${num}Atk`].value || form[`vehicle${num}Armor`].value || form[`vehicle${num}Dash`].value || form[`vehicle${num}Note`].value){
-      if (!confirm(delConfirmText)) return false;
-    }
-    const target = document.querySelector("#vehicle-table tbody tr:last-of-type");
-    target.parentNode.removeChild(target);
-    num--;
-    form.vehicleNum.value = num;
-    calcItem();
-  }
-}
-// ソート
-let vehicleSortable = Sortable.create(document.querySelector('#vehicle-table tbody'), {
-  group: "armor",
-  dataIdAttr: 'id',
-  animation: 100,
-  handle: '.handle',
-  filter: 'thead,tfoot',
-  ghostClass: 'sortable-ghost',
-  onUpdate: function (evt) {
-    const order = vehicleSortable.toArray();
-    let num = 1;
-    for(let id of order) {
-      if(document.getElementById(id)){
-        document.querySelector(`#${id} [name$="Name"]`      ).setAttribute('name',`vehicle${num}Name`);
-        document.querySelector(`#${id} [name$="Stock"]`     ).setAttribute('name',`vehicle${num}Stock`);
-        document.querySelector(`#${id} [name$="Exp"]`       ).setAttribute('name',`vehicle${num}Exp`);
-        document.querySelector(`#${id} [name$="Type"]`      ).setAttribute('name',`vehicle${num}Type`);
-        document.querySelector(`#${id} [name$="Skill"]`     ).setAttribute('name',`vehicle${num}Skill`);
-        document.querySelector(`#${id} [name$="Initiative"]`).setAttribute('name',`vehicle${num}Initiative`);
-        document.querySelector(`#${id} [name$="Atk"]`       ).setAttribute('name',`vehicle${num}Atk`);
-        document.querySelector(`#${id} [name$="Armor"]`     ).setAttribute('name',`vehicle${num}Armor`);
-        document.querySelector(`#${id} [name$="Dash"]`      ).setAttribute('name',`vehicle${num}Dash`);
-        document.querySelector(`#${id} [name$="Note"]`      ).setAttribute('name',`vehicle${num}Note`);
-        num++;
-      }
-    }
-  }
-});
 
 // アイテム欄 ----------------------------------------
 // 追加
@@ -1047,9 +581,7 @@ let itemSortable = Sortable.create(document.querySelector('#item-table tbody'), 
       if(document.getElementById(id)){
         document.querySelector(`#${id} [name$="Name"]`      ).setAttribute('name',`item${num}Name`);
         document.querySelector(`#${id} [name$="Stock"]`     ).setAttribute('name',`item${num}Stock`);
-        document.querySelector(`#${id} [name$="Exp"]`       ).setAttribute('name',`item${num}Exp`);
         document.querySelector(`#${id} [name$="Type"]`      ).setAttribute('name',`item${num}Type`);
-        document.querySelector(`#${id} [name$="Skill"]`     ).setAttribute('name',`item${num}Skill`);
         document.querySelector(`#${id} [name$="Note"]`      ).setAttribute('name',`item${num}Note`);
         num++;
       }

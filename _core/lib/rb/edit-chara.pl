@@ -477,7 +477,7 @@ print <<"HTML";
               <td><span class="handle"></span>@{[input "flag${num}Relation"]}</td>
               <td>@{[input "flag${num}Name"]}</td>
               <td>@{[input "flag${num}Note"]}</td>
-              <td onclick="changeLoisState(this.parentNode.id)"><span id="flag${num}-state" data-state="$pc{"flag${num}State"}"></span>@{[input "flag${num}State",'hidden']}</td>
+              <td onclick="changeFlagState(this.parentNode.id)"><span id="flag${num}-state" data-state="$pc{"flag${num}State"}"></span>@{[input "flag${num}State",'hidden']}</td>
             </tr>
 HTML
 }
@@ -523,7 +523,7 @@ print <<"HTML";
 HTML
 foreach my $num (1 .. $pc{'cheatNum'}) {
 print <<"HTML";
-          <tbody id="magic${num}">
+          <tbody id="cheat${num}">
             <tr>
               <td class="handle"> </td>
               <td>@{[input "cheat${num}Name"    ,'','','placeholder="名称"']}</td>
@@ -534,7 +534,6 @@ print <<"HTML";
 HTML
 }
 print <<"HTML";
-        <tfoot></tfoot>
         </table>
         <div class="add-del-button"><a onclick="addCheat()">▼</a><a onclick="delCheat()">▲</a></div>
       </details>
