@@ -33,7 +33,7 @@ our @elements = (
   "異邦人"
 );
 
-our %elements_statsu = (
+our %elements_status = (
   "罪人"   => [4, 9, 2, 5, 4, 4],
   "無垢"   => [0, 6, 6, 3, 9, 4],
   "賢人"   => [3, 4, 9, 4, 4, 4],

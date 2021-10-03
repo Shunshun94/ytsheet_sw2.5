@@ -76,7 +76,7 @@ $pc{'skillCompNum'} ||= 2;
 $pc{'skillArtNum'}  ||= 2;
 $pc{'skillKnowNum'} ||= 2;
 $pc{'talentNum'}  ||= 2;
-$pc{'cheatNum'}   ||= 2;
+$pc{'cheatNum'}   ||= 3;
 $pc{'weaponNum'}  ||= 1;
 $pc{'armorNum'}   ||= 1;
 $pc{'itemNum'}    ||= 2;
@@ -290,14 +290,14 @@ print <<"HTML";
           <dl class="box"><dt>肌の色</dt><dd>@{[input "skin"]}</dd></dl>
           
           <dl class="box"><dt>IGR</dt><dd>
-          <select name="igr" oninput="console.log(1,this.value);">@{[ option 'igr',@data::igrs ]}</select>
+          <select name="igr" oninput="calcStt();">@{[ option 'igr',@data::igrs ]}</select>
           </dd></dl>
           <dl class="box"><dt>エレメント</dt><dd>
-          <select name="element" oninput="console.log(1,this.value);">@{[ option 'element',@data::elements ]}</select>
+          <select name="element" oninput="calcStt();">@{[ option 'element',@data::elements ]}</select>
           </dd></dl>
 
           <dl class="box"><dt>出身</dt><dd>
-          <select name="home" oninput="console.log(1,this.value);">@{[ option 'home',@data::homes ]}</select>
+          <select name="home" oninput="">@{[ option 'home',@data::homes ]}</select>
           </dd></dl>
         </div>
         <div class="box" id="syndrome-status">
@@ -309,15 +309,15 @@ print <<"HTML";
             <tbody>
               <tr>
                 <th></th>
-                <td id="stt-base-body"         ></td>
-                <td id="stt-base-sense"        ></td>
-                <td id="stt-base-intelligence" ></td>
-                <td id="stt-base-will"         ></td>
-                <td id="stt-base-charm"        ></td>
-                <td id="stt-base-social"       ></td>
+                <td id="stt-base-Body"         ></td>
+                <td id="stt-base-Sense"        ></td>
+                <td id="stt-base-Intelligence" ></td>
+                <td id="stt-base-Will"         ></td>
+                <td id="stt-base-Charm"        ></td>
+                <td id="stt-base-Social"       ></td>
               </tr>
               <tr>
-                <th>ボーナス</th>
+                <th><small>ボーナス</small></th>
                 <td>@{[input "sttBonusBody"  ,'number','calcStt']}</td>
                 <td>@{[input "sttBonusSense"  ,'number','calcStt']}</td>
                 <td>@{[input "sttBonusIntelligence"  ,'number','calcStt']}</td>
@@ -346,12 +346,12 @@ print <<"HTML";
               </tr>
               <tr>
                 <th>合計</th>
-                <td id="stt-total-body"         >0</td>
-                <td id="stt-total-sense"        >0</td>
-                <td id="stt-total-intelligence" >0</td>
-                <td id="stt-total-will"         >0</td>
-                <td id="stt-total-charm"        >0</td>
-                <td id="stt-total-social"       >0</td>
+                <td id="stt-total-Body"         >0</td>
+                <td id="stt-total-Sense"        >0</td>
+                <td id="stt-total-Intelligence" >0</td>
+                <td id="stt-total-Will"         >0</td>
+                <td id="stt-total-Charm"        >0</td>
+                <td id="stt-total-Social"       >0</td>
               </tr>
             </tbody>
           </table>
@@ -359,11 +359,15 @@ print <<"HTML";
         <div class="box-union" id="sub-status">
           <dl class="box" id="max-hp">
             <dt>FP</dt>
-            <dd>+@{[input "maxFpAdd",'number','calcMaxFp']}=<b id="max-fp-total"></b></dd>
+            <dd><span id="max-fp-value"></span>+@{[input "maxFpAdd",'number','calcMaxFp']}=<b id="max-fp-total"></b></dd>
           </dl>
           <dl class="box" id="initiative">
             <dt>行動値</dt>
-            <dd>+@{[input "initiativeAdd",'number','calcInitiative']}=<b id="initiative-total"></b></dd>
+            <dd><span id="initiative-value"></span>+@{[input "initiativeAdd",'number','calcInitiative']}=<b id="initiative-total"></b></dd>
+          </dl>
+          <dl class="box" id="stock">
+            <dt>常備化ポイント</dt>
+            <dd><span id="stock-value"></span>+@{[input "stockAdd",'number','calcStock']}=<b id="stock-total"></b></dd>
           </dl>
         </div>
       </div>
@@ -532,6 +536,7 @@ HTML
 print <<"HTML";
         <tfoot></tfoot>
         </table>
+        <div class="add-del-button"><a onclick="addCheat()">▼</a><a onclick="delCheat()">▲</a></div>
       </details>
 
       <details class="box box-union" id="items" $open{'item'}>
@@ -625,12 +630,11 @@ print <<"HTML";
       </div>
       <div class="box">
         <table class="edit-table">
-          <thead><tr><th></th><th>常備化</th><th>経験点</th><th></th></tr></thead>
+          <thead><tr><th></th><th>常備化</th><th></th></tr></thead>
           <tbody>
             <tr>
             <th>合計</th>
             <td><b id="item-total-stock">0</b>/<b id="item-max-stock">0</b></td>
-            <td class="bold" id="item-total-exp">0</td>
             <td></td>
             </tr>
           </tbody>
@@ -1033,11 +1037,16 @@ print <<"HTML";
   </datalist>
   <script>
 HTML
-print 'const synStats = {';
-foreach (keys %data::syndrome_status) {
+print 'const baseStatus = {';
+foreach (keys %data::igrs_status) {
   next if !$_;
-  my @ar = @{$data::syndrome_status{$_}};
-  print '"'.$_.'":{"body":'.$ar[0].',"sense":'.$ar[1].',"mind":'.$ar[2].',"social":'.$ar[3].'},'
+  my @ar = @{$data::igrs_status{$_}};
+  print '"'.$_.'":{"Body":'.$ar[0].',"Sense":'.$ar[1].',"Intelligence":'.$ar[2].',"Will":'.$ar[3].',"Charm":'.$ar[4].',"Social":'.$ar[5].'},'
+}
+foreach (keys %data::elements_status) {
+  next if !$_;
+  my @ar = @{$data::elements_status{$_}};
+  print '"'.$_.'":{"Body":'.$ar[0].',"Sense":'.$ar[1].',"Intelligence":'.$ar[2].',"Will":'.$ar[3].',"Charm":'.$ar[4].',"Social":'.$ar[5].'},'
 }
 print "};\n";
 print 'const awakens = {';

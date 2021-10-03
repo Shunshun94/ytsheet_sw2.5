@@ -6,8 +6,7 @@ let status = {};
 let syndromes = [];
 // ----------------------------------------
 window.onload = function() {
-  //syndromes = [form.syndrome1.value, form.syndrome2.value, form.syndrome3.value];
-  
+  calcStt();
   nameSet();
   calcItem();
   imagePosition();
@@ -45,82 +44,72 @@ function checkStage(){
   calcMagic();
 }
 // シンドローム変更 ----------------------------------------
-function changeSyndrome(num, syn){
-  syndromes[num-1] = syn;
-  calcStt();
-}
 
 // ステータス計算 ----------------------------------------
 function calcStt() {
-  const syn1 = syndromes[0];
-  const syn2 = syndromes[1];
-  
-  exps['status'] = 0;
-  
-  for (let stt of ['body','sense','mind','social']){
-    const Stt = stt.slice(0,1).toUpperCase()+stt.slice(1);
-    let base = 0;
-    base += syn1 ? synStats[syn1][stt] : 0;
-    base += syn2 ? synStats[syn2][stt] : syn1 ? synStats[syn1][stt] : 0;
-    if(stt == form.sttWorks.value) { base += 1; }
-    const grow = Number(form["sttGrow"+Stt].value);
-    const add  = Number(form["sttAdd" +Stt].value);
-    status[stt] = base + grow + add;
-    
-    document.getElementById('stt-syn1-'+stt).innerHTML = syn1 ? synStats[syn1][stt] + (syn2 ? '' : '×2') : '';
-    document.getElementById('stt-syn2-'+stt).innerHTML = syn2 ? synStats[syn2][stt] : '';
-    document.getElementById('stt-total-'+stt).innerHTML = status[stt];
-    document.getElementById('skill-'+stt).innerHTML = status[stt];
-    
-    // 経験点
-    for(let i = base; i < base+grow; i++){
-      exps['status'] += (i > 20) ? 30 : (i > 10) ? 20 : 10;
-    }
-  }
+  const igr = form.igr.value;
+  const element = form.element.value;
+
+  exps.status = 0;
+  ['Body', 'Sense', 'Intelligence', 'Will', 'Charm', 'Social'].forEach((column, i)=>{
+    const base = baseStatus[igr][column] + baseStatus[element][column] + 20;
+    document.getElementById(`stt-base-${column}`).innerText = base;
+    const bonus = Number(form[`sttBonus${column}`].value || 0);
+    const grows = Number(form[`sttGrow${column}`].value || 0);
+    const other = Number(form[`sttOther${column}`].value || 0);
+    const total = base + bonus + grows + other;
+    document.getElementById(`stt-total-${column}`).innerText = total;
+
+    exps.status += grows * 3;
+  });
+  document.getElementById('exp-status').innerText = exps['status'];
+/*
   document.getElementById('exp-status').innerHTML = exps['status'];
+  
+  calcSkill();*/
   calcSubStt();
-  calcSkill();
 }
 // サブステータス
 function calcSubStt() {
   calcMaxHp();
   calcInitiative();
   calcStock();
-  calcMagicDice();
 }
 let maxHp = 0;
 function calcMaxHp(){
-  maxHp = status['body'] * 2 + status['mind'] + 20 + Number(form.maxHpAdd.value);
-  document.getElementById('max-hp-total').innerHTML = maxHp;
+  maxHp = Math.floor(['Body', 'Will', 'Social'].reduce((current, column)=>{
+    return current + Number(document.getElementById(`stt-total-${column}`).innerText);
+  }, 0) / 3);
+  document.getElementById('max-fp-value').innerHTML = maxHp;
+  document.getElementById('max-fp-total').innerText = (maxHp + (Number(form.maxFpAdd.value) || 0));
+  return (maxHp + (Number(form.maxFpAdd.value) || 0));
 }
+const calcMaxFp = calcMaxHp;
 let initiative = 0;
 function calcInitiative(){
-  initiative = status['sense'] * 2 + status['mind'] + Number(form.initiativeAdd.value);
-  document.getElementById('initiative-total').innerHTML = initiative;
-  calcMove();
+  initiative = Math.floor(['Body', 'Sense'].reduce((current, column)=>{
+    return current + Number(document.getElementById(`stt-total-${column}`).innerText);
+  }, 0) / 3);
+  document.getElementById('initiative-value').innerText = initiative;
+  document.getElementById('initiative-total').innerText = (initiative + (Number(form.initiativeAdd.value) || 0));
+  return initiative;
 }
 let move = 0;
-function calcMove(){
-  move = initiative + 5 + Number(form.moveAdd.value);
-  document.getElementById('move-total').innerHTML = move;
-  document.getElementById('dash-total').innerHTML = move * 2;
-}
+function calcMove(){}
 let stock = 0;
 let stockUsed = 0;
 function calcStock(){
-  stock = status['social'] * 2 + (Number(form.skillProcure.value)+Number(form.skillAddProcure.value)) * 2 + Number(form.stockAdd.value);
-  document.getElementById('stock-total').innerHTML = stock;
-  document.getElementById("item-max-stock").innerHTML = stock;
+  stock = Number(document.getElementById(`stt-total-Social`).innerText) / 2;
+  document.getElementById('stock-value').innerHTML = stock;
+  document.getElementById("stock-total").innerHTML = (stock + (Number(form.stockAdd.value) || 0));
+  document.getElementById("item-max-stock").innerHTML = (stock + (Number(form.stockAdd.value) || 0));
   calcSaving();
+  return stock;
 }
-function calcSaving(){
-  document.getElementById('saving-total').innerHTML = stock - stockUsed + Number(form.savingAdd.value);
-}
+function calcSaving(){}
+
 let magicDice = 0;
-function calcMagicDice(){
-  magicDice = Math.ceil(status['mind'] + Number(form.skillWill.value)+Number(form.skillAddWill.value) / 2) + Number(form.magicAdd.value);
-  document.getElementById('magic-total').innerHTML = magicDice;
-}
+function calcMagicDice(){}
 // 技能
 const skillNameToId = {
   '白兵': 'Melee'    ,
@@ -193,7 +182,6 @@ function calcMagic(){
 // アイテム
 function calcItem(){
   stockUsed = 0;
-  exps['item'] = 0;
   for (let num = 1; num <= Number(form.weaponNum.value); num++){
     stockUsed    += Number(form['weapon'+num+'Stock'].value);
   }
@@ -549,6 +537,15 @@ function delTalent(){
     calcMagic();
   }
 }
+
+function addCheat() {
+
+}
+
+function delCheat() {
+  
+}
+
 // ソート
 let magicSortable = Sortable.create(document.getElementById('magic-table'), {
   group: "magic",
