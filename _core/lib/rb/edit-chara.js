@@ -129,16 +129,21 @@ function calcSkill() {
 // アイテム
 function calcItem(){
   stockUsed = 0;
+  let itemExp = 0;
   for (let num = 1; num <= Number(form.weaponNum.value); num++){
     stockUsed    += Number(form['weapon'+num+'Stock'].value);
+    itemExp      += Number(form['weapon'+num+'Exp'].value);
   }
   for (let num = 1; num <= Number(form.armorNum.value); num++){
     stockUsed    += Number(form['armor'+num+'Stock'].value);
+    itemExp      += Number(form['armor'+num+'Exp'].value);
   }
   for (let num = 1; num <= Number(form.itemNum.value); num++){
     stockUsed    += Number(form['item'+num+'Stock'].value);
+    itemExp      += Number(form['item'+num+'Exp'].value);
   }
   document.getElementById("item-total-stock").innerHTML = stockUsed;
+  document.getElementById('exp-item').innerText = itemExp;
 }
 
 // 経験点
@@ -416,12 +421,12 @@ function addWeapon(){
   tbody.innerHTML = `
     <td><input name="weapon${num}Name"  type="text"><span class="handle"></span></td>
     <td><input name="weapon${num}Stock" type="number" oninput="calcItem()"></td>
-    <td><input name="weapon${num}Exp"   type="number" oninput="calcItem()"></td>
+    <td><input name="weapon${num}Exp" type="number" oninput="calcItem()"></td>
+    <td><input name="weapon${num}Initiative" type="number"></td>
     <td><input name="weapon${num}Type"  type="text" list="list-weapon-type"></td>
-    <td><input name="weapon${num}Skill" type="text" list="list-weapon-skill"></td>
-    <td><input name="weapon${num}Acc"   type="text"></td>
+    <td><input name="weapon${num}Effect" type="text" list="list-weapon-effect"></td>
     <td><input name="weapon${num}Atk" type="text"></td>
-    <td><input name="weapon${num}Guard" type="text"></td>
+    <td><input name="weapon${num}Target" type="text" list="list-weapon-target"></td>
     <td><input name="weapon${num}Range" type="text"></td>
     <td><textarea name="weapon${num}Note" rows="2"></textarea></td>
   `;
@@ -434,7 +439,7 @@ function addWeapon(){
 function delWeapon(){
   let num = Number(form.weaponNum.value);
   if(num > 1){
-    if(form[`weapon${num}Name`].value || form[`weapon${num}Stock`].value || form[`weapon${num}Exp`].value || form[`weapon${num}Type`].value || form[`weapon${num}Skill`].value || form[`weapon${num}Acc`].value || form[`weapon${num}Atk`].value || form[`weapon${num}Guard`].value || form[`weapon${num}Range`].value || form[`weapon${num}Note`].value){
+    if(form[`weapon${num}Name`].value || form[`weapon${num}Stock`].value || form[`weapon${num}Exp`].value || form[`weapon${num}Initiative`].value || form[`weapon${num}Type`].value || form[`weapon${num}Effect`].value || form[`weapon${num}Atk`].value || form[`weapon${num}Target`].value || form[`weapon${num}Range`].value || form[`weapon${num}Note`].value){
       if (!confirm(delConfirmText)) return false;
     }
     const target = document.querySelector("#weapon-table tbody tr:last-of-type");
@@ -481,12 +486,20 @@ function addArmor(){
   tbody.innerHTML = `
     <td><input name="armor${num}Name"  type="text"><span class="handle"></span></td>
     <td><input name="armor${num}Stock" type="number" oninput="calcItem()"></td>
-    <td><input name="armor${num}Exp"   type="number" oninput="calcItem()"></td>
-    <td><input name="armor${num}Type"  type="text" value="防具" list="list-armor-type"></td>
-    <td></td>
+    <td><input name="armor${num}Exp" type="number" oninput="calcItem()"></td>
+
+    <td><input name="armor${num}ArmorCut"   type="number"></td>
+    <td><input name="armor${num}ArmorPenetration"   type="number"></td>
+    <td><input name="armor${num}ArmorImpact"   type="number"></td>
+
+    <td><input name="armor${num}ArmorGround"   type="number"></td>
+    <td><input name="armor${num}ArmorWater"   type="number"></td>
+    <td><input name="armor${num}ArmorFire"   type="number"></td>
+    <td><input name="armor${num}ArmorWind"   type="number"></td>
+    <td><input name="armor${num}ArmorLight"   type="number"></td>
+    <td><input name="armor${num}ArmorDark"   type="number"></td>
+
     <td><input name="armor${num}Initiative" type="text"></td>
-    <td><input name="armor${num}Dodge"      type="text"></td>
-    <td><input name="armor${num}Armor"      type="text"></td>
     <td><textarea name="armor${num}Note" rows="2"></textarea></td>
   `;
   const target = document.querySelector("#armor-table tbody");
@@ -497,7 +510,12 @@ function addArmor(){
 function delArmor(){
   let num = Number(form.armorNum.value);
   if(num > 1){
-    if(form[`armor${num}Name`].value || form[`armor${num}Stock`].value || form[`armor${num}Exp`].value || form[`armor${num}Initiative`].value || form[`armor${num}Dodge`].value || form[`armor${num}Armor`].value || form[`armor${num}Note`].value){
+    if( form[`armor${num}Name`].value || form[`armor${num}Stock`].value || form[`armor${num}Exp`].value || 
+        form[`armor${num}Initiative`].value || form[`armor${num}Note`].value ||
+        form[`armor${num}ArmorCut`].value || form[`armor${num}ArmorPenetration`].value || form[`armor${num}ArmorImpact`].value ||
+        form[`armor${num}ArmorGround`].value || form[`armor${num}ArmorWater`].value || form[`armor${num}ArmorFire`].value ||
+        form[`armor${num}ArmorWind`].value || form[`armor${num}ArmorLight`].value || form[`armor${num}ArmorDark`].value
+        ){
       if (!confirm(delConfirmText)) return false;
     }
     const target = document.querySelector("#armor-table tbody tr:last-of-type");
@@ -543,6 +561,7 @@ function addItem(){
   tbody.innerHTML = `
     <td><input name="item${num}Name"  type="text"><span class="handle"></span></td>
     <td><input name="item${num}Stock" type="number" oninput="calcItem()"></td>
+    <td><input name="item${num}Exp" type="number" oninput="calcItem()"></td>
     <td><input name="item${num}Type"  type="text" list="list-item-type"></td>
     <td><textarea name="item${num}Note" rows="2"></textarea></td>
   `;
@@ -556,7 +575,7 @@ function delItem(){
   let num = Number(form.itemNum.value);
   if(num > 1){
     console.log(num, form.itemNum);
-    if(form[`item${num}Name`].value || form[`item${num}Stock`].value || form[`item${num}Type`].value || form[`item${num}Note`].value){
+    if(form[`item${num}Name`].value || form[`item${num}Stock`].value || form[`item${num}Exp`].value || form[`item${num}Type`].value || form[`item${num}Note`].value){
       if (!confirm(delConfirmText)) return false;
     }
     const target = document.querySelector("#item-table tbody tr:last-of-type");

@@ -628,12 +628,13 @@
 }
 #items table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
 #items table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
-#items table thead th:nth-child(3) { width: 3.4em !important; } /* 行動 */
-#items table thead th:nth-child(4) { width: 3.4em !important; } /* 種別 */
-#items table thead th:nth-child(5) { width: 4.4em !important; } /* 属性 */
-#items table thead th:nth-child(6) { width: 5.0em !important; } /* 攻撃力 */
-#items table thead th:nth-child(7) { width: 3.4em !important; } /* 対象 */
-#items table thead th:nth-child(8) { width: 3.4em !important; } /* 射程 */
+#items table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+#items table thead th:nth-child(4) { width: 3.4em !important; } /* 行動 */
+#items table thead th:nth-child(5) { width: 4.4em !important; } /* 種別 */
+#items table thead th:nth-child(6) { width: 4.4em !important; } /* 属性 */
+#items table thead th:nth-child(7) { width: 5.0em !important; } /* 攻撃力 */
+#items table thead th:nth-child(8) { width: 3.4em !important; } /* 対象 */
+#items table thead th:nth-child(9) { width: 3.4em !important; } /* 射程 */
 #items table thead th:last-child   { width: auto !important;  } /* 解説 */
 #items table.edit-table tbody td {
   vertical-align: top;
@@ -646,12 +647,13 @@
 
 table#weapon-table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
 table#weapon-table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
-table#weapon-table thead th:nth-child(3) { width: 3.4em !important; } /* 行動 */
-table#weapon-table thead th:nth-child(4) { width: 3.4em !important; } /* 種別 */
-table#weapon-table thead th:nth-child(5) { width: 4.4em !important; } /* 属性 */
-table#weapon-table thead th:nth-child(6) { width: 5.0em !important; } /* 攻撃力 */
-table#weapon-table thead th:nth-child(7) { width: 3.4em !important; } /* 対象 */
-table#weapon-table thead th:nth-child(8) { width: 3.4em !important; } /* 射程 */
+table#weapon-table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+table#weapon-table thead th:nth-child(4) { width: 3.4em !important; } /* 行動 */
+table#weapon-table thead th:nth-child(5) { width: 4.4em !important; } /* 種別 */
+table#weapon-table thead th:nth-child(6) { width: 4.4em !important; } /* 属性 */
+table#weapon-table thead th:nth-child(7) { width: 5.0em !important; } /* 攻撃力 */
+table#weapon-table thead th:nth-child(8) { width: 3.4em !important; } /* 対象 */
+table#weapon-table thead th:nth-child(9) { width: 3.4em !important; } /* 射程 */
 table#weapon-table thead th:last-child   { width: auto !important;  } /* 解説 */
 table#weapon-table.edit-table tbody td {
   vertical-align: top;
@@ -664,16 +666,17 @@ table#weapon-table:last-of-type tbody td {
 
 table#armor-table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
 table#armor-table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
-table#armor-table thead th:nth-child(3) { width: 3.4em !important; } /* 行動 */
-table#armor-table thead th:nth-child(4) { width: 3.4em !important; } /* 切断 */
-table#armor-table thead th:nth-child(5) { width: 3.4em !important; } /* 貫通 */
-table#armor-table thead th:nth-child(6) { width: 3.4em !important; } /* 衝撃 */
-table#armor-table thead th:nth-child(7) { width: 3.4em !important; } /* 地 */
-table#armor-table thead th:nth-child(8) { width: 3.4em !important; } /* 水 */
-table#armor-table thead th:nth-child(9)) { width: 3.4em !important; } /* 火 */
-table#armor-table thead th:nth-child(10) { width: 3.4em !important; } /* 風 */
-table#armor-table thead th:nth-child(11) { width: 3.4em !important; } /* 光 */
-table#armor-table thead th:nth-child(12) { width: 3.4em !important; } /* 闇 */
+table#armor-table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+table#armor-table thead th:nth-child(4) { width: 3.4em !important; } /* 行動 */
+table#armor-table thead th:nth-child(5) { width: 3.4em !important; } /* 切断 */
+table#armor-table thead th:nth-child(6) { width: 3.4em !important; } /* 貫通 */
+table#armor-table thead th:nth-child(7) { width: 3.4em !important; } /* 衝撃 */
+table#armor-table thead th:nth-child(8) { width: 3.4em !important; } /* 地 */
+table#armor-table thead th:nth-child(9)) { width: 3.4em !important; } /* 水 */
+table#armor-table thead th:nth-child(10) { width: 3.4em !important; } /* 火 */
+table#armor-table thead th:nth-child(11) { width: 3.4em !important; } /* 風 */
+table#armor-table thead th:nth-child(12) { width: 3.4em !important; } /* 光 */
+table#armor-table thead th:nth-child(13) { width: 3.4em !important; } /* 闇 */
 table#armor-table thead th:last-child   { width: auto !important;  } /* 解説 */
 table#armor-table.edit-table tbody td {
   vertical-align: top;
@@ -681,6 +684,20 @@ table#armor-table.edit-table tbody td {
   border: 0;
 }
 table#armor-table:last-of-type tbody td {
+  border-width: 0;
+}
+
+table#item-table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
+table#item-table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
+table#item-table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+table#item-table thead th:nth-child(4) { width: 6.0em !important; } /* 種別 */
+table#item-table thead th:last-child   { width: auto !important;  } /* 解説 */
+table#item-table.edit-table tbody td {
+  vertical-align: top;
+  padding: .4rem 0 0;
+  border: 0;
+}
+table#item-table:last-of-type tbody td {
   border-width: 0;
 }
 

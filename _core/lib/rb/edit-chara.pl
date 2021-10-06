@@ -544,7 +544,7 @@ print <<"HTML";
         @{[input 'weaponNum','hidden']}
         <table class="edit-table" id="weapon-table">
           <thead>
-            <tr><th>武器</th><th>常備化</th><th>行動</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>解説</th></tr>
+            <tr><th>武器</th><th>常備化</th><th>経験値</th><th>行動</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -553,6 +553,7 @@ print <<"HTML";
             <tr id="weapon${num}" class="weapon${num}">
               <td>@{[input "weapon${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "weapon${num}Stock",'number','calcItem']}</td>
+              <td>@{[input "weapon${num}Exp",'number','calcItem']}</td>
               <td>@{[input "weapon${num}Initiative", 'number']}</td>
               <td>@{[input "weapon${num}Type",'','','list="list-weapon-type"']}</td>
               <td>@{[input "weapon${num}Effect",'','','list="list-weapon-effect"']}</td>
@@ -573,7 +574,7 @@ print <<"HTML";
         <table class="edit-table" id="armor-table">
           <thead>
             <tr>
-              <th>防具</th><th>常備化</th><th>行動</th>
+              <th>防具</th><th>常備化</th><th>経験値</th><th>行動</th>
               <th>切</th><th>貫</th><th>衝</th>
               <th>地</th><th>水</th><th>火</th><th>風</th><th>光</th><th>闇</th>
               <th>解説</th></tr>
@@ -585,6 +586,7 @@ print <<"HTML";
             <tr id="armor${num}">
               <td>@{[input "armor${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "armor${num}Stock",'number','calcItem']}</td>
+              <td>@{[input "armor${num}Exp",'number','calcItem']}</td>
               <td>@{[input "armor${num}ArmorCut",'number']}</td>
               <td>@{[input "armor${num}ArmorPenetration",'number']}</td>
               <td>@{[input "armor${num}ArmorImpact",'number']}</td>
@@ -608,7 +610,7 @@ print <<"HTML";
         @{[input 'itemNum','hidden']}
         <table class="edit-table" id="item-table">
           <thead>
-            <tr><th>一般アイテム</th><th>常備化</th><th>種別</th><th>解説</th></tr>
+            <tr><th>一般アイテム</th><th>常備化</th><th>経験値</th><th>種別</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -617,6 +619,7 @@ print <<"HTML";
             <tr id="item${num}">
               <td>@{[input "item${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "item${num}Stock",'number','calcItem']}</td>
+              <td>@{[input "item${num}Exp",'number','calcItem']}</td>
               <td>@{[input "item${num}Type",'','','list="list-item-type"']}</td>
               <td><textarea name="item${num}Note" rows="2">$pc{"item${num}Note"}</textarea></td>
             </tr>
