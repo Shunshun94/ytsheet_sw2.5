@@ -48,12 +48,10 @@
             <th class="player"><a href="./?group=<TMPL_VAR ID>&<TMPL_VAR qLinks>&sort=pl">プレイヤー</a></th>
             <th class="gender"><span>性別</span></th>
             <th class="age"><span>年齢</span></th>
-            <th class="sign"><span>星座</span></th>
-            <th class="blood"><span>血液型</span></th>
-            <th class="works"><span>ワークス</span></th>
+            <th class="works"><span>IGR</span></th>
             <th class="exp"><a href="./?group=<TMPL_VAR ID>&<TMPL_VAR qLinks>&sort=exp">経験点</a></th>
-            <th class="syndrome"><span>シンドローム</span></th>
-            <th class="dlois"><span>Ｄロイス</span></th>
+            <th class="syndrome"><span>出身</span></th>
+            <th class="dlois"><span>エレメント</span></th>
             <th class="date"><a href="./?group=<TMPL_VAR ID>&<TMPL_VAR qLinks>&sort=date">更新<br>日時</a></th>
           </tr>
           </thead>
@@ -62,12 +60,10 @@
             <td class="player"><TMPL_VAR PLAYER></td>
             <td class="gender"><TMPL_VAR GENDER></td>
             <td class="age"><TMPL_VAR AGE></td>
-            <td class="sign"><TMPL_VAR SIGN></td>
-            <td class="blood"><TMPL_VAR BLOOD></td>
-            <td class="works"><TMPL_VAR WORKS></td>
+            <td class="works"><TMPL_VAR IGR></td>
             <td class="exp"><TMPL_VAR EXP></td>
-            <td class="syndrome"><div><TMPL_VAR SYNDROME></div></td>
-            <td class="dlois"><div><TMPL_VAR DLOIS></div></td>
+            <td class="syndrome"><div><TMPL_VAR HOME></div></td>
+            <td class="dlois"><div><TMPL_VAR ELEMENT></div></td>
             <td class="date"><div><TMPL_VAR DATE></div></td>
           </tr></TMPL_LOOP>
         </table>

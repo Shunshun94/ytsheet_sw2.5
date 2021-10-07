@@ -215,10 +215,10 @@ sub data_calc {
   $_ =~ s/[:：].+?$//g foreach (@dloises);
   $::newline = "$pc{'id'}<>$::file<>".
                "$pc{'birthTime'}<>$::now<>$charactername<>$pc{'playerName'}<>$pc{'group'}<>".
-               "$pc{'expTotal'}<>$pc{'gender'}<>$pc{'age'}<>$pc{'sign'}<>$pc{'blood'}<>$pc{'works'}<>".
+               "$pc{'expTotal'}<>$pc{'gender'}<>$pc{'age'}<>$pc{'sign'}<>$pc{'blood'}<>$pc{'igr'}<>".
                
-               "$pc{'syndrome1'}/$pc{'syndrome2'}/$pc{'syndrome3'}<>".
-               join('/',@dloises).'<>'.
+               "$pc{'element'}<>".
+               "$pc{'home'}<>".
                
                "$pc{'sessionTotal'}<>$pc{'image'}<> $pc{'tags'} <>$pc{'hide'}<>$pc{'stage'}<>";
 

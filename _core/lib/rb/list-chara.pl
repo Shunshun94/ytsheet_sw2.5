@@ -13,7 +13,7 @@ my $sort = $::in{'sort'};
 ### テンプレート読み込み #############################################################################
 my $INDEX;
 $INDEX = HTML::Template->new( filename  => $set::skin_tmpl , utf8 => 1,
-  path => ['./', $::core_dir."/skin/dx3", $::core_dir."/skin/_common", $::core_dir],
+  path => ['./', $::core_dir."/skin/rb", $::core_dir."/skin/_common", $::core_dir],
   search_path_on_include => 1,
   die_on_bad_params => 0, die_on_missing_include => 0, case_sensitive => 1, global_vars => 1);
 
@@ -160,8 +160,8 @@ my %grouplist;
 foreach (@list) {
   my (
     $id, undef, undef, $updatetime, $name, $player, $group, #0-6
-    $exp, $gender, $age, $sign, $blood, $works, #7-12
-    $syndrome, $dlois, #13-14
+    $exp, $gender, $age, $sign, $blood, $igr, #7-12
+    $element, $home, #13-14
     $session, $image, $tag, $hide, $stage #15-19
   ) = (split /<>/, $_)[0..19];
   
@@ -190,13 +190,7 @@ foreach (@list) {
   #年齢
   $age =~ s/^(.+?)[\(（].*?[）\)]$/$1/;
   $age =~ tr/０-９/0-9/;
-  
-  #シンドローム
-  my @syndromes;
-  push(@syndromes, "<span>$_</span>") foreach (split '/', $syndrome);
-  my @dloises;
-  push(@dloises, "<span>$_</span>") foreach (split '/', $dlois);
-  
+    
   #ソート用データ
   my $sort_data;
   if    ($sort eq 'name'){ ($sort_data = $name) =~ s/^“.*”//; }
@@ -221,9 +215,9 @@ foreach (@list) {
     "GENDER" => $gender,
     "SIGN" => $sign,
     "BLOOD" => $blood,
-    "WORKS" => $works,
-    "SYNDROME" => join('',@syndromes),
-    "DLOIS" => join(' ',@dloises),
+    "IGR" => $igr,
+    "ELEMENT" => $element,
+    "HOME" => $home,
     "DATE" => $updatetime,
     "HIDE" => $hide,
   });
