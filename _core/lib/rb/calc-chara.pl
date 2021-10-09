@@ -18,29 +18,27 @@ sub data_calc {
   }
   
   ### 能力値 --------------------------------------------------
-  my %status = (0=>'body', 1=>'sense', 2=>'mind', 3=>'social');
-  foreach my $num (keys %status){
-    my $name = $status{$num};
-    my $Name = ucfirst $name;
-    my $base = 0;
-    $base += $data::syndrome_status{$pc{'syndrome1'}}[$num];
-    $base += $pc{'syndrome2'} ? $data::syndrome_status{$pc{'syndrome2'}}[$num] : $base;
-    if($name eq $pc{'sttWorks'}){ $base++; }
-    
-    $pc{'sttTotal'.$Name} = $base + $pc{'sttGrow'.$Name} + $pc{'sttAdd'.$Name};
-    # 経験点
-    for (my $i = $base; $i < $base+$pc{'sttGrow'.$Name}; $i++){
-      $pc{'expUsedStatus'} += ($i > 20) ? 30 : ($i > 10) ? 20 : 10;
-    }
-  }
+my %status = (0=>'Body', 1=>'Sense', 2=>'Intelligence', 3=>'Will', 4=>'Charm', 5=>'Social');
+foreach my $num (keys %status){
+  my $name = $status{$num};
+  my $base = 20;
+  $base += $data::igrs_status{$pc{'igr'}}[$num] || 0;
+  $base += $data::elements_status{$pc{'element'}}[$num] || 0;
+  $base += $pc{'sttBonus'.$name} || 0;
+  $base += $pc{'sttGrow'.$name} || 0;
+  $base += $pc{'sttOther'.$name} || 0;
+  $pc{"sttTotal".$name} = $base;
+
+  # 経験点
+  #for (my $i = $base; $i < $base+$pc{'sttGrow'.$Name}; $i++){
+  #  $pc{'expUsedStatus'} += ($i > 20) ? 30 : ($i > 10) ? 20 : 10;
+  #}
+}
+
   ### 副能力値 --------------------------------------------------
-  $pc{'maxHpTotal'}      = $pc{'sttTotalBody'}  * 2 + $pc{'sttTotalMind'} + 20 + $pc{'maxHpAdd'};
-  $pc{'initiativeTotal'} = $pc{'sttTotalSense'} * 2 + $pc{'sttTotalMind'} + $pc{'initiativeAdd'};
-  $pc{'moveTotal'} = $pc{'initiativeTotal'} + 5 + $pc{'moveAdd'};
-  $pc{'dashTotal'} = $pc{'moveTotal'} * 2 + $pc{'dashAdd'};
-  $pc{'stockTotal'} = $pc{'sttTotalSocial'} * 2 + $pc{'skillProcure'} * 2 + $pc{'stockAdd'};
-  $pc{'savingTotal'} = $pc{'stockTotal'} + $pc{'savingAdd'};
-  $pc{'magicTotal'}  = ceil(($pc{'sttTotalMind'} + $pc{'skillWill'} + $pc{'skillAddWill'}) / 2) + $pc{'magicAdd'};
+  $pc{'maxHpTotal'}      = int(($pc{'sttTotalBody'} + $pc{'sttTotalWill'} + $pc{'sttTotalSocial'}) / 3) + $pc{'maxHpAdd'};
+  $pc{'initiativeTotal'} = int(($pc{'sttTotalBody'} + $pc{'sttTotalSense'}) / 3) + $pc{'initiativeAdd'};
+  $pc{'stockTotal'} = int($pc{'sttTotalSocial'} / 2) + $pc{'stockAdd'};
   
   ### 技能 --------------------------------------------------
   my %skill_name_to_id = (

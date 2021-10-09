@@ -309,31 +309,18 @@ foreach (1 .. 3){
 }
 $SHEET->param(Memories => \@memories);
 
-### エフェクト --------------------------------------------------
-my @effects;
-foreach (1 .. $pc{'effectNum'}){
+### 特技 --------------------------------------------------
+my @Talents;
+foreach (1 .. $pc{'talentNum'}){
   next if(
-    !$pc{'effect'.$_.'Name'}  && !$pc{'effect'.$_.'Lv'}       && !$pc{'effect'.$_.'Timing'} &&
-    !$pc{'effect'.$_.'Skill'} && !$pc{'effect'.$_.'Dfclty'}   && !$pc{'effect'.$_.'Target'} && 
-    !$pc{'effect'.$_.'Range'} && !$pc{'effect'.$_.'Encroach'} && !$pc{'effect'.$_.'Restrict'} &&
-    !$pc{'effect'.$_.'Note'}  && !$pc{'effect'.$_.'Exp'}
+    !$pc{'talent'.$_.'Name'}  && !$pc{'talent'.$_.'Note'}
   );
-  push(@effects, {
-    "TYPE"     => $pc{'effect'.$_.'Type'},
-    "NAME"     => textShrink(13,15,17,21,$pc{'effect'.$_.'Name'}),
-    "LV"       => $pc{'effect'.$_.'Lv'},
-    "TIMING"   => textTiming($pc{'effect'.$_.'Timing'}),
-    "SKILL"    => textSkill($pc{'effect'.$_.'Skill'}),
-    "DFCLTY"   => textShrink(3,4,4,4,$pc{'effect'.$_.'Dfclty'}),
-    "TARGET"   => textShrink(6,7,8,8,$pc{'effect'.$_.'Target'}),
-    "RANGE"    => $pc{'effect'.$_.'Range'},
-    "ENCROACH" => textShrink(3,4,4,4,$pc{'effect'.$_.'Encroach'}),
-    "RESTRICT" => $pc{'effect'.$_.'Restrict'},
-    "NOTE"     => $pc{'effect'.$_.'Note'},
-    "EXP"      => ($pc{'effect'.$_.'Exp'} > 0 ? '+' : '').$pc{'effect'.$_.'Exp'},
+  push(@Talents, {
+    "NAME"     => textShrink(13,15,17,21,$pc{'talent'.$_.'Name'}),
+    "NOTE"     => $pc{'talent'.$_.'Note'},
   });
 }
-$SHEET->param(Effects => \@effects);
+$SHEET->param(Talents => \@Talents);
 sub textTiming {
   my $text = shift;
   $text =~ s#([^<])[／\/]#$1<hr class="dotted">#g;
@@ -374,22 +361,18 @@ sub textShrink {
 }
 
 ### 術式 --------------------------------------------------
-my @magics;
-foreach (1 .. $pc{'magicNum'}){
+my @cheats;
+foreach (1 .. $pc{'cheatNum'}){
   next if(
-    !$pc{'magic'.$_.'Name'}     && !$pc{'magic'.$_.'Type'}     && !$pc{'magic'.$_.'Exp'} &&
-    !$pc{'magic'.$_.'Activate'} && !$pc{'magic'.$_.'Encroach'} && !$pc{'magic'.$_.'Note'} 
+    !$pc{'cheat'.$_.'Name'}     && !$pc{'cheat'.$_.'Cost'}     && !$pc{'cheat'.$_.'Note'} 
   );
-  push(@magics, {
-    "NAME"     => $pc{'magic'.$_.'Name'},
-    "TYPE"     => textShrink(5,5,5,5,$pc{'magic'.$_.'Type'}),
-    "EXP"      => $pc{'magic'.$_.'Exp'},
-    "ACTIVATE" => $pc{'magic'.$_.'Activate'},
-    "ENCROACH" => $pc{'magic'.$_.'Encroach'},
-    "NOTE"     => $pc{'magic'.$_.'Note'},
+  push(@cheats, {
+    "NAME"     => $pc{'cheat'.$_.'Name'},
+    "COST"     => $pc{'cheat'.$_.'Cost'},
+    "NOTE"     => $pc{'cheat'.$_.'Note'},
   });
 }
-$SHEET->param(Magics => \@magics);
+$SHEET->param(Cheats => \@cheats);
 
 ### コンボ --------------------------------------------------
 my @combos;
@@ -461,20 +444,20 @@ my @weapons;
 foreach (1 .. $pc{'weaponNum'}){
   next if(
     !$pc{'weapon'.$_.'Name'}  && !$pc{'weapon'.$_.'Stock'} && !$pc{'weapon'.$_.'Exp'} &&
-    !$pc{'weapon'.$_.'Skill'} && !$pc{'weapon'.$_.'Acc'}   && !$pc{'weapon'.$_.'Atk'} &&
-    !$pc{'weapon'.$_.'Guard'} && !$pc{'weapon'.$_.'Range'} && !$pc{'weapon'.$_.'Note'} 
+    !$pc{'weapon'.$_.'Initiative'} && !$pc{'weapon'.$_.'Type'} && !$pc{'weapon'.$_.'Effect'} &&
+    !$pc{'weapon'.$_.'Atk'} && !$pc{'weapon'.$_.'Range'} && !$pc{'weapon'.$_.'Note'}
   );
   push(@weapons, {
     "NAME"     => textShrink(12,13,14,15,$pc{'weapon'.$_.'Name'}),
     "STOCK"    => $pc{'weapon'.$_.'Stock'},
     "EXP"      => $pc{'weapon'.$_.'Exp'},
+    "INITIATIVE"     => textType($pc{'weapon'.$_.'Initiative'}),
     "TYPE"     => textType($pc{'weapon'.$_.'Type'}),
-    "SKILL"    => textSkill(textShrink(4,5,6,7,$pc{'weapon'.$_.'Skill'})),
-    "ACC"      => $pc{'weapon'.$_.'Acc'},
-    "ATK"      => $pc{'weapon'.$_.'Atk'},
-    "GUARD"    => $pc{'weapon'.$_.'Guard'},
-    "RANGE"    => $pc{'weapon'.$_.'Range'},
-    "NOTE"     => $pc{'weapon'.$_.'Note'},
+    "EFFECT"    => textType($pc{'weapon'.$_.'Effect'}),
+    "ATK"      => textType($pc{'weapon'.$_.'Atk'}),
+    "TARGET"    => textType($pc{'weapon'.$_.'Target'}),
+    "RANGE"    => textType($pc{'weapon'.$_.'Range'}),
+    "NOTE"     => textType($pc{'weapon'.$_.'Note'}),
   });
 }
 $SHEET->param(Weapons => \@weapons);
@@ -490,17 +473,26 @@ my @armors;
 foreach (1 .. $pc{'armorNum'}){
   next if(
     !$pc{'armor'.$_.'Name'}  && !$pc{'armor'.$_.'Stock'} && !$pc{'armor'.$_.'Exp'} && !$pc{'armor'.$_.'Initiative'} &&
-    !$pc{'armor'.$_.'Dodge'} && !$pc{'armor'.$_.'Armor'} && !$pc{'armor'.$_.'Note'} 
+    !$pc{'armor'.$_.'ArmorCut'} && !$pc{'armor'.$_.'ArmorPenetration'} && !$pc{'armor'.$_.'ArmorImpact'} &&
+    !$pc{'armor'.$_.'ArmorGround'} && !$pc{'armor'.$_.'ArmorWater'} && !$pc{'armor'.$_.'ArmorFire'} &&
+    !$pc{'armor'.$_.'ArmorWind'} && !$pc{'armor'.$_.'ArmorLight'} && !$pc{'armor'.$_.'ArmorDark'} &&
+    !$pc{'armor'.$_.'Note'} 
   );
   push(@armors, {
-    "NAME"       => textShrink(12,13,14,15,$pc{'armor'.$_.'Name'}),
-    "STOCK"      => $pc{'armor'.$_.'Stock'},
-    "EXP"        => $pc{'armor'.$_.'Exp'},
-    "TYPE"       => textShrink(5,6,7,8,$pc{'armor'.$_.'Type'}),
-    "INITIATIVE" => $pc{'armor'.$_.'Initiative'},
-    "DODGE"      => $pc{'armor'.$_.'Dodge'},
-    "ARMOR"      => $pc{'armor'.$_.'Armor'},
-    "NOTE"       => $pc{'armor'.$_.'Note'},
+    "NAME"        => textShrink(12,13,14,15,$pc{'armor'.$_.'Name'}),
+    "STOCK"       => $pc{'armor'.$_.'Stock'},
+    "EXP"         => $pc{'armor'.$_.'Exp'},
+    "INITIATIVE"  => $pc{'armor'.$_.'Initiative'},
+    "CUT"         => $pc{'armor'.$_.'ArmorCut'},
+    "PENETRATION" => $pc{'armor'.$_.'ArmorPenetration'},
+    "IMPACT"      => $pc{'armor'.$_.'ArmorImpact'},
+    "GROUND"      => $pc{'armor'.$_.'ArmorGround'},
+    "WATER"       => $pc{'armor'.$_.'ArmorWater'},
+    "FIRE"        => $pc{'armor'.$_.'ArmorFire'},
+    "WIND"        => $pc{'armor'.$_.'ArmorWind'},
+    "LIGHT"       => $pc{'armor'.$_.'ArmorLight'},
+    "DARK"        => $pc{'armor'.$_.'ArmorDark'},
+    "NOTE"        => $pc{'armor'.$_.'Note'},
   });
 }
 $SHEET->param(Armors => \@armors);

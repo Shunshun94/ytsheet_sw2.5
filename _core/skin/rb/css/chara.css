@@ -623,6 +623,33 @@ p.words span.brackets {
   }
 }
 
+#skills {
+  margin-top: 1rem;
+}
+
+#skills table {
+  width:100%;
+}
+
+#skills tr:nth-child(even) {background-color:rgba(127,127,127,0.1)}
+
+#skills td {
+  text-align:left;
+  padding-left:16px;
+  width:33%;
+  position:relative;
+}
+
+#skills td:nth-child(2) {
+  border-left: 1px dotted gray;
+  border-right: 1px dotted gray;
+}
+
+#skills .right {
+  position:absolute;
+  right:40px;
+}
+
 /* // Lois / Memory
 ---------------------------------------------------------------------------------------------------- */
 #lois,
@@ -782,17 +809,14 @@ p.words span.brackets {
 #effect table thead th:nth-child(n+4) {
   font-size: 90%;
 }
-#effect table thead th:nth-child(1) { width: 2.1em; } /* No. */
-#effect table thead th:nth-child(2) { width: 10em; } /* 名称 */
-#effect table thead th:nth-child(3) { width: auto; } /* Lv */
+#effect table thead th:nth-child(1) { width: 12em; } /* No. */
+#effect table thead th:nth-child(2) { width: auto; } /* Lv */
 
 #effect table tbody td:nth-child(n+2) {
   font-family: var(--font-proportional);
   font-feature-settings: "palt";
 }
-#effect table tbody td:nth-child(1) { width: 2.1em; } /* No. */
-#effect table tbody td:nth-child(2) { font-weight: bold; } /* 名称 */
-#effect table tbody td:nth-child(3) {  } /* Lv */
+#effect table tbody td:nth-child(1) { font-weight: bold; } /* No. */
 
 #effect table tbody td.left {
   padding-left: .5rem;
@@ -939,12 +963,9 @@ p.words span.brackets {
 #magic table thead th {
   font-size: 90%;
 }
-#magic table thead th:nth-child(1) { width:  16em; } /* 名称 */
-#magic table thead th:nth-child(2) { width: 4.5em; } /* 種別 */
-#magic table thead th:nth-child(3) { width: 3.5em; } /* 経験点 */
-#magic table thead th:nth-child(4) { width: 5.5em; } /* 発動値 */
-#magic table thead th:nth-child(5) { width: 3.4em; } /* 侵蝕値 */
-#magic table thead th:nth-child(6) { width: auto; } /* 効果 */
+#magic table thead th:nth-child(1) { width: 12.0em; } /* 名称 */
+#magic table thead th:nth-child(2) { width: 3.4em; } /* コスト */
+#magic table thead th:nth-child(3) { width: auto; } /* 効果 */
 
 #magic table tbody td:nth-child(1) { font-weight: bold; } /* 名称 */
 

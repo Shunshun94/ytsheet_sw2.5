@@ -384,13 +384,8 @@ print <<"HTML";
               <dt class="left">隠密</dt><dd><select name="skillHide">@{[option "skillHide",@skillLevel]}</select></dd>
               <dt class="left">解錠</dt><dd><select name="skillPicking">@{[option "skillPicking",@skillLevel]}</select></dd>
               <dt class="left">回避</dt><dd><select name="skillDodge">@{[option "skillDodge",@skillLevel]}</select></dd>
-HTML
-foreach my $num (1 .. $pc{'skillCompNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillComp${num}Name",'','','list="list-comp"']}</dt><dd><select>@{[option "skillComp$num",@skillLevel]}</select></dd>
-HTML
-}
-print <<"HTML";
+              <dt>@{[input "skillComp1Name",'','','list="list-comp"']}</dt><dd><select name="skillComp1">@{[option "skillComp1",@skillLevel]}</select></dd>
+              <dt>@{[input "skillComp2Name",'','','list="list-comp"']}</dt><dd><select name="skillComp2">@{[option "skillComp2",@skillLevel]}</select></dd>
             </dl>
           </dd>
           <dt></dt>
@@ -402,13 +397,8 @@ print <<"HTML";
               <dt class="left">交渉</dt><dd><select name="skillNegotiation">@{[option "skillNegotiation",@skillLevel]}</select></dd>
               <dt class="left">修理</dt><dd><select name="skillRepair">@{[option "skillRepair",@skillLevel]}</select></dd>
               <dt class="left">乗馬</dt><dd><select name="skillHorse">@{[option "skillHorse",@skillLevel]}</select></dd>
-HTML
-foreach my $num (1 .. $pc{'skillArtNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillArt${num}Name",'','','list="list-art"']}</dt><dd><select>@{[option "skillArt$num",@skillLevel]}</select></dd>
-HTML
-}
-print <<"HTML";
+              <dt>@{[input "skillArt1Name",'','','list="list-art"']}</dt><dd><select name="skillArt1">@{[option "skillArt1",@skillLevel]}</select></dd>
+              <dt>@{[input "skillArt2Name",'','','list="list-art"']}</dt><dd><select name="skillArt2">@{[option "skillArt2",@skillLevel]}</select></dd>
             </dl>
           </dd>
           <dt></dt>
@@ -420,13 +410,8 @@ print <<"HTML";
               <dt class="left">抵抗力</dt><dd><select name="skillRegist">@{[option "skillRegist",@skillLevel]}</select></dd>
               <dt class="left">飛び道具</dt><dd><select name="skillProjectile">@{[option "skillProjectile",@skillLevel]}</select></dd>
               <dt class="left">魔法機械操作</dt><dd><select name="skillMachine">@{[option "skillMachine",@skillLevel]}</select></dd>
-HTML
-foreach my $num (1 .. $pc{'skillKnowNum'}) {
-print <<"HTML";
-              <dt>@{[input "skillKnow${num}Name",'','','list="list-know"']}</dt><dd><select>@{[option "skillKnow$num",@skillLevel]}</select></dd>
-HTML
-}
-print <<"HTML";
+              <dt>@{[input "skillKnow1Name",'','','list="list-know"']}</dt><dd><select name="skillKnow1">@{[option "skillKnow1",@skillLevel]}</select></dd>
+              <dt>@{[input "skillKnow2Name",'','','list="list-know"']}</dt><dd><select name="skillKnow2">@{[option "skillKnow2",@skillLevel]}</select></dd>
             </dl>
           </dd>
         </dl>
@@ -544,7 +529,7 @@ print <<"HTML";
         @{[input 'weaponNum','hidden']}
         <table class="edit-table" id="weapon-table">
           <thead>
-            <tr><th>武器</th><th>常備化</th><th>経験値</th><th>行動</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>解説</th></tr>
+            <tr><th>武器</th><th>常備化</th><th>経験点</th><th>行動</th><th>種別</th><th>属性</th><th>攻撃力</th><th><span>対象</span></th><th>射程</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
@@ -574,7 +559,7 @@ print <<"HTML";
         <table class="edit-table" id="armor-table">
           <thead>
             <tr>
-              <th>防具</th><th>常備化</th><th>経験値</th><th>行動</th>
+              <th>防具</th><th>常備化</th><th>経験点</th><th>行動</th>
               <th>切</th><th>貫</th><th>衝</th>
               <th>地</th><th>水</th><th>火</th><th>風</th><th>光</th><th>闇</th>
               <th>解説</th></tr>
@@ -587,6 +572,7 @@ print <<"HTML";
               <td>@{[input "armor${num}Name"]}<span class="handle"></span></td>
               <td>@{[input "armor${num}Stock",'number','calcItem']}</td>
               <td>@{[input "armor${num}Exp",'number','calcItem']}</td>
+              <td>@{[input "armor${num}Initiative"]}</td>
               <td>@{[input "armor${num}ArmorCut",'number']}</td>
               <td>@{[input "armor${num}ArmorPenetration",'number']}</td>
               <td>@{[input "armor${num}ArmorImpact",'number']}</td>
@@ -596,7 +582,6 @@ print <<"HTML";
               <td>@{[input "armor${num}ArmorWind",'number']}</td>
               <td>@{[input "armor${num}ArmorLight",'number']}</td>
               <td>@{[input "armor${num}ArmorDark",'number']}</td>
-              <td>@{[input "armor${num}Initiative"]}</td>
               <td><textarea name="armor${num}Note" rows="2">$pc{"armor${num}Note"}</textarea></td>
             </tr>
 HTML
@@ -610,7 +595,7 @@ print <<"HTML";
         @{[input 'itemNum','hidden']}
         <table class="edit-table" id="item-table">
           <thead>
-            <tr><th>一般アイテム</th><th>常備化</th><th>経験値</th><th>種別</th><th>解説</th></tr>
+            <tr><th>一般アイテム</th><th>常備化</th><th>経験点</th><th>種別</th><th>解説</th></tr>
           </thead>
           <tbody>
 HTML
