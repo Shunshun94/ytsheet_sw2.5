@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title><TMPL_VAR characterNameTitle> - <TMPL_VAR title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="<TMPL_VAR characterNameTitle> - <TMPL_VAR title>">
+  <meta property="og:type" content="artcle">
+  <meta property="og:url" content="<TMPL_VAR ogUrl>">
+  <meta property="og:site_name" content="<TMPL_VAR title>">
+  <meta property="og:description" content="<TMPL_VAR ogDescript>">
+  <TMPL_IF ogImg><meta property="og:image" content="<TMPL_VAR ogImg>"></TMPL_IF>
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@yutorize">
+  <link rel="stylesheet" media="all" href="<TMPL_VAR coreDir>/skin/_common/css/base.css?<TMPL_VAR ver>">
+  <link rel="stylesheet" media="all" href="<TMPL_VAR coreDir>/skin/_common/css/sheet.css?<TMPL_VAR ver>">
+  <link rel="stylesheet" media="all" href="<TMPL_VAR coreDir>/skin/rb/css/chara.css?<TMPL_VAR ver>">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  <script>
+const sheetId = '<TMPL_VAR id>';
+const paletteTool = '<TMPL_VAR paletteTool>';
+const generateType = 'DoubleCross3PC';
+const defaultImage = '<TMPL_VAR coreDir>/skin/rb/img/default.png';
+
+<TMPL_IF error>
+window.onload = function() {
+  editOn();
+  setTimeout(function(){
+    document.getElementById("error").style.opacity = 0;
+    document.getElementById("error").style.top = '-5rem';
+  },2000);
+};
+</TMPL_IF>
+  </script>
+  <TMPL_IF colorCustom><style>
+    :root {
+      --box-head-bg-color-h: <TMPL_VAR colorHeadBgH>;
+      --box-head-bg-color-s: <TMPL_VAR colorHeadBgS>%;
+      --box-head-bg-color-l: <TMPL_VAR colorHeadBgL>%;
+      --box-base-bg-color-h: <TMPL_VAR colorBaseBgH>;
+      --box-base-bg-color-s: <TMPL_VAR colorBaseBgS>%;
+      --box-base-bg-color-l: <TMPL_VAR colorBaseBgL>%;
+      --box-base-bg-color-d: <TMPL_VAR colorBaseBgD>%;
+    }
+  </style></TMPL_IF>
+  <TMPL_INCLUDE NAME="skin-add/sheet-head.html">
+</head>
+<body>
+  <script src="<TMPL_VAR coreDir>/skin/_common/js/common.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/_common/js/sheet.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/_common/js/lib/sha256.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/_common/js/lib/jszip.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/_common/js/lib/ytsheetCommon.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/dx3/js/lib/ytsheetToUdonariumDX3.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/rb/js/lib/ytsheetToCcfoliaDX3.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/rb/js/lib/ytsheetConstsDX3.js?<TMPL_VAR ver>"></script>
+  <script src="<TMPL_VAR coreDir>/skin/rb/js/lib/ytsheetToTextDX3.js?<TMPL_VAR ver>"></script>
+  <header>
+    <h1><a href="./"><TMPL_VAR title></a></h1>
+    <nav>
+      <ul>
+        <li class="small"><a href="./">⏎</a></li>
+        <TMPL_IF convertMode>
+          <li><a href="./?mode=convert&url=<TMPL_VAR convertUrl>"><span>コンバート</span></a></li>
+        <TMPL_ELSE>
+          <TMPL_IF backupId>
+            <li class="small"><a onclick="backuplistOn()"><span>過去ログ</span></a></li>
+            <TMPL_IF ReqdPassword>
+              <li class="small"><a onclick="editOn()">復元</a></li>
+            <TMPL_ELSE>
+              <li class="small"><a href="./?mode=edit&id=<TMPL_VAR id>&backup=<TMPL_VAR backupId>">復元</a></li>
+            </TMPL_IF>
+          <TMPL_ELSE>
+            <TMPL_UNLESS forbiddenMode>
+              <li class="small"><a onclick="chatPaletteOn();"><span>パレット</span></a></li>
+              <li class="small"><a onclick="donwloadListOn();">出力</a></li>
+              <li class="small"><a onclick="backuplistOn()"><span>過去ログ</span></a></li>
+            </TMPL_UNLESS>
+            <TMPL_IF ReqdPassword>
+              <li class="small"><a onclick="editOn()">編集</a></li>
+            <TMPL_ELSE>
+              <li class="small"><a href="./?mode=edit&id=<TMPL_VAR id>">編集</a></li>
+            </TMPL_IF>
+          </TMPL_IF>
+        </TMPL_IF>
+        <li class="small"><a onclick="nightModeChange()" title="ナイトモード">☾✧</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <TMPL_IF error>
+  <aside id="error">
+    <p>
+      <TMPL_VAR error>
+    </p>
+  </aside>
+  </TMPL_IF>
+  
+  <TMPL_UNLESS forbiddenMode>
+    <aside id="backuplist" class="float-box">
+      <h2>過去ログ（バックアップ）</h2>
+      <ul>
+        <li<TMPL_UNLESS backupId> class="backup-now"</TMPL_UNLESS>><a href="?id=<TMPL_VAR id>">最新</a></li>
+        <TMPL_LOOP Backup><li<TMPL_IF NOW> class="backup-now"</TMPL_IF>><a href="?id=<TMPL_VAR id>&backup=<TMPL_VAR URL>"><TMPL_VAR DATE></a></li></TMPL_LOOP>
+      </ul>
+    </aside>
+
+    <aside id="downloadlist" class="float-box">
+      <h2>出力</h2>
+      <ul>
+        <li id="downloadlist-udonarium"><a onclick="downloadAsUdonarium();">ユドナリウム用コマデータ<small>(zip形式ファイル)</small></a></li>
+        <li id="downloadlist-ccfolia"><a onclick="downloadAsCcfolia();">ココフォリア用コマデータ<small>(クリップボードへコピー)</small></a></li>
+        <li id="downloadlist-text"><a onclick="donloadAsText();">テキスト形式</a></li>
+        <li id="downloadlist-json"><a onclick="donloadAsJson();">JSON 形式</a></li>
+      </ul>
+    </aside>
+  </TMPL_UNLESS>
+
+  <form id="login-form" class="float-box" method="post" action="./">
+    <input type="hidden" name="mode" value="edit">
+    <input type="hidden" name="id" value="<TMPL_VAR id>">
+    <input type="password" name="pass" placeholder="password">
+    <input type="hidden" name="backup" value="<TMPL_VAR backupId>">
+    <input type="submit" value="編集">
+  </form>
+
+  <main id="character">
+    <TMPL_IF forbidden><aside class="information attention">
+      閲覧が制限されているデータです。<br>
+      <TMPL_IF forbiddenAuthor>あなた以外には一部または全てのデータが伏せられます。(<a href="./?id=<TMPL_VAR id>&checkView=1">⇒確認</a>)</TMPL_IF>
+    </aside></TMPL_IF>
+    
+    <TMPL_IF backupId><aside class="information">
+      <TMPL_VAR updateTime> 時点のバックアップデータです。
+    </aside></TMPL_IF>
+    
+    <TMPL_IF convertMode><aside class="information">
+      <a href="<TMPL_VAR convertUrl>" target="_blank"><TMPL_VAR convertSource></a> のデータを表示しています。
+    </aside></TMPL_IF>
+    
+    <article>
+      <div id="area-name">
+        <h1 id="character-name"><TMPL_IF aka><span id="aka">“<TMPL_VAR aka>”</span></TMPL_IF><TMPL_VAR characterName></h1>
+        <div>
+        <p id="update-time"><time><TMPL_VAR updateTime></time></p>
+        <p id="player-name">プレイヤー：<TMPL_VAR playerName></p>
+        </div>
+      </div>
+      
+      <div id="tags">
+        <TMPL_IF group><a href="./?group=<TMPL_VAR group>" id="group"><TMPL_VAR groupName></a></TMPL_IF>
+        <TMPL_IF stage><i href="./?group=<TMPL_VAR group>" id="stage"><TMPL_VAR stage></i></TMPL_IF>
+        <TMPL_LOOP Tags><a href="./?tag=<TMPL_VAR URL>"><TMPL_VAR TEXT></a></TMPL_LOOP>
+      </div>
+      <div class="column column-status"><!-- COLUMN -->
+      <div id="area-status">
+        <TMPL_IF image> 
+        <div id="image" class="image" style="background-image: url(<TMPL_VAR imageSrc>);background-size:<TMPL_VAR imageFit>;background-position:<TMPL_VAR imagePositionX>% <TMPL_VAR imagePositionY>%;">
+        <div onclick="popImage()"><p class="words" style="<TMPL_VAR wordsX><TMPL_VAR wordsY>"><TMPL_VAR words></p></div>
+        <p class="image-copyright"><TMPL_VAR imageCopyright></p>
+        </div>
+        <TMPL_ELSE>
+        <div id="image-none" class="image-none"><p class="words" style="<TMPL_VAR wordsX><TMPL_VAR wordsY>"><TMPL_VAR words></p></div>
+        </TMPL_IF>
+
+        <div id="personal" class="box-union">
+          <dl class="box"><dt>年齢</dt><dd><TMPL_VAR age></dd></dl>
+          <dl class="box"><dt>性別</dt><dd><TMPL_VAR gender></dd></dl>
+          <dl class="box"><dt>身長</dt><dd><TMPL_VAR height></dd></dl>
+          <dl class="box"><dt>髪の色</dt><dd><TMPL_VAR hair></dd></dl>
+          <dl class="box"><dt>瞳の色</dt><dd><TMPL_VAR eyes></dd></dl>
+          <dl class="box"><dt>肌の色</dt><dd><TMPL_VAR skin></dd></dl>
+        </div>
+        <div id="sub-status" class="box-union">
+          <dl class="box" id="igr">
+            <dt>IGR</dt>
+            <dd><b><TMPL_VAR igr></b></dd>
+          </dl>
+          <dl class="box" id="element">
+            <dt>エレメント</dt>
+            <dd><b><TMPL_VAR element></b></dd>
+          </dl>
+          <dl class="box" id="home">
+            <dt>行動値</dt>
+            <dd><b><TMPL_VAR home></b></dd>
+          </dl>
+          <dl class="box" id="max-hp">
+            <dt>HP最大値</dt>
+            <dd><TMPL_IF maxHpAdd>+<TMPL_VAR maxHpAdd>=</TMPL_IF><b><TMPL_VAR maxHpTotal></b></dd>
+          </dl>
+          <dl class="box" id="stock-pt">
+            <dt>常備化<span class="shorten">ポイント</span></dt>
+            <dd><TMPL_IF stockAdd>+<TMPL_VAR stockAdd>=</TMPL_IF><b><TMPL_VAR stockTotal></b></dd>
+          </dl>
+          <dl class="box" id="initiative">
+            <dt>行動値</dt>
+            <dd><TMPL_IF initiativeAdd>+<TMPL_VAR initiativeAdd>=</TMPL_IF><b><TMPL_VAR initiativeTotal></b></dd>
+          </dl>
+        </div>
+        
+        <section class="box" id="exp">
+        <h2>経験点</h2>
+        <dl>
+          <dt>使<span class="shorten">用</span></dt><dd><TMPL_VAR expUsed></dd>
+          <dt>残<span class="shorten">り</span></dt><dd><TMPL_VAR expRest></dd>
+          <dt>総<span class="shorten">計</span></dt><dd><TMPL_VAR expTotal></dd>
+        </dl>
+        </section>
+
+        <section class="box" id="lifepath">
+          <h2>ライフパス</h2>
+          <table class="data-table line-tbody">
+            <tbody>
+              <tr>
+                <th class="left" colspan="2">前歴</th>
+                <td rowspan="2" class="left"><TMPL_VAR lifepathPastNote></td>
+              </tr>
+              <tr>
+                <td colspan="2"><TMPL_VAR lifepathPast></td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <th class="left" colspan="2">秘密</th>
+                <td rowspan="2" class="left"><TMPL_VAR lifepathSecretNote></td>
+              </tr>
+              <tr>
+                <td colspan="2"><TMPL_VAR lifepathSecret></td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr>
+                <th class="left" colspan="2">破滅</th>
+                <td rowspan="2" class="left"><TMPL_VAR lifepathRuinNote></td>
+              </tr>
+              <tr>
+                <td colspan="2"><TMPL_VAR lifepathRuin></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <div id="status" class="box-union">
+          <dl class="box"><dt>身体</dt><dd><TMPL_VAR sttBaseBody></dd></dl>
+          <dl class="box"><dt>感覚</dt><dd><TMPL_VAR sttBaseSense></dd></dl>
+          <dl class="box"><dt>知力</dt><dd><TMPL_VAR sttBaseIntelligence></dd></dl>
+          <dl class="box"><dt>意志</dt><dd><TMPL_VAR sttBaseWill></dd></dl>
+          <dl class="box"><dt>魅力</dt><dd><TMPL_VAR sttBaseCharm></dd></dl>
+          <dl class="box"><dt>社会</dt><dd><TMPL_VAR sttBaseSocial></dd></dl>
+        </div>
+      </div>
+      <section class="box" id="skills">
+        <h2>技能</h2>
+        <table>
+          <tr><td>当身<span class="right"><TMPL_VAR skillAtemi></span></td><td>観察<span class="right"><TMPL_VAR skillObserve></span></td><td>探索<span class="right"><TMPL_VAR skillSearch></span></td></tr>
+          <tr><td>威圧<span class="right"><TMPL_VAR skillDominate></span></td><td>近接武器<span class="right"><TMPL_VAR skillWeapon></span></td><td>調査<span class="right"><TMPL_VAR skillInvestigate></span></td></tr>
+          <tr><td>運動<span class="right"><TMPL_VAR skillExercise></span></td><td>攻撃魔法<span class="right"><TMPL_VAR skillMagic></span></td><td>追跡/逃走<span class="right"><TMPL_VAR skillTrace></span></td></tr>
+          <tr><td>隠密<span class="right"><TMPL_VAR skillHide></span></td><td>交渉<span class="right"><TMPL_VAR skillNegotiation></span></td><td>抵抗力<span class="right"><TMPL_VAR skillRegist></span></td></tr>
+          <tr><td>解錠<span class="right"><TMPL_VAR skillPicking></span></td><td>修理<span class="right"><TMPL_VAR skillRepair></span></td><td>飛び道具<span class="right"><TMPL_VAR skillProjectile></span></td></tr>
+          <tr><td>回避<span class="right"><TMPL_VAR skillDodge></span></td><td>乗馬<span class="right"><TMPL_VAR skillHorse></span></td><td>魔法機械操作<span class="right"><TMPL_VAR skillMachine></span></td></tr>
+          <tr>
+            <td><TMPL_VAR skillComp1Name><span class="right"><TMPL_VAR skillComp1></span></td>
+            <td><TMPL_VAR skillArt1Name><span class="right"><TMPL_VAR skillArt1></span></td>
+            <td><TMPL_VAR skillKnow1Name><span class="right"><TMPL_VAR skillKnow1></span></td>
+          </tr>
+          <tr>
+            <td><TMPL_VAR skillComp2Name><span class="right"><TMPL_VAR skillComp2></span></td>
+            <td><TMPL_VAR skillArt2Name><span class="right"><TMPL_VAR skillArt2></span></td>
+            <td><TMPL_VAR skillKnow2Name><span class="right"><TMPL_VAR skillKnow2></span></td>
+          </tr>
+        </table>
+      </section>
+      <section class="box" id="lois">
+        <h2>フラグ</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>関係</th>
+              <th>名前</th>
+              <th colspan="2" class="right">状態</th>
+            </tr>
+          </thead>
+          <tbody>
+            <TMPL_LOOP Flags><tr>
+              <td><TMPL_VAR RELATION></td>
+              <td><TMPL_VAR NAME></td>
+              <td class="left"><TMPL_VAR NOTE></td>
+              <td class="right"><span data-state="<TMPL_VAR STATE>"></span></td>
+            </tr></TMPL_LOOP>
+          </tbody>
+        </table>
+      </section>
+
+      <div id="area-battle">
+        <section class="box effects" id="effect">
+          <h2>特技</h2>
+          <table class="data-table line-tbody">
+            <thead>
+              <tr><th>名称</th><th>効果</th></tr>
+            </thead>
+            <TMPL_LOOP Talents><tbody>
+               <tr>
+                <td class="name"><TMPL_VAR NAME></td>
+                <td><TMPL_VAR NOTE></td>
+              </tr>
+            </tbody></TMPL_LOOP>
+          </table>
+        </section>
+
+        <section class="box effects" id="magic">
+          <h2>チートパワー</h2>
+          <table class="data-table line-tbody">
+            <thead>
+              <tr><th>名称</th><th>コスト</th><th>効果</th></tr>
+            </thead>
+            <TMPL_LOOP Cheats><tbody>
+               <tr>
+                <td class="name"><TMPL_VAR NAME></td>
+                <td><TMPL_VAR COST></td>
+                <td><TMPL_VAR NOTE></td>
+              </tr>
+            </tbody></TMPL_LOOP>
+          </table>
+        </section>
+
+        <TMPL_IF Weapons><section class="box">
+          <table class="data-table">
+            <thead>
+              <tr><th>武器</th><th>常備化</th><th>経験点</th><th>行動</th><th>種別</th><th>属性</th><th>攻撃力</th><th>射程</th><th>対象</th></tr>
+            </thead>
+            <tbody>
+              <TMPL_LOOP Weapons><tr>
+                <td rowspan="2"><TMPL_VAR NAME></td>
+                <td><TMPL_VAR STOCK></td>
+                <td><TMPL_VAR EXP></td>
+                <td><TMPL_VAR INITIATIVE></td>
+                <td><TMPL_VAR TYPE></td>
+                <td><TMPL_VAR EFFECT></td>
+                <td><TMPL_VAR ATK></td>
+                <td><TMPL_VAR TARGET></td>
+                <td class="range"><TMPL_VAR RANGE></td></tr>
+              <tr><td class="left" colspan="8"><TMPL_VAR NOTE></td></tr></TMPL_LOOP>
+            </tbody>
+          </table>
+        </section></TMPL_IF>
+        <TMPL_IF Armors><section class="box">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>防具</th><th>常備化</th><th>経験点</th><th>行動</th>
+                <th>切</th><th>貫</th><th>衝</th>
+                <th>地</th><th>水</th><th>火</th><th>風</th><th>光</th><th>闇</th></tr>
+            </thead>
+            <tbody>
+              <TMPL_LOOP Armors><tr>
+                <td rowspan="2"><TMPL_VAR NAME></td>
+                <td><TMPL_VAR STOCK></td>
+                <td><TMPL_VAR EXP></td>
+                <td><TMPL_VAR INITIATIVE></td>
+                <td><TMPL_VAR CUT></td><td><TMPL_VAR PENETRATION></td><td><TMPL_VAR IMPACT></td>
+                <td><TMPL_VAR GROUND></td><td><TMPL_VAR WATER></td>
+                <td><TMPL_VAR FIRE></td><td><TMPL_VAR WIND></td>
+                <td><TMPL_VAR LIGHT></td><td><TMPL_VAR DARK></td>
+                <tr><td colspan="12" class="left"><TMPL_VAR NOTE></td></tr>
+              </tr></TMPL_LOOP>
+            </tbody>
+          </table>
+        </section></TMPL_IF>
+        <TMPL_IF Items><section class="box">
+          <table class="data-table">
+            <thead>
+              <tr><th>一般アイテム</th><th>常備化</th><th>経験点</th><th>種別</th><th>解説</th></tr>
+            </thead>
+            <tbody>
+              <TMPL_LOOP Items><tr>
+                <td><TMPL_VAR NAME></td>
+                <td><TMPL_VAR STOCK></td>
+                <td><TMPL_VAR EXP></td>
+                <td><TMPL_VAR TYPE></td>
+                <td class="left"><TMPL_VAR NOTE></td>
+              </tr></TMPL_LOOP>
+            </tbody>
+          </table>
+        </section></TMPL_IF>
+      </div>
+<!--
+      <script>
+      let statusBreakdownOpenFlag = 0;
+      function statusBreakdownOpen(){
+        document.querySelectorAll('#status table tr.breakdown').forEach(obj => obj.style.display = statusBreakdownOpenFlag ? 'none' : 'table-row');
+        document.querySelector('#status .open-button').innerHTML = statusBreakdownOpenFlag ? '▼能力値内訳表示' : '▲能力値内訳折畳み';
+        statusBreakdownOpenFlag = statusBreakdownOpenFlag ? 0 : 1;
+      }
+      </script>
+      
+
+      
+      <div id="area-battle">
+        
+        <div class="box-union" id="items">
+        
+        <section class="box" id="exps">
+          <h2>経験点計算</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>能力値</th>
+                <th>技能</th>
+                <th>エフェクト</th>
+                <TMPL_IF Magics><th>術式</th></TMPL_IF>
+                <th>アイテム</th>
+                <th>メモリー</th>
+                <th>使用総計</th>
+                <th>残／合計</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><TMPL_VAR expUsedStatus></td>
+                <td><TMPL_VAR expUsedSkill></td>
+                <td><TMPL_VAR expUsedEffect></td>
+                <TMPL_IF Magics><td><TMPL_VAR expUsedMagic></td></TMPL_IF>
+                <td><TMPL_VAR expUsedItem></td>
+                <td><TMPL_VAR expUsedMemory></td>
+                <td><TMPL_VAR expUsed></td>
+                <td><TMPL_VAR expRest>／<TMPL_VAR expTotal></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+      <div id="enc-bonus">
+        <details class="box">
+          <summary>侵蝕率ボーナス</summary>
+          <p>
+            現在侵蝕率:<input type="number" id="current-encroach" value="<TMPL_VAR currentEncroach>" oninput="encroachBonusSet(this.value);">
+            <input type="checkbox" id="enchroach-ea-on" oninput="encroachBonusType();" <TMPL_VAR enchroachEaOn>><label for="enchroach-ea-on">エフェクトアーカイヴ</label>
+            <input type="checkbox" id="enchroach-or-on" oninput="encroachBonusType();" <TMPL_VAR enchroachOrOn>><label for="enchroach-or-on">起源種</label>
+          </p>
+          <table class="data-table" id="enc-table-n">
+            <colgroup>
+              <col>
+              <col id="enc-col0">
+              <col id="enc-col60">
+              <col id="enc-col80">
+              <col id="enc-col100">
+              <col id="enc-col130">
+              <col id="enc-col160">
+              <col id="enc-col200">
+              <col id="enc-col240">
+              <col id="enc-col300">
+            </colgroup>
+            <tr><th></th><th>0-59</th><th>60-79</th><th>80-99</th><th>100-129</th><th>130-159</th><th>160-199</th><th>200-239</th><th>240-299</th><th>300-</th></tr>
+            <tr><th>ダイス </th><td>+0</td><td>+1</td><td>+2</td><td>+3</td><td>+4</td><td>+5</td><td>+6</td><td>+7</td><td>+8</td></tr>
+            <tr><th>Efct.Lv</th><td>+0</td><td>+0</td><td>+0</td><td>+1</td><td>+1</td><td>+2</td><td>+2</td><td>+2</td><td>+2</td></tr>
+          </table>
+          <table class="data-table" id="enc-table-ea" style="display:none">
+            <colgroup>
+              <col>
+              <col id="enc-ea-col0">
+              <col id="enc-ea-col60">
+              <col id="enc-ea-col80">
+              <col id="enc-ea-col100">
+              <col id="enc-ea-col130">
+              <col id="enc-ea-col160">
+              <col id="enc-ea-col190">
+              <col id="enc-ea-col220">
+              <col id="enc-ea-col260">
+              <col id="enc-ea-col300">
+            </colgroup>
+            <tr><th></th><th>0-59</th><th>60-79</th><th>80-99</th><th>100-129</th><th>130-159</th><th>160-189</th><th>190-219</th><th>220-259</th><th>260-299</th><th>300-</th></tr>
+            <tr><th>ダイス </th><td>+0</td><td>+1</td><td>+2</td><td>+3</td><td>+4</td><td>+4</td><td>+5</td><td>+5</td><td>+6</td><td>+7</td></tr>
+            <tr><th>Efct.Lv</th><td>+0</td><td>+0</td><td>+0</td><td>+1</td><td>+1</td><td>+2</td><td>+2</td><td>+3</td><td>+3</td><td>+3</td></tr>
+          </table>
+          <table class="data-table" id="enc-table-or" style="display:none">
+            <colgroup>
+              <col>
+              <col id="enc-or-col0">
+              <col id="enc-or-col80">
+              <col id="enc-or-col100">
+              <col id="enc-or-col150">
+              <col id="enc-or-col200">
+            </colgroup>
+            <tr><th></th><th>0-79</th><th>80-99</th><th>100-149</th><th>150-199</th><th>200-</th></tr>
+            <tr><th>ダイス </th><td>―</td><td>―</td><td>―</td><td>―</td><td>―</td></tr>
+            <tr><th>Efct.Lv</th><td>+0</td><td>+1</td><td>+2</td><td>+3</td><td>+4</td></tr>
+          </table>
+        </details>
+      </div>-->
+      <script>
+      let EA; let OR;
+      encroachBonusSet(<TMPL_VAR currentEncroach>);
+      encroachBonusType();
+      function encroachBonusType(){
+        EA = document.getElementById("enchroach-ea-on" ).checked;
+        OR = document.getElementById("enchroach-or-on" ).checked;
+        document.getElementById("enc-table-n" ).style.display = OR ? 'none' : EA ? 'none':  '';
+        document.getElementById("enc-table-ea").style.display = OR ? 'none' : EA ? '' : 'none';
+        document.getElementById("enc-table-or").style.display = OR ? '' : 'none';
+        encroachBonusSet(document.getElementById('current-encroach').value);
+      }
+      function encroachBonusSet(enc){
+        const id = OR ? 'enc-or-col' : EA ? 'enc-ea-col' : 'enc-col';
+        const array = OR ? [200  ,150  ,100  ,80  ,0  ] : EA ? [300   ,260   ,220   ,190   ,160   ,130   ,100   ,80   ,60   ,0  ] : [300   ,240   ,200   ,160   ,130   ,100   ,80   ,60   ,0  ];
+        const edbs  = OR ? {200:0,150:0,100:0,80:0,0:0} : EA ? {300:7 ,260:6 ,220:5 ,190:5 ,160:4 ,130:4 ,100:3 ,80:2 ,60:1 ,0:0} : {300:8 ,240:7 ,200:6 ,160:5 ,130:4 ,100:3 ,80:2 ,60:1 ,0:0};
+        for (let v of array){ document.getElementById(id+v).classList.remove('current'); }
+        for (let v of array){
+          if(enc >= v){
+            document.getElementById(id+v).classList.add('current');
+            document.querySelectorAll("[data-edb]").forEach(function(obj) {
+              obj.dataset.edb = edbs[v];
+            });
+            break;
+          }
+        }
+        
+      }
+      </script>
+      <section class="box" id="free-note">
+        <h2><TMPL_IF head_freeNote><TMPL_VAR head_freeNote><TMPL_ELSE>容姿・経歴・その他メモ</TMPL_IF></h2>
+        <p><TMPL_VAR freeNote></p>
+      </section>
+      <TMPL_IF freeHistory>
+      <section class="box" id="free-history">
+        <h2><TMPL_IF head_freeHistory><TMPL_VAR head_freeHistory><TMPL_ELSE>履歴</TMPL_IF></h2>
+        <p><TMPL_VAR freeHistory></p>
+      </section>
+      </TMPL_IF>
+      <section class="box" id="history">
+        <h2>セッション履歴</h2>
+        <table class="data-table line-tbody">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>日付</th>
+              <th>タイトル</th>
+              <th>経験点</th>
+              <th>GM</th>
+              <th>参加者</th>
+            </tr>
+          </thead>
+          <TMPL_LOOP History><tbody>
+            <tr>
+              <td <TMPL_IF NOTE>rowspan="2"</TMPL_IF>><TMPL_VAR NUM></td>
+              <td <TMPL_IF NOTE>rowspan="2"</TMPL_IF>><TMPL_VAR DATE></td>
+              <td <TMPL_IF NOTE>rowspan="2"</TMPL_IF>><TMPL_VAR TITLE></td>
+              <td><TMPL_VAR EXP></td>
+              <td class="gm"><span><TMPL_VAR GM></span></td>
+              <td class="member"><TMPL_VAR MEMBER></td>
+            </tr>
+            <TMPL_IF NOTE><tr>
+              <td colspan="3" class="note"><TMPL_VAR NOTE></td>
+            </tr></TMPL_IF>
+          </tbody></TMPL_LOOP>
+        </table>
+      </section>
+      <section class="box chat-palette float-box">
+        <h2>チャットパレット</h2>
+        <div class="chat-palette-menu">
+          <b>使用ダイスbot:</b>
+          <a onclick="chatPaletteSelect('')"       id="cp-switch-ytc">ゆとチャadv.</a>
+          <a onclick="chatPaletteSelect('bcdice')" id="cp-switch-bcdice">BCDice</a>
+        </div>
+        <textarea id="chatPaletteBox"></textarea>
+      </section>
+    </article>
+    <div class="back-button"><a href="./">⏎</a></div>
+    <TMPL_IF image><div id="image-box" onclick="closeImage()">
+      <img src="<TMPL_VAR imageSrc>" id="image-box-image">
+    </div></TMPL_IF> 
+  </main>
+  <TMPL_INCLUDE NAME="skin-add/sheet-sidebar.html">
+
+  <footer>
+    <p class="notes"><span>転生サバイバルRPG　ルーインブレイカーズは有限会社ファーイースト・アミューズメント・リサーチの著作物です</span></p>
+    <!--<p class="copyright">ゆとシートⅡ for DX3rd ver.<TMPL_VAR ver> - <a href="https://yutorize.2-d.jp">ゆとらいず工房</a></p>-->
+  </footer>
+</body>
+
+</html>

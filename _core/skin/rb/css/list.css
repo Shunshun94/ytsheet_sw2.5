@@ -1,0 +1,52 @@
+@charset "utf-8";
+
+/* ゆとシートⅡ for DX3rd - リスト */
+
+/* // Body
+---------------------------------------------------------------------------------------------------- */
+body {
+  background-image: url(../../_common/img/back-pattern.png), url(../img/back-xx.png);
+}
+
+/* // List
+---------------------------------------------------------------------------------------------------- */
+.list table tr {
+    grid-template-columns: 28rem 0.7fr 4.5em 1fr 1fr 4em 0.7fr;
+    grid-template-areas:
+      "NAME PL  AGE WORK SYN EXP DATE"
+      "NAME PL  GEN DLOI SYN EXP DATE"
+    ;
+}
+.list table .name    { grid-area: NAME; }
+.list table .player  { grid-area:   PL; }
+.list table .race    { grid-area: RACE; }
+.list table .gender  { grid-area:  GEN; }
+.list table .age     { grid-area:  AGE; }
+.list table .sign    { grid-area: SIGN; display:none; }
+.list table .blood   { grid-area: BLOD; display:none; }
+.list table .works   { grid-area: WORK; }
+.list table .exp     { grid-area:  EXP; }
+.list table .syndrome{ grid-area:  SYN; }
+.list table .dlois   { grid-area: DLOI; }
+.list table .date    { grid-area: DATE; }
+
+.list table td.dlois span {
+  display: inline-block;
+}
+.list table td.syndrome {
+  font-size: 85%;
+}
+.list table td.syndrome span {
+  display: block;
+}
+@media screen and (max-width:735px){
+  .list table tr {
+    grid-template-columns: 18rem 6em 3em 0.6fr 1fr 4em 4em;
+  }
+}
+
+/* // List-Monster/Simple
+---------------------------------------------------------------------------------------------------- */
+.list ul li a::before {
+  content: 'Lv'attr(data-lv);
+}

@@ -1,0 +1,838 @@
+@charset "utf-8";
+
+/* // キャラクター
+---------------------------------------------------------------------------------------------------- */
+#regulation {
+  margin: 10px 0;
+  overflow-y: auto;
+}
+#regulation dl {
+  display: grid;
+  grid-template-columns: max-content 14em max-content 6em 1fr;
+  grid-template-rows: auto;
+  margin: 1rem;
+}
+#regulation dl dt {
+  padding-left: .5em;
+}
+
+#area-status {
+  min-height: 0%;
+  grid-template-columns: 0.6fr 1.2fr 0.9fr 1.8fr;
+}
+#area-status {
+  grid-template-areas:
+    "PER PER WKS IMG"
+    "SYN SYN SYN IMG"
+    "STT STT STT IMG"
+  ;
+}
+#syndrome-status { grid-area: SYN; }
+
+
+@media screen and (max-width:735px){
+  #area-status {
+    grid-template-columns: 1fr 1fr 2fr;
+    grid-gap: 10px 5px;
+
+    grid-template-areas:
+      "IMG  IMG  IMG"
+      "PER  PER  WKS"
+      "SYN  SYN  SYN "
+      "STT  STT  STT "
+    ;
+  }
+}
+
+#syndrome-status table {
+  width: 100%;
+}
+#syndrome-status table tr {
+  border-width: .1rem 0 0;
+  border-style: solid;
+}
+#syndrome-status thead th:nth-child(1)   { width: 3.5em; }
+#syndrome-status thead th:nth-last-child(-n+4) { width:   5em; }
+#syndrome-status input[type=radio] {
+  cursor: pointer;
+  transform: scale(1.5) translateY(.1em);
+}
+@media screen and (max-width:735px){
+#syndrome-status thead th:nth-last-child(-n+4) { width:   4em; }
+}
+
+#sub-status input {
+  width: 3.5em;
+}
+#sub-status input.auto {
+  width: 2.5em;
+}
+#lifepath {
+  margin-top: 1rem;
+}
+#lifepath table tbody tr:before {
+  display: none;
+}
+#lifepath table th:nth-child(1) { width: 5em; }
+#lifepath table td:nth-child(2) { width: 6em; }
+#lifepath table th:nth-child(3) { width: 4em; }
+#lifepath table td.center { width: 4em; }
+#lifepath table td:last-child   { width: auto; }
+#lifepath table th.small {
+  border-bottom-style: solid;
+}
+#lifepath table th.small.right {
+  font-size: 85%;
+}
+#lifepath table input[type=checkbox] {
+  transform: scale(1.4) translateY(.1em);
+  margin-right: .2em;
+}
+@media screen and (max-width:735px){
+  #lifepath table,
+  #lifepath tbody,
+  #lifepath th,
+  #lifepath td {
+    display: block;
+    width: auto !important;
+  }
+  #lifepath tbody {
+    padding: .5em 0;
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  #lifepath tr {
+    display: grid;
+  }
+  #lifepath tr,
+  #lifepath th,
+  #lifepath td {
+    border-style: none !important;
+  }
+  #lifepath th {
+    padding-top: .3em;
+  }
+  #lifepath tbody:nth-child(n+1):nth-child(-n+3) tr {
+    grid-template-columns: 6em 8em 1fr;
+  }
+  #lifepath tbody:nth-child(n+1):nth-child(-n+3) tr .left {
+    grid-column: span 3;
+  }
+  #lifepath tbody:nth-child(n+4):nth-child(-n+5) tr {
+    grid-template-columns: 6em 1fr 6em 1fr;
+  }
+  #lifepath tbody:nth-child(n+4):nth-child(-n+5) tr .left {
+    grid-column: span 4;
+  }
+  #lifepath tbody:nth-child(n+6):nth-child(-n+7) tr {
+    grid-template-columns: 6em 1fr 6em 1fr;
+  }
+  #lifepath tbody:nth-child(n+6):nth-child(-n+7) tr .left {
+    grid-column: span 4;
+  }
+  #lifepath tbody:nth-child(5) tr:nth-child(2) th:nth-child(2) {
+    display: none;
+  }
+}
+
+
+#status dl#status-table {
+  display: grid;
+  grid-template-columns: 1fr .7fr 1fr .7fr 1fr .7fr 1fr .7fr;
+}
+#status dl#status-table > *:nth-of-type(even),
+#status dl#skill-table > *:nth-of-type(even) {
+  background-color: var(--box-even-rows-bg-color);
+}
+#status dl#status-table dt {
+  display: grid;
+  place-items: center;
+}
+#status dl#status-table dd {
+  font-size: 1.3em;
+  border-width: 1px 1px 0;
+  border-style: solid;
+}
+#status dl#status-table dd:last-child {
+  border-right: hidden;
+}
+#status dl#skill-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+#status dl#skill-table > dt {
+  display: none;
+}
+#status dl#skill-table > dd > dl {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+}
+#status dl#skill-table > dd:not(:last-child) {
+  border-right-width: 1px;
+  border-right-style: solid;
+}
+#status dl#skill-table > dd > dl > * {
+  border-top-width: 1px;
+  border-top-style: solid;
+}
+#status dl#skill-table > dd > dl > dt.left {
+  display: grid;
+  place-items: center start;
+  padding-left: .5em;
+  font-weight: normal;
+}
+#status dl#skill-table > dd > dl > dt input {
+  font-weight: normal;
+}
+#status dl#skill-table > dd > dl > dd input {
+  min-width: 0;
+  width: 3.4em;
+}
+#status dl#skill-table > dd > dl > dd input:last-of-type {
+  width: 3em;
+  margin: 0 -.13em;
+  transform: scale(0.9);
+}
+@media screen and (max-width:850px){
+}
+@media screen and (max-width:735px){
+  #status dl#status-table > *:nth-of-type(even) {
+    background: none;
+  }
+  #status dl#skill-table {
+    display: block;
+  }
+  #status dl#skill-table > dt {
+    display: block;
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  #status dl#skill-table > dd dt {
+    font-size: inherit;
+  }
+}
+
+#lois table tbody td,
+#memory table tbody td {
+  border-width: 0 !important;
+}
+#lois table {
+}
+#lois table tbody tr td:first-child {
+  white-space: nowrap;
+}
+#lois table tbody tr td .handle {
+  display: inline-block;
+  width: 1.4em;
+  text-align: center;
+}
+#lois table tbody tr td .handle + input {
+  width: calc(100% - 1.4em - .2rem);
+}
+#lois table tbody td.emo {
+  width: 6em;
+  padding-left: .25em
+}
+#lois table tbody td.emo::before {
+  display: none;
+}
+#lois table input[type=checkbox] {
+  margin: 0;
+  transform: scale(1.5) translateY(.1em);
+}
+#lois table input[type=checkbox] + input {
+  width: calc(100% - 1.6em);
+  margin-left: .3em;
+}
+#lois table input[name$="Color"] {
+  width: 3.5em;
+}
+#lois table tbody td span[data-state] {
+  cursor: pointer;
+  user-select: none;
+}
+
+#memory table tbody td:nth-child(1) { width: 2.5em; border-right-width: 1px; } /* ✔ */
+#memory table tbody td:nth-child(2) { width: 6.2em; border-right-width: 1px; } /* 関係 */
+#memory table tbody td:nth-child(3) { width: 14em; border-right-width: 1px; } /* 名前 */
+#memory table tbody td:nth-child(4) { width: 4em; border-right-width: 1px; } /* 感情 */
+#memory table thead tr th:first-child {
+  padding-left: 0;
+  text-align: center;
+}
+#memory table tbody tr td:first-child {
+  padding-right: .2rem;
+  white-space: nowrap;
+}
+#memory table input[type=checkbox] {
+  transform: scale(1.5) translateY(.1em);
+}
+#memory table tbody tr td span.handle {
+  display: inline-block;
+  width: 1.4em;
+  margin: -.1rem 0;
+  text-align: center;
+}
+@media screen and (max-width:735px){
+  #lois { overflow-x: auto; }
+  #lois table  { table-layout: fixed; white-space: nowrap; margin-top: .5em; }
+  #lois table colgroup col:nth-child(1) { width:   7em; } 
+  #lois table colgroup col:nth-child(2) { width:  10em; }
+  #lois table colgroup col:nth-child(3) { width:   6em; }
+  #lois table colgroup col:nth-child(4) { width: 1.5em; }
+  #lois table colgroup col:nth-child(5) { width:   6em; }
+  #memory { overflow-x: auto; }
+  #memory table  { table-layout: fixed; white-space: nowrap; margin-top: .5em; }
+  #memory table thead th:nth-child(1) { width:   3em; } 
+  #memory table thead th:nth-child(2) { width:   7em; } 
+  #memory table thead th:nth-child(3) { width:  12em; }
+  #memory table thead th:nth-child(4) { width:   6em; }
+  #memory table thead th:nth-child(5) { width:  14em; }
+}
+
+#effect {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+#effect table {
+}
+#effect table thead th:nth-child(1) { width: 2.1em; }
+#effect table thead th:nth-child(2) { width: 8em; } /* 名称 */
+#effect table thead th:nth-child(3) { width: auto; } /* Lv */
+
+#effect table tbody td {
+  padding: .5rem 0 0;
+  border-width: 0;
+  vertical-align: bottom;
+}
+#effect table tbody td[colspan] {
+  padding: 0 0 .5rem;
+  border-top: hidden;
+  vertical-align: middle;
+  text-align: right;
+}
+#effect table tbody td[colspan] div {
+  display: grid;
+  grid-gap: .1rem;
+  grid-template-columns: 2.3em 6.5em 3.8em 3em 2.3em 1fr;
+  align-items: end;
+}
+#effect table tbody td[rowspan] {
+  vertical-align: middle;
+}
+#effect table tbody td b {
+  display: block;
+  font-size: 85%;
+  text-align: right;
+}
+#effect table tbody td .small {
+  font-size: 80%;
+  transform: scale(0.8,1);
+  white-space: nowrap;
+}
+#effect table tbody td b::after {
+  content: ":";
+  font-size: 1rem;
+}
+@media screen and (min-width:736px){
+  #effect table tbody td:nth-child(n+4) input {
+    font-size: 12.5px;
+  }
+}
+@media screen and (max-width:735px){
+  #effect table {
+    table-layout: fixed;
+  }
+  #effect table thead tr,
+  #effect table tbody tr {
+    display: table-row;
+  }
+  #effect table tbody td[rowspan] {
+    display: table-cell;
+  }
+  #effect table thead th:nth-child(2) {
+    display: table-cell;
+  }
+  #effect table tbody td[colspan] div {
+    grid-template-columns: max-content 6.5em max-content 3em max-content 1fr;
+  }
+  #effect table thead th:nth-child(1) { width: 1.4em !important; }
+  #effect table thead th:nth-child(2) { width:  14em !important; } /* 名称 */
+  #effect table thead th:nth-child(3) { width: 3.5em !important; } /* Lv */
+  #effect table tbody td b {
+    white-space: nowrap;
+  }
+  #effect table tbody td:nth-child(3) input { min-width: 2em; } /* Lv */
+}
+.trash-box {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: calc((100vw - 940px) / 2 );
+}
+.trash-box::before {
+  content: "\f2ed";
+  display: block;
+  position: absolute;
+  top: 30vh;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  margin:auto;
+  text-align: center;
+  font-family: "Font Awesome 5 Free";
+  font-size: calc((100vw - 940px) / 2 * 0.5 );
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+}
+.trash-box table {
+  display: block;
+  position: absolute;
+  height: calc(70vh - 1.5em);
+  overflow: auto;
+  z-index: 2;
+}
+.trash-box table:empty::before {
+  display: block;
+  content: 'ここにドロップで削除\A（保存時まで保留）';
+  margin-top: 1em;
+  white-space: pre;
+  text-align: center;
+}
+.trash-box table tbody {
+  display: block;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 5px;
+  margin: .2em;
+  cursor: move;
+}
+.trash-box table tbody tr,
+.trash-box table tbody td {
+  display: none;
+}
+.trash-box table tbody tr:first-child,
+.trash-box table tbody tr:first-child td:nth-child(2) {
+  border: none;
+  display: block;
+}
+.trash-box table tbody input {
+  padding: 1em .5em;
+  border-color: transparent;
+  background-color: transparent;
+  pointer-events: none;
+}
+.trash-box .annotate {
+  position: absolute;
+  bottom: 0;
+  font-size: 90%;
+}
+.trash-box .close-button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 1.2em;
+}
+.trash-box .close-button:hover {
+  opacity: 0.5;
+}
+@media screen and (max-width:1090px){
+  .trash-box  {
+    top: auto;
+    left: auto;
+    right: 0;
+    bottom: 2.3em;
+    width: 30vw;
+    height: 20vh;
+    z-index: 2;
+    background-color: var(--bg-color);
+  }
+  .trash-box  table {
+    height: calc(20vh - 1.5em);
+  }
+}
+@media screen and (max-width:735px){
+  .trash-box  {
+    width: 40vw;
+    height: 30vh;
+    bottom: 0;
+  }
+  .trash-box  table {
+    height: calc(30vh - 1.5em);
+  }
+  .trash-box table:empty::before {
+    display: block;
+    content: 'ここにドロップ\Aで削除\A（保存時まで保留）';
+  }
+}
+
+#magic {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+#magic table thead th:nth-child(1) { width: 1.4em; }
+#magic table thead th:nth-child(2) { width: 10em; } /* 名称 */
+#magic table thead th:nth-child(3) { width: 2em; } /* コスト */
+#magic table thead th:nth-child(4) { width: auto; } /* 効果 */
+#magic table thead th,
+#magic table tfoot th {
+  font-size: 90%;
+}
+#magic table tbody td {
+  padding: .5rem 0;
+  border-width: 0;
+}
+@media screen and (max-width:735px){
+  #magic table {
+    table-layout: fixed;
+  }
+  #magic table thead tr,
+  #magic table tbody tr {
+    display: table-row;
+  }
+  #magic table tbody td[rowspan] {
+    display: table-cell;
+  }
+  #magic table thead th:nth-child(2) {
+    display: table-cell;
+  }
+  #magic table tbody td[colspan] div {
+    grid-template-columns: max-content 6.5em max-content 3em max-content 1fr;
+  }
+  #magic table thead th:nth-child(1) { width: 1.4em; }
+  #magic table thead th:nth-child(2) { width:  15em; } /* 名称 */
+  #magic table thead th:nth-child(3) { width:   7em; } /* 種別 */
+  #magic table thead th:nth-child(4) { width: 3.8em; } /* 経験点 */
+  #magic table thead th:nth-child(5) { width: 5.5em; } /* 発動値 */
+  #magic table thead th:nth-child(6) { width: 3.9em; } /* 侵蝕値 */
+  #magic table thead th:nth-child(7) { width: 3.9em; } /* 侵蝕値 */
+  #magic table thead th:last-child   { width:  16em; } /* 効果 */
+}
+
+#combo {
+  margin-top: 1rem;
+}
+#combo .combo-table {
+  display: grid;
+  grid-template-columns: 1.5em 1.5fr 0.8fr 2.2fr;
+  grid-template-areas:
+    "HNDL NAME COMB COMB"
+    "HNDL   IN   IN  OUT"
+    "HNDL NOTE NOTE  OUT"
+  ;
+}
+#combo .combo-table .handle {
+  grid-area: HNDL;
+  display: grid;
+  place-items: center;
+}
+#combo .combo-table .combo-combo,
+#combo .combo-table .combo-in,
+#combo .combo-table .combo-out,
+#combo .combo-table .combo-note,
+#combo .combo-table dl dt,
+#combo .combo-table dl dd {
+  padding: 0;
+  border-width: 0 !important;
+}
+#combo .combo-table .combo-in,
+#combo .combo-table .combo-out {
+  margin-top: .5rem;
+}
+#combo .combo-table textarea,
+#combo .combo-table dl dd input,
+#combo .combo-table dl dd select {
+  width: calc(100% - 1px);
+  margin: 0 1px 1px 0;
+}
+#combo .combo-table .combo-in {
+  flex-wrap: wrap;
+}
+#combo .combo-table .combo-in dl {
+  flex-grow: 1 !important;
+}
+#combo .combo-table .combo-in dl:nth-child(1) { flex-basis: 30%; }
+#combo .combo-table .combo-in dl:nth-child(2) { flex-basis: 35%; }
+#combo .combo-table .combo-in dl:nth-child(3) { flex-basis: 35%; }
+#combo .combo-table .combo-in dl:nth-child(4) { flex-basis: 26%; }
+#combo .combo-table .combo-in dl:nth-child(5) { flex-basis: 30%; }
+#combo .combo-table .combo-in dl:nth-child(6) { flex-basis: 26%; }
+#combo .combo-table .combo-in dl:nth-child(7) { flex-basis: 16%; }
+#combo .combo-table .combo-in dl dd {
+}
+
+#combo .combo-table .combo-out {
+  padding-left: .5rem;
+  display: grid;
+  grid-template-columns: 1.2fr max-content 1fr 0.8fr max-content 1fr 1fr;
+  grid-template-rows: max-content auto;
+}
+#combo .combo-table .combo-out .combo-cond     { grid-column: 1; }
+#combo .combo-table .combo-out [id*="Stt"]     { grid-column: 2; }
+#combo .combo-table .combo-out .combo-dice     { grid-column: 3; }
+#combo .combo-table .combo-out .combo-crit     { grid-column: 4; }
+#combo .combo-table .combo-out [id*="SkillLv"] { grid-column: 5; }
+#combo .combo-table .combo-out .combo-fixed    { grid-column: 6; }
+#combo .combo-table .combo-out .combo-atk      { grid-column: 7; }
+
+#combo .combo-table .combo-out dt.combo-dice   { grid-column: 2 / span 2; }
+#combo .combo-table .combo-out dt.combo-fixed  { grid-column: 5 / span 2; }
+
+#combo .combo-table .combo-out dd[id*="Stt"]:not(:empty),
+#combo .combo-table .combo-out dd[id*="SkillLv"]:not(:empty) {
+  grid-template-columns: max-content max-content;
+  padding-left: .1em;
+  text-align: right;
+  font-size: .9em;
+  font-family: var(--base-font-family-input);
+  white-space: nowrap;
+}
+#combo .combo-table .combo-out dd[id*="Stt"]:not(:empty)::after,
+#combo .combo-table .combo-out dd[id*="SkillLv"]:not(:empty)::after {
+  content: '+';
+  display: inline;
+  margin-right: -.1rem;
+}
+#combo .combo-table .combo-note {
+  padding-top: .5rem;
+}
+#combo .annotate {
+  padding-top: .2em;
+}
+@media screen and (max-width:735px){
+  #combo .combo-table {
+    grid-template-columns: 1.5em 11fr;
+    grid-template-areas:
+      "HNDL NAME"
+      "COMB COMB"
+      "  IN   IN"
+      " OUT  OUT"
+      "NOTE NOTE"
+    ;
+  }
+  #combo .combo-table .combo-name {
+    text-align: left;
+  }
+  #combo .combo-table .combo-combo {
+    display: block;
+  }
+  #combo .combo-table .combo-out {
+  }
+}
+
+#items {
+  margin-top: 1rem;
+}
+#items table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
+#items table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
+#items table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+#items table thead th:nth-child(4) { width: 3.4em !important; } /* 行動 */
+#items table thead th:nth-child(5) { width: 4.4em !important; } /* 種別 */
+#items table thead th:nth-child(6) { width: 4.4em !important; } /* 属性 */
+#items table thead th:nth-child(7) { width: 5.0em !important; } /* 攻撃力 */
+#items table thead th:nth-child(8) { width: 3.4em !important; } /* 対象 */
+#items table thead th:nth-child(9) { width: 3.4em !important; } /* 射程 */
+#items table thead th:last-child   { width: auto !important;  } /* 解説 */
+#items table.edit-table tbody td {
+  vertical-align: top;
+  padding: .4rem 0 0;
+  border: 0;
+}
+#items table:last-of-type tbody td {
+  border-width: 0;
+}
+
+table#weapon-table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
+table#weapon-table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
+table#weapon-table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+table#weapon-table thead th:nth-child(4) { width: 3.4em !important; } /* 行動 */
+table#weapon-table thead th:nth-child(5) { width: 4.4em !important; } /* 種別 */
+table#weapon-table thead th:nth-child(6) { width: 4.4em !important; } /* 属性 */
+table#weapon-table thead th:nth-child(7) { width: 5.0em !important; } /* 攻撃力 */
+table#weapon-table thead th:nth-child(8) { width: 3.4em !important; } /* 対象 */
+table#weapon-table thead th:nth-child(9) { width: 3.4em !important; } /* 射程 */
+table#weapon-table thead th:last-child   { width: auto !important;  } /* 解説 */
+table#weapon-table.edit-table tbody td {
+  vertical-align: top;
+  padding: .4rem 0 0;
+  border: 0;
+}
+table#weapon-table:last-of-type tbody td {
+  border-width: 0;
+}
+
+table#armor-table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
+table#armor-table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
+table#armor-table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+table#armor-table thead th:nth-child(4) { width: 3.4em !important; } /* 行動 */
+table#armor-table thead th:nth-child(5) { width: 3.4em !important; } /* 切断 */
+table#armor-table thead th:nth-child(6) { width: 3.4em !important; } /* 貫通 */
+table#armor-table thead th:nth-child(7) { width: 3.4em !important; } /* 衝撃 */
+table#armor-table thead th:nth-child(8) { width: 3.4em !important; } /* 地 */
+table#armor-table thead th:nth-child(9)) { width: 3.4em !important; } /* 水 */
+table#armor-table thead th:nth-child(10) { width: 3.4em !important; } /* 火 */
+table#armor-table thead th:nth-child(11) { width: 3.4em !important; } /* 風 */
+table#armor-table thead th:nth-child(12) { width: 3.4em !important; } /* 光 */
+table#armor-table thead th:nth-child(13) { width: 3.4em !important; } /* 闇 */
+table#armor-table thead th:last-child   { width: auto !important;  } /* 解説 */
+table#armor-table.edit-table tbody td {
+  vertical-align: top;
+  padding: .4rem 0 0;
+  border: 0;
+}
+table#armor-table:last-of-type tbody td {
+  border-width: 0;
+}
+
+table#item-table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
+table#item-table thead th:nth-child(2) { width: 3.4em !important; } /* 常備化 */
+table#item-table thead th:nth-child(3) { width: 3.4em !important; } /* 経験値 */
+table#item-table thead th:nth-child(4) { width: 6.0em !important; } /* 種別 */
+table#item-table thead th:last-child   { width: auto !important;  } /* 解説 */
+table#item-table.edit-table tbody td {
+  vertical-align: top;
+  padding: .4rem 0 0;
+  border: 0;
+}
+table#item-table:last-of-type tbody td {
+  border-width: 0;
+}
+
+@media screen and (max-width:735px){
+  #items .box { overflow-x: auto; }
+  #items table  { table-layout: fixed; }
+  #items table thead th:nth-child(1) { width:  11em !important; } /* 名称 */
+  #items table thead th:nth-child(2) { width:   4em !important; } /* 常備化 */
+  #items table thead th:nth-child(3) { width:   4em !important; } /* 経験点 */
+  #items table thead th:nth-child(4) { width:   8em !important; } /* 種別 */
+  #items table thead th:nth-child(5) { width:   8em !important; } /* 技能 */
+  #items table thead th:nth-child(6) { width: 4.5em !important; } /* 命中  ／ドッジ */
+  #items table thead th:nth-child(7) { width:   6em !important; } /* 攻撃力／行動 */
+  #items table thead th:nth-child(8) { width: 4.5em !important; } /* ガード／装甲値 */
+  #items table thead th:nth-child(9) { width: 4.5em !important; } /* 射程 */
+  #items table thead th:last-child   { width:  16em !important; } /* 解説 */
+  #items table tbody td { width: auto !important; }
+}
+
+#free-note,
+#free-history {
+  padding-bottom: .3rem;
+}
+#free-note textarea,
+#free-history textarea {
+  height: 18em;
+}
+
+#history{
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+#history table {
+  width: calc(100% - 1px);
+}
+#history table colgroup col:nth-child(1) { width: 1.4em; }
+#history table colgroup col:nth-child(2) { width:   6em; } /* 日付 */
+#history table colgroup col:nth-child(3) { width:  12em; } /* タイトル */
+#history table colgroup col:nth-child(4) { width:   6em; } /* 経験点 */
+#history table colgroup col:nth-child(5) { width:   3.5em; } /* 経験点✔ */
+#history table colgroup col:nth-child(6) { width:   6em; } /* ＧＭ */
+#history table colgroup col:nth-child(7) { width:  auto; } /* 参加者 */
+@media screen and (max-width:735px){
+  #history table  { table-layout: fixed; }
+  #history table colgroup col:nth-child(3) { width: 12em; } /* タイトル */
+  #history table colgroup col:nth-child(7) { width: 16em; } /* 参加者 */
+}
+#history table thead td {
+  padding: 1px;
+  border-width: 1px;
+  border-style: solid dotted;
+  font-size: inherit;
+}
+#history table thead td:nth-child(5) {
+  border-left: 0px hidden;
+  font-size: 83%;
+}
+#history table thead td:nth-child(5) input {
+  transform: none;
+  vertical-align: text-top;
+}
+
+#history table tbody td {
+  border: 0;
+  padding: .4rem 0 .1rem !important;
+  vertical-align: top;
+}
+#history table tbody td.handle {
+  vertical-align: middle;
+}
+#history table tbody td.left {
+  padding: 0 0 .4rem !important;
+  border-top: hidden;
+}
+#history table tbody td:nth-child(4) input {
+  width: 100%;
+  border-radius: 5px 0 0 5px;
+}
+#history table tbody td:nth-child(5) {
+  position: relative;
+}
+#history table tbody td:nth-child(5) label {
+  position: absolute;
+  top: .4rem;
+  left: 0;
+  right: .2rem;
+  bottom: .1rem;
+  display: block;
+  margin: .1rem 0 0 0;
+  border: 1px solid var(--box-input-border-color);
+  border-radius: 0 5px 5px 0;
+  border-left: 0;
+}
+#history table tbody td:nth-child(5) input[type="checkbox"] {
+  padding: 0;
+  vertical-align: text-top;
+  transform: none;
+}
+#history table tbody td:nth-child(5) label b {
+  font-size: 90%;
+}
+#history table tbody td:nth-child(5) label input:not(:checked) + b {
+  opacity: 0.5;
+  font-weight: normal;
+}
+#history table tbody td:nth-child(5) label:hover {
+  background-color: var(--bg-color);
+}
+#history table tbody td:nth-child(5) label:hover input:not(:checked) + b {
+  opacity: 1;
+}
+
+
+#history .annotate {
+  width: 70%;
+  margin: auto 3px auto auto;
+}
+
+#exp-footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: 1em;
+  padding: .2rem 0 .5rem;
+  border-radius: 0;
+  border-width: .2rem 0;
+  background: var(--bg-color);
+  font-size: 85%;
+  font-weight: bold;
+}
+#exp-footer input.auto {
+  width: 2.5em;
+  min-width: 0;
+  font-size: 110%;
+}
+#exp-footer input:first-child,
+#exp-footer input:last-child {
+  font-size: 120%;
+}
