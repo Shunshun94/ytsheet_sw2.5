@@ -114,15 +114,6 @@ elsif($pc{'forbidden'}){
     }
   }
   
-  foreach(1..7){
-    $pc{'lois'.$_.'Relation'} = noiseText(2,4);
-    $pc{'lois'.$_.'Name'}     = noiseText(3,10);
-    $pc{'lois'.$_.'Note'}     = noiseText(3,16);
-    $pc{'lois'.$_.'EmoPosi'}  = noiseText(2,3);
-    $pc{'lois'.$_.'EmoNega'}  = noiseText(2,3);
-    $pc{'lois'.$_.'EmoPosiCheck'} = $pc{'lois'.$_.'EmoNegaCheck'} = $pc{'lois'.$_.'Color'} = $pc{'lois'.$_.'State'} = '';
-  }
-  
   $pc{'effectNum'} = int(rand 4) + 8;
   foreach(1..$pc{'effectNum'}){
     $pc{'effect'.$_.'Type'}     = '';
@@ -260,15 +251,17 @@ $SHEET->param("breed" =>
 );
 
 ### 能力値 --------------------------------------------------
-my %status = (0=>'body', 1=>'sense', 2=>'mind', 3=>'social');
+my %status = (0=>'Body', 1=>'Sense', 2=>'Intelligence', 3=>'Will', 4=>'Charm', 5=>'Social');
 foreach my $num (keys %status){
   my $name = $status{$num};
-  my $base = 0;
-  $base += $data::syndrome_status{$pc{'syndrome1'}}[$num];
-  $base += $pc{'syndrome2'} ? $data::syndrome_status{$pc{'syndrome2'}}[$num] : $base;
+  my $base = 20;
+  $base += $data::igrs_status{$pc{'igr'}}[$num] || 0;
+  $base += $data::elements_status{$pc{'element'}}[$num] || 0;
+  $base += $pc{'sttBonus'.$name} || 0;
+  $base += $pc{'sttGrow'.$name} || 0;
+  $base += $pc{'sttOther'.$name} || 0;
   $SHEET->param("sttBase".ucfirst($name) => $base);
 }
-$SHEET->param("sttWorks".ucfirst($pc{'sttWorks'}) => 1);
 
 ### 技能 --------------------------------------------------
 foreach my $name ('Melee','Ranged','RC','Negotiate','Dodge','Percept','Will','Procure'){
