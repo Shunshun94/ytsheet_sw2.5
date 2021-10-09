@@ -169,29 +169,24 @@ window.onload = function() {
           <dl class="box"><dt>性別</dt><dd><TMPL_VAR gender></dd></dl>
           <dl class="box"><dt>身長</dt><dd><TMPL_VAR height></dd></dl>
           <dl class="box"><dt>髪の色</dt><dd><TMPL_VAR hair></dd></dl>
-          <dl class="box"><dt>瞳の色</dt><dd><TMPL_VAR eye></dd></dl>
+          <dl class="box"><dt>瞳の色</dt><dd><TMPL_VAR eyes></dd></dl>
           <dl class="box"><dt>肌の色</dt><dd><TMPL_VAR skin></dd></dl>
-          
         </div>
         <div id="works-cover" class="box-union">
-          <dl class="box"><dt>IGR</dt><dd><TMPL_VAR igr></dd></dl>
-          <dl class="box"><dt>エレメント</dt><dd><TMPL_VAR element></dd></dl>
         </div>
-        <!--
-        <div id="renegade" class="box-union">
-          <dl class="box" id="breed">
-            <dt>ブリード</dt><dd><TMPL_VAR breed></dd>
-          </dl>
-          <dl class="box" id="syndrome">
-            <dt>シンドローム</dt>
-            <dd><TMPL_VAR syndrome1></dd>
-            <dd><TMPL_VAR syndrome2></dd>
-            <dt>オプショナル</dt>
-            <dd><TMPL_VAR syndrome3></dd>
-          </dl>
-        </div>
-
         <div id="sub-status" class="box-union">
+          <dl class="box" id="igr">
+            <dt>IGR</dt>
+            <dd><b><TMPL_VAR igr></b></dd>
+          </dl>
+          <dl class="box" id="element">
+            <dt>エレメント</dt>
+            <dd><b><TMPL_VAR element></b></dd>
+          </dl>
+          <dl class="box" id="home">
+            <dt>行動値</dt>
+            <dd><b><TMPL_VAR home></b></dd>
+          </dl>
           <dl class="box" id="max-hp">
             <dt>HP最大値</dt>
             <dd><TMPL_IF maxHpAdd>+<TMPL_VAR maxHpAdd>=</TMPL_IF><b><TMPL_VAR maxHpTotal></b></dd>
@@ -200,26 +195,10 @@ window.onload = function() {
             <dt>常備化<span class="shorten">ポイント</span></dt>
             <dd><TMPL_IF stockAdd>+<TMPL_VAR stockAdd>=</TMPL_IF><b><TMPL_VAR stockTotal></b></dd>
           </dl>
-          <dl class="box" id="saving">
-            <dt>財産<span class="shorten">ポイント</span></dt>
-            <dd><TMPL_IF savingAdd>+<TMPL_VAR savingAdd>=</TMPL_IF><b><TMPL_VAR savingTotal></b></dd>
-          </dl>
           <dl class="box" id="initiative">
             <dt>行動値</dt>
             <dd><TMPL_IF initiativeAdd>+<TMPL_VAR initiativeAdd>=</TMPL_IF><b><TMPL_VAR initiativeTotal></b></dd>
           </dl>
-          <dl class="box" id="move">
-            <dt>戦闘移動</dt>
-            <dd><TMPL_IF moveAdd>+<TMPL_VAR moveAdd>=</TMPL_IF><b><TMPL_VAR moveTotal></b></dd>
-          </dl>
-          <dl class="box" id="dash">
-            <dt>全力移動</dt>
-            <dd><TMPL_IF dashAdd>+<TMPL_VAR dashAdd>=</TMPL_IF><b><TMPL_VAR dashTotal></b></dd>
-          </dl>
-          <TMPL_IF ccOn><dl class="box" id="magic-dice">
-            <dt>魔術<span class="shorten">ダイス</span></dt>
-            <dd><TMPL_IF magicAdd>+<TMPL_VAR magicAdd>=</TMPL_IF><b><TMPL_VAR magicTotal></b></dd>
-          </dl></TMPL_IF>
         </div>
         
         <section class="box" id="exp">
@@ -230,73 +209,61 @@ window.onload = function() {
           <dt>総<span class="shorten">計</span></dt><dd><TMPL_VAR expTotal></dd>
         </dl>
         </section>
-        
+
         <section class="box" id="lifepath">
           <h2>ライフパス</h2>
           <table class="data-table line-tbody">
             <tbody>
               <tr>
-                <th class="left" colspan="2">出自</th>
-                <td rowspan="2" class="left"><TMPL_VAR lifepathOriginNote></td>
+                <th class="left" colspan="2">前歴</th>
+                <td rowspan="2" class="left"><TMPL_VAR lifepathPastNote></td>
               </tr>
               <tr>
-                <td colspan="2"><TMPL_VAR lifepathOrigin></td>
+                <td colspan="2"><TMPL_VAR lifepathPast></td>
               </tr>
             </tbody>
             <tbody>
               <tr>
-                <th class="left" colspan="2">経験</th>
-                <td rowspan="2" class="left"><TMPL_VAR lifepathExperienceNote></td>
+                <th class="left" colspan="2">秘密</th>
+                <td rowspan="2" class="left"><TMPL_VAR lifepathSecretNote></td>
               </tr>
               <tr>
-                <td colspan="2"><TMPL_VAR lifepathExperience></td>
+                <td colspan="2"><TMPL_VAR lifepathSecret></td>
               </tr>
             </tbody>
             <tbody>
               <tr>
-                <th class="left" colspan="2">邂逅／欲望</th>
-                <td rowspan="2" class="left"><TMPL_VAR lifepathEncounterNote></td>
+                <th class="left" colspan="2">破滅</th>
+                <td rowspan="2" class="left"><TMPL_VAR lifepathRuinNote></td>
               </tr>
               <tr>
-                <td colspan="2"><TMPL_VAR lifepathEncounter></td>
+                <td colspan="2"><TMPL_VAR lifepathRuin></td>
               </tr>
-            </tbody>
-            <tbody>
-              <tr>
-                <th class="left">覚醒</th>
-                <th class="small">侵蝕値</th>
-                <td rowspan="2" class="left"><TMPL_VAR lifepathAwakenNote></td>
-              </tr>
-              <tr>
-                <td><TMPL_VAR lifepathAwaken></td>
-                <td class="center"><TMPL_VAR lifepathAwakenEncroach></td>
-              </tr>
-            </tbody>
-            <tbody>
-              <tr>
-                <th class="left">衝動</th>
-                <th class="small">侵蝕値</th>
-                <td rowspan="2" class="left"><TMPL_VAR lifepathImpulseNote></td>
-              </tr>
-              <tr>
-                <td <TMPL_IF lifepathUrgeCheck>style="border-bottom:hidden"</TMPL_IF>><TMPL_VAR lifepathImpulse></td>
-                <td class="center"><TMPL_VAR lifepathImpulseEncroach></td>
-              </tr>
-              <TMPL_IF lifepathUrgeCheck><tr class="urge">
-                <th colspan="2" class="right">／変異暴走</th>
-                <td colspan="2" class="left"><TMPL_VAR lifepathUrgeNote></td>
-              </tr></TMPL_IF>
-            </tbody>
-            <tbody>
-              <tr><th class="right small">その他の修正</th><td class="center"><TMPL_VAR lifepathOtherEncroach></td><td class="left"><TMPL_VAR lifepathOtherNote></td></tr>
-            </tbody>
-            <tbody>
-              <tr><th class="right">侵蝕率基本値</th><td class="center bold"><TMPL_VAR baseEncroach></td></tr>
             </tbody>
           </table>
         </section>
       </div>
-
+      <section class="box" id="lois">
+        <h2>フラグ</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>関係</th>
+              <th>名前</th>
+              <th colspan="2" class="right">状態</th>
+            </tr>
+          </thead>
+          <tbody>
+            <TMPL_LOOP Flags><tr>
+              <td><TMPL_VAR RELATION></td>
+              <td><TMPL_VAR NAME></td>
+              <td class="left"><TMPL_VAR NOTE></td>
+              <td class="right"><span data-state="<TMPL_VAR STATE>"></span></td>
+            </tr></TMPL_LOOP>
+          </tbody>
+        </table>
+      </section>
+<!--
       <section class="box" id="status">
         <h2>能力値</h2>
         <TMPL_UNLESS forbiddenMode><span class="open-button" onclick="statusBreakdownOpen();">▼能力値内訳表示</span></TMPL_UNLESS>
@@ -364,32 +331,7 @@ window.onload = function() {
       }
       </script>
       
-      <section class="box" id="lois">
-        <h2>ロイス</h2>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>関係</th>
-              <th>名前</th>
-              <th colspan="3">感情<span class="small">(Posi／Nega)</span></th>
-              <th>属性</th>
-              <th colspan="2" class="right">状態</th>
-            </tr>
-          </thead>
-          <tbody>
-            <TMPL_LOOP Loises><tr>
-              <td><TMPL_VAR RELATION></td>
-              <td><TMPL_VAR NAME></td>
-              <td class="emo <TMPL_IF P-CHECK>checked</TMPL_IF>"><TMPL_VAR POSI></td>
-              <td>／</td>
-              <td class="emo <TMPL_IF N-CHECK>checked</TMPL_IF>"><TMPL_VAR NEGA></td>
-              <td style="<TMPL_VAR COLOR-BG>"><TMPL_VAR COLOR></td>
-              <td class="left"><TMPL_VAR NOTE></td>
-              <td class="right"><span data-state="<TMPL_VAR STATE>"></span></td>
-            </tr></TMPL_LOOP>
-          </tbody>
-        </table>
-      </section>
+
       
       <TMPL_IF Memories><section class="box" id="memory">
         <h2>メモリー</h2>

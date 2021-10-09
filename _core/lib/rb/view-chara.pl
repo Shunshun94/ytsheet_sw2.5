@@ -290,33 +290,16 @@ foreach (1 .. max($pc{'skillRideNum'},$pc{'skillArtNum'},$pc{'skillKnowNum'},$pc
 $SHEET->param(Skills => \@skills);
 
 ### ロイス --------------------------------------------------
-my @loises;
+my @flags;
 foreach (1 .. 7){
-  my $color;
-  if   ($pc{'lois'.$_.'Color'} =~ /^(BK|BLA|黒)/i){ $color = 'hsla(  0,  0%,  0%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(BL|青)/i    ){ $color = 'hsla(220,100%, 50%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(GR|緑)/i    ){ $color = 'hsla(120,100%, 50%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(OR|橙)/i    ){ $color = 'hsla( 30,100%, 50%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(PU|紫)/i    ){ $color = 'hsla(270,100%, 50%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(RE|赤)/i    ){ $color = 'hsla(  0,100%, 50%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(WH|白)/i    ){ $color = 'hsla(  0,  0%,100%,0.2)'; }
-  elsif($pc{'lois'.$_.'Color'} =~ /^(YE|黄)/i    ){ $color = 'hsla( 60,100%, 50%,0.2)'; }
-  $color = $color ? "background-color:${color};" : '';
-  push(@loises, {
-    "RELATION" => $pc{'lois'.$_.'Relation'},
-    "NAME"     => $pc{'lois'.$_.'Name'},
-    "POSI"     => $pc{'lois'.$_.'EmoPosi'},
-    "NEGA"     => $pc{'lois'.$_.'EmoNega'},
-    "P-CHECK"  => $pc{'lois'.$_.'EmoPosiCheck'},
-    "N-CHECK"  => $pc{'lois'.$_.'EmoNegaCheck'},
-    "COLOR"    => $pc{'lois'.$_.'Color'},
-    "COLOR-BG" => $color,
-    "NOTE"     => $pc{'lois'.$_.'Note'},
-    "STATE"    => $pc{'lois'.$_.'State'},
+  push(@flags, {
+    "RELATION" => $pc{'flag'.$_.'Relation'},
+    "NAME"     => $pc{'flag'.$_.'Name'},
+    "NOTE"     => $pc{'flag'.$_.'Note'},
+    "STATE"    => $pc{'flag'.$_.'State'},
   });
-  if($pc{'lois'.$_.'Name'} =~ /起源種|オリジナルレネゲイド/){ $SHEET->param(enchroachOrOn => 'checked'); }
 }
-$SHEET->param(Loises => \@loises);
+$SHEET->param(Flags => \@flags);
 $SHEET->param(Skills => \@skills);
 
 ### メモリー --------------------------------------------------
@@ -681,7 +664,7 @@ if($pc{'imageCopyrightURL'}){
 ### OGP --------------------------------------------------
 $SHEET->param(ogUrl => url().($::in{'url'} ? "?url=$::in{'url'}" : "?id=$::in{'id'}"));
 if($pc{'image'}) { $SHEET->param(ogImg => url()."/".$imgsrc); }
-$SHEET->param(ogDescript => tag_delete "性別:$pc{'gender'}　年齢:$pc{'age'}　ワークス:$pc{'works'}　シンドローム:$pc{'syndrome1'} $pc{'syndrome2'} $pc{'syndrome3'}");
+$SHEET->param(ogDescript => tag_delete "性別:$pc{'gender'}　年齢:$pc{'age'}　IGR:$pc{'igr'}　エレメント:$pc{'element'} 出身:$pc{'home'}");
 
 ### バージョン等 --------------------------------------------------
 $SHEET->param("ver" => $::ver);

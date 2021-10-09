@@ -203,7 +203,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 /* // Area-Status
 ---------------------------------------------------------------------------------------------------- */
 #area-status {
-  min-height: 56.7rem;
+  min-height: 40rem;
   display: grid;
   grid-gap: 1rem;
   grid-template-columns: 0.7fr 1.1fr 1.1fr 2.115fr;
@@ -452,11 +452,10 @@ p.words span.brackets {
 }
 #sub-status dl#max-hp     { flex-basis: 33.3%; }
 #sub-status dl#stock-pt   { flex-basis: 33.3%; }
-#sub-status dl#saving     { flex-basis: 33.3%; }
-#sub-status dl#initiative { flex-basis: 25%; }
-#sub-status dl#move       { flex-basis: 25%; }
-#sub-status dl#dash       { flex-basis: 25%; }
-#sub-status dl#magic-dice { flex-basis: 25%; }
+#sub-status dl#initiative { flex-basis: 33.3%; }
+#sub-status dl#igr        { flex-basis: 33.3%; }
+#sub-status dl#element    { flex-basis: 33.3%; }
+#sub-status dl#home       { flex-basis: 33.3%; }
 #sub-status dl {
   flex-grow: 1;
   margin: -1px 0 0 -1px;
