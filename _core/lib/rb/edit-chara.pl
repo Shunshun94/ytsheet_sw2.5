@@ -84,34 +84,39 @@ $pc{'historyNum'} ||= 3;
 
 ### 折り畳み判断 --------------------------------------------------
 my %open;
-foreach (
-  'skillMelee','skillRanged','skillRC','skillNegotiate',
-  'skillDodge','skillPercept','skillWill','skillProcure',
-){
-  if ($pc{$_}){ $open{'skill'} = 'open'; last; }
-}
-foreach (
-    'skillRide','skillArt','skillKnow','skillInfo',
-){
-  foreach my $num (1..$pc{$_.'Num'}){
-    if ($pc{$_.$num}){ $open{'skill'} = 'open'; last; }
+
+foreach (@data::skills) {
+  if($pc{$_}) {
+    $open{'skill'} = 'open'; last;
   }
 }
-if  ($pc{"lifepathOrigin"}
-  || $pc{"lifepathExperience"}
-  || $pc{"lifepathEncounter"}
-  || $pc{"lifepathAwaken"}
-  || $pc{"lifepathImpulse"}  ){ $open{'lifepath'} = 'open'; }
-if  ($pc{"insanity"}
-  || $pc{"insanityNote"}){ $open{'insanity'} = 'open'; }
-foreach (1..7){ if($pc{"lois${_}Relation"} || $pc{"lois${_}Name"}  ){ $open{'lois'}   = 'open'; last; } }
-foreach (1..3){ if($pc{"memory${_}Gain"}   || $pc{"memory${_}Name"}){ $open{'memory'} = 'open'; last; } }
-foreach (1..$pc{'comboNum'}) { if($pc{"combo${_}Name"} || $pc{"combo${_}Combo"}){ $open{'combo'} = 'open'; last; } }
-foreach (3..$pc{'effectNum'}){ if($pc{"effect${_}Name"} || $pc{"effect${_}Lv"}){ $open{'effect'} = 'open'; last; } }
-foreach (1..$pc{'magicNum'}){ if($pc{"magic${_}Name"} || $pc{"magic${_}Exp"}){ $open{'magic'} = 'open'; last; } }
+foreach (
+    'skillComp1','skillComp2',
+    'skillArt1', 'skillArt2',
+    'skillKnow1','skillKnow2',
+){
+  if($pc{$_}) {
+    $open{'skill'} = 'open'; last;
+  }
+}
+if  ($pc{"lifepathPast"}
+  || $pc{"lifepathSecret"}
+  || $pc{"lifepathRuin"}  ){ $open{'lifepath'} = 'open'; }
+
+foreach (1..7){
+  if($pc{"flag${_}Relation"} || $pc{"flag${_}Name"} || $pc{"flag${_}Note"}  ){ $open{'flag'} = 'open'; last; }
+}
+
+foreach (1..$pc{'talentNum'}){
+  if($pc{"talent${_}Name"} || $pc{"talent${_}Note"}){ $open{'talent'} = 'open'; last; }
+}
+
+foreach (1..$pc{'cheatNum'}){
+  if($pc{"cheat${_}Name"} || $pc{"cheat${_}Cost"} || $pc{"cheat${_}Note"}){ $open{'cheat'} = 'open'; last; }
+}
+
 foreach (1..$pc{'weaponNum'})  { if($pc{"weapon${_}Name"})  { $open{'item'} = 'open'; last; } }
 foreach (1..$pc{'armorNum'})   { if($pc{"armor${_}Name"})   { $open{'item'} = 'open'; last; } }
-foreach (1..$pc{'vehiclesNum'}){ if($pc{"vehicles${_}Name"}){ $open{'item'} = 'open'; last; } }
 foreach (1..$pc{'itemNum'})    { if($pc{"item${_}Name"})    { $open{'item'} = 'open'; last; } }
 
 
@@ -474,7 +479,7 @@ print <<"HTML";
           <a class="button small" onclick="resetLoisAdd()">4番目以降をリセット</a>
         </div>
       </details>
-      <details class="box" id="effect" $open{'effect'}>
+      <details class="box" id="effect" $open{'talent'}>
         <summary>特技 [<span id="exp-effect">0</span>]</summary>
         @{[input 'talentNum','hidden']}
         <table class="edit-table line-tbody" id="effect-table">
@@ -498,7 +503,7 @@ print <<"HTML";
         <div class="add-del-button"><a onclick="addTalent()">▼</a><a onclick="delTalent()">▲</a></div>
       </details>
 
-      <details class="box" id="magic" $open{'magic'}>
+      <details class="box" id="magic" $open{'cheat'}>
         <summary>チートパワー [<span id="exp-magic">0</span>]</summary>
         @{[input 'cheatNum','hidden']}
         <table class="edit-table line-tbody" id="magic-table">
