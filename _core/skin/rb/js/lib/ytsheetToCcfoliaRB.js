@@ -30,32 +30,24 @@ io.github.shunshun94.trpg.ccfolia.getCharacterSeed = ()=>{
 	return { kind: "character" };
 };
 
-io.github.shunshun94.trpg.ccfolia.generateCharacterJsonFromYtSheet2DoubleCross3PC = async (json, opt_sheetUrl = '') => {
+io.github.shunshun94.trpg.ccfolia.generateCharacterJsonFromYtSheet2RuinBreakersPC = async (json, opt_sheetUrl = '') => {
 	const result = io.github.shunshun94.trpg.ccfolia.getCharacterSeed();
 	const defaultPalette = await io.github.shunshun94.trpg.ytsheet.getChatPalette(opt_sheetUrl);
 	const character = {
 			name: json.characterName || json.aka,
 			playerName: json.playerName,
-			memo: `${json.characterNameRuby ? '('+json.characterNameRuby+')\n' :''}PL: ${json.playerName || 'PL情報無し'}\n${json.works || ''} / ${json.cover || ''}\n${json.syndrome1 || ''}${json.syndrome2 ? '、'+json.syndrome2 : ''}${json.syndrome3 ? '、'+json.syndrome3 : ''}\n\n${json.imageURL ? '立ち絵：' + (json.imageCopyright || '権利情報なし') : ''}`,
+			memo: `${json.characterNameRuby ? '('+json.characterNameRuby+')\n' :''}PL: ${json.playerName || 'PL情報無し'}\n${json.igr || ''} / ${json.element || ''} / ${json.home || ''}\n\n${json.imageURL ? '立ち絵：' + (json.imageCopyright || '権利情報なし') : ''}`,
 			initiative: Number(json.initiativeTotal || 0),
 			externalUrl: opt_sheetUrl,
 			status: [
 				{
-					label: 'HP',
+					label: 'FP',
 					value: json.maxHpTotal,
 					max: json.maxHpTotal
 				}, {
-					label: '侵蝕率',
-					value: json.baseEncroach || 0,
-					max: 300
-				}, {
-					label: 'ロイス',
-					value: json.loisHave || 3,
-					max: json.loisMax || 7
-				}, {
-					label: '財産点',
-					value: json.savingTotal,
-					max: json.savingTotal
+					label: 'RBP',
+					value: 0,
+					max: 0
 				}
 			],
 			params: defaultPalette.parameters || [],
@@ -69,22 +61,6 @@ io.github.shunshun94.trpg.ccfolia.generateCharacterJsonFromYtSheet2DoubleCross3P
 			commands: defaultPalette.palette || '',
 			speaking: true
 	};
-	io.github.shunshun94.trpg.ytsheet.consts.DX3_STATUS.forEach((s)=>{
-		character.params.push({
-			label: s.name, value: json['sttTotal' + s.column] || 0
-		});
-		s.skills.forEach((skill)=>{
-			character.params.push({
-				label: skill.name, value: json['skillTotal' + skill.column] || 0
-			});
-		});
-		let cursor = 1;
-		while(json[`skill${s.extendableSkill.column}${cursor}Name`]) {
-			character.params.push({label: json[`skill${s.extendableSkill.column}${cursor}Name`], value: json[`skillTotal${s.extendableSkill.column}${cursor}`] || 0});
-			cursor++;
-		}
-	});
-
 	result.data = character;
 	return JSON.stringify(result);
 };
