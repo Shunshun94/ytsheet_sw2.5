@@ -17,6 +17,8 @@ sub data_calc {
     %pc = data_update_chara(\%pc);
   }
   
+$pc{'paletteTool'} = 'bcdice';
+
   ### 能力値 --------------------------------------------------
 my %status = (0=>'Body', 1=>'Sense', 2=>'Intelligence', 3=>'Will', 4=>'Charm', 5=>'Social');
 foreach my $num (keys %status){

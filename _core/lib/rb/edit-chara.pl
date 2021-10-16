@@ -174,7 +174,7 @@ print <<"HTML";
         <h2><span></span></h2>
         <ul>
           <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span></li>
-          <!--<li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>-->
+          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>
           <li onclick="sectionSelect('color');"><span>カラー</span><span>カスタム</span></li>
           <li class="button">
 HTML
@@ -795,11 +795,6 @@ print <<"HTML";
           <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
           ／
           <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
-          <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
-          <option value="">ゆとチャadv.
-          <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
-          </select>
         </p>
         </div>
       </div>
