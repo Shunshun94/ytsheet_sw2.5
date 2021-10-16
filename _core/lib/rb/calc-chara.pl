@@ -54,21 +54,8 @@ foreach my $num (keys %status){
     '調達' => 'Procure',
   );
   # 経験点
-  $pc{'expUsedSkill'} = -9; #ワークス取得ぶん
-  foreach my $name ('Melee','Ranged','RC','Negotiate','Dodge','Percept','Will','Procure'){
-    my $lv = $pc{'skill'.$name};
-    for(my $i = 0; $i < $lv; $i++){ $pc{'expUsedSkill'} += ($i > 20) ? 10 : ($i > 10) ? 5 : ($i > 5) ? 3 : 2; }
-    if($pc{'skill'.$name} || $pc{'skillAdd'.$name}){ $pc{'skillTotal'.$name} = $pc{'skill'.$name} + $pc{'skillAdd'.$name}; }
-    
-  }
-  foreach my $name ('Ride','Art','Know','Info'){
-    foreach my $num (1 .. $pc{'skill'.$name.'Num'}){
-      my $lv = $pc{'skill'.$name.$num};
-      for(my $i = 0; $i < $lv; $i++){ $pc{'expUsedSkill'} += ($i > 20) ? 10 : ($i > 10) ? 5 : ($i > 5) ? 3 : 1; }
-      if($pc{'skill'.$name.$num} || $pc{'skillAdd'.$name.$num}){ $pc{'skillTotal'.$name.$num} = $pc{'skill'.$name.$num} + $pc{'skillAdd'.$name.$num}; }
-      $skill_name_to_id{$pc{'skill'.$name.$num.'Name'}} = $name.$num if $pc{'skill'.$name.$num.'Name'};
-    }
-  }
+  $pc{'expUsedSkill'} = 0;
+
   
   ### アイテム --------------------------------------------------
   foreach my $num (1 .. $pc{'weaponNum'}){
