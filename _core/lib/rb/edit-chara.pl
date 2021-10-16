@@ -84,34 +84,39 @@ $pc{'historyNum'} ||= 3;
 
 ### 折り畳み判断 --------------------------------------------------
 my %open;
-foreach (
-  'skillMelee','skillRanged','skillRC','skillNegotiate',
-  'skillDodge','skillPercept','skillWill','skillProcure',
-){
-  if ($pc{$_}){ $open{'skill'} = 'open'; last; }
-}
-foreach (
-    'skillRide','skillArt','skillKnow','skillInfo',
-){
-  foreach my $num (1..$pc{$_.'Num'}){
-    if ($pc{$_.$num}){ $open{'skill'} = 'open'; last; }
+
+foreach (@data::skills) {
+  if($pc{$_}) {
+    $open{'skill'} = 'open'; last;
   }
 }
-if  ($pc{"lifepathOrigin"}
-  || $pc{"lifepathExperience"}
-  || $pc{"lifepathEncounter"}
-  || $pc{"lifepathAwaken"}
-  || $pc{"lifepathImpulse"}  ){ $open{'lifepath'} = 'open'; }
-if  ($pc{"insanity"}
-  || $pc{"insanityNote"}){ $open{'insanity'} = 'open'; }
-foreach (1..7){ if($pc{"lois${_}Relation"} || $pc{"lois${_}Name"}  ){ $open{'lois'}   = 'open'; last; } }
-foreach (1..3){ if($pc{"memory${_}Gain"}   || $pc{"memory${_}Name"}){ $open{'memory'} = 'open'; last; } }
-foreach (1..$pc{'comboNum'}) { if($pc{"combo${_}Name"} || $pc{"combo${_}Combo"}){ $open{'combo'} = 'open'; last; } }
-foreach (3..$pc{'effectNum'}){ if($pc{"effect${_}Name"} || $pc{"effect${_}Lv"}){ $open{'effect'} = 'open'; last; } }
-foreach (1..$pc{'magicNum'}){ if($pc{"magic${_}Name"} || $pc{"magic${_}Exp"}){ $open{'magic'} = 'open'; last; } }
+foreach (
+    'skillComp1','skillComp2',
+    'skillArt1', 'skillArt2',
+    'skillKnow1','skillKnow2',
+){
+  if($pc{$_}) {
+    $open{'skill'} = 'open'; last;
+  }
+}
+if  ($pc{"lifepathPast"}
+  || $pc{"lifepathSecret"}
+  || $pc{"lifepathRuin"}  ){ $open{'lifepath'} = 'open'; }
+
+foreach (1..7){
+  if($pc{"flag${_}Relation"} || $pc{"flag${_}Name"} || $pc{"flag${_}Note"}  ){ $open{'flag'} = 'open'; last; }
+}
+
+foreach (1..$pc{'talentNum'}){
+  if($pc{"talent${_}Name"} || $pc{"talent${_}Note"}){ $open{'talent'} = 'open'; last; }
+}
+
+foreach (1..$pc{'cheatNum'}){
+  if($pc{"cheat${_}Name"} || $pc{"cheat${_}Cost"} || $pc{"cheat${_}Note"}){ $open{'cheat'} = 'open'; last; }
+}
+
 foreach (1..$pc{'weaponNum'})  { if($pc{"weapon${_}Name"})  { $open{'item'} = 'open'; last; } }
 foreach (1..$pc{'armorNum'})   { if($pc{"armor${_}Name"})   { $open{'item'} = 'open'; last; } }
-foreach (1..$pc{'vehiclesNum'}){ if($pc{"vehicles${_}Name"}){ $open{'item'} = 'open'; last; } }
 foreach (1..$pc{'itemNum'})    { if($pc{"item${_}Name"})    { $open{'item'} = 'open'; last; } }
 
 
@@ -174,7 +179,7 @@ print <<"HTML";
         <h2><span></span></h2>
         <ul>
           <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span></li>
-          <!--<li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>-->
+          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>
           <li onclick="sectionSelect('color');"><span>カラー</span><span>カスタム</span></li>
           <li class="button">
 HTML
@@ -474,7 +479,7 @@ print <<"HTML";
           <a class="button small" onclick="resetLoisAdd()">4番目以降をリセット</a>
         </div>
       </details>
-      <details class="box" id="effect" $open{'effect'}>
+      <details class="box" id="effect" $open{'talent'}>
         <summary>特技 [<span id="exp-effect">0</span>]</summary>
         @{[input 'talentNum','hidden']}
         <table class="edit-table line-tbody" id="effect-table">
@@ -498,7 +503,7 @@ print <<"HTML";
         <div class="add-del-button"><a onclick="addTalent()">▼</a><a onclick="delTalent()">▲</a></div>
       </details>
 
-      <details class="box" id="magic" $open{'magic'}>
+      <details class="box" id="magic" $open{'cheat'}>
         <summary>チートパワー [<span id="exp-magic">0</span>]</summary>
         @{[input 'cheatNum','hidden']}
         <table class="edit-table line-tbody" id="magic-table">
@@ -749,19 +754,6 @@ print <<"HTML";
         　経験点欄の右の適用チェックを入れると、その経験点が適用されます。
         </div>
       </div>
-      <!--
-      <div class="box" id="exp-footer">
-        <p>
-        経験点[<b id="exp-total"></b>] - 
-        ( 能力値[<b id="exp-used-status"></b>]
-        - 技能[<b id="exp-used-skill"></b>]
-        - エフェクト[<b id="exp-used-effect"></b>]
-        <span class="cc-only">- 術式[<b id="exp-used-magic"></b>]</span>
-        - アイテム[<b id="exp-used-item"></b>]
-        - メモリー[<b id="exp-used-memory"></b>]
-        ) = 残り[<b id="exp-rest"></b>]点
-        </p>
-      </div>-->
       </section>
       
       <section id="section-palette" style="display:none;">
@@ -795,11 +787,6 @@ print <<"HTML";
           <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
           ／
           <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
-          <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
-          <option value="">ゆとチャadv.
-          <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
-          </select>
         </p>
         </div>
       </div>
@@ -879,54 +866,6 @@ print <<"HTML";
     <option value="なし">
     <option value="不明">
     <option value="不詳">
-  </datalist>
-  <datalist id="list-emotionP">
-    <option value="傾倒">
-    <option value="好奇心">
-    <option value="憧憬">
-    <option value="尊敬">
-    <option value="連帯感">
-    <option value="慈愛">
-    <option value="感服">
-    <option value="純愛">
-    <option value="友情">
-    <option value="慕情">
-    <option value="同情">
-    <option value="遺志">
-    <option value="庇護">
-    <option value="幸福感">
-    <option value="信頼">
-    <option value="執着">
-    <option value="親近感">
-    <option value="誠意">
-    <option value="好意">
-    <option value="有為">
-    <option value="尽力">
-    <option value="懐旧">
-  </datalist>
-  <datalist id="list-emotionN">
-    <option value="侮蔑">
-    <option value="食傷">
-    <option value="脅威">
-    <option value="嫉妬">
-    <option value="悔悟">
-    <option value="恐怖">
-    <option value="不安">
-    <option value="劣等感">
-    <option value="疎外感">
-    <option value="恥辱">
-    <option value="憐憫">
-    <option value="偏愛">
-    <option value="憎悪">
-    <option value="隔意">
-    <option value="嫌悪">
-    <option value="猜疑心">
-    <option value="厭気">
-    <option value="不信感">
-    <option value="不快感">
-    <option value="憤懣">
-    <option value="敵愾心">
-    <option value="無関心">
   </datalist>
   <datalist id="list-comp" >
     <option value="競技:">

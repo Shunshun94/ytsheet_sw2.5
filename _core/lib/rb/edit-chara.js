@@ -37,10 +37,6 @@ function changeRegu(){
 // ステージチェック ----------------------------------------
 let ccOn = 0;
 function checkStage(){
-  ccOn = (form.stage.value.match('クロウリングケイオス')) ? 1 : 0;
-  document.querySelectorAll('.cc-only').forEach(obj =>{
-    obj.style.display = ccOn ? '' : 'none';
-  });
   calcMagic();
 }
 // シンドローム変更 ----------------------------------------
