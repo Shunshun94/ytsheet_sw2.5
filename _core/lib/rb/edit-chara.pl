@@ -749,19 +749,6 @@ print <<"HTML";
         　経験点欄の右の適用チェックを入れると、その経験点が適用されます。
         </div>
       </div>
-      <!--
-      <div class="box" id="exp-footer">
-        <p>
-        経験点[<b id="exp-total"></b>] - 
-        ( 能力値[<b id="exp-used-status"></b>]
-        - 技能[<b id="exp-used-skill"></b>]
-        - エフェクト[<b id="exp-used-effect"></b>]
-        <span class="cc-only">- 術式[<b id="exp-used-magic"></b>]</span>
-        - アイテム[<b id="exp-used-item"></b>]
-        - メモリー[<b id="exp-used-memory"></b>]
-        ) = 残り[<b id="exp-rest"></b>]点
-        </p>
-      </div>-->
       </section>
       
       <section id="section-palette" style="display:none;">
@@ -874,54 +861,6 @@ print <<"HTML";
     <option value="なし">
     <option value="不明">
     <option value="不詳">
-  </datalist>
-  <datalist id="list-emotionP">
-    <option value="傾倒">
-    <option value="好奇心">
-    <option value="憧憬">
-    <option value="尊敬">
-    <option value="連帯感">
-    <option value="慈愛">
-    <option value="感服">
-    <option value="純愛">
-    <option value="友情">
-    <option value="慕情">
-    <option value="同情">
-    <option value="遺志">
-    <option value="庇護">
-    <option value="幸福感">
-    <option value="信頼">
-    <option value="執着">
-    <option value="親近感">
-    <option value="誠意">
-    <option value="好意">
-    <option value="有為">
-    <option value="尽力">
-    <option value="懐旧">
-  </datalist>
-  <datalist id="list-emotionN">
-    <option value="侮蔑">
-    <option value="食傷">
-    <option value="脅威">
-    <option value="嫉妬">
-    <option value="悔悟">
-    <option value="恐怖">
-    <option value="不安">
-    <option value="劣等感">
-    <option value="疎外感">
-    <option value="恥辱">
-    <option value="憐憫">
-    <option value="偏愛">
-    <option value="憎悪">
-    <option value="隔意">
-    <option value="嫌悪">
-    <option value="猜疑心">
-    <option value="厭気">
-    <option value="不信感">
-    <option value="不快感">
-    <option value="憤懣">
-    <option value="敵愾心">
-    <option value="無関心">
   </datalist>
   <datalist id="list-comp" >
     <option value="競技:">
