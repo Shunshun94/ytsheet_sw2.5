@@ -70,63 +70,6 @@ foreach my $num (keys %status){
     }
   }
   
-  ### エフェクト --------------------------------------------------
-  $pc{'expUsedEffect'} = 0;
-  foreach my $num (1 .. $pc{'effectNum'}){
-    my $type = $pc{'effect'.$num.'Type'};
-    my $lv = $pc{'effect'.$num.'Lv'};
-    if($lv >= 1){
-      # イージー
-      if($type eq 'easy'){
-        $pc{'expUsedEffect'} += $lv * 2;
-      }
-      # 通常
-      else {
-        $pc{'expUsedEffect'} += $lv * 5 + 10; #lv×5 + 新規取得の差分10
-        if($type =~ /^(auto|dlois)$/i){ $pc{'expUsedEffect'} += -15; } #自動かDロイスは新規取得ぶん減らす
-      }
-    }
-    $pc{'expUsedEffect'} += $pc{'effect'.$num.'Exp'};
-  }
-
-  ### 術式 --------------------------------------------------
-  $pc{'expUsedMagic'} = 0;
-  foreach my $num (1 .. $pc{'magicNum'}){
-    $pc{'expUsedMagic'} += $pc{'magic'.$num.'Exp'};
-  }
-  
-  ### コンボ --------------------------------------------------
-  foreach my $num (1 .. $pc{'comboNum'}){
-    my $name = $pc{"combo${num}Skill"};
-    my $id = $skill_name_to_id{$name};
-    my $lv = $pc{"skill${id}"} + $pc{"skillAdd${id}"};
-    my $stt = do {
-      my $stt;
-      if($name && $id){
-        if   ($id =~ /Melee|Dodge|Ride/)      { $stt = $pc{"sttTotalBody"}; }
-        elsif($id =~ /Ranged|Percept|Art/)    { $stt = $pc{"sttTotalSense"}; }
-        elsif($id =~ /RC|Will|Know/)          { $stt = $pc{"sttTotalMind"}; }
-        elsif($id =~ /Negotiate|Procure|Info/){ $stt = $pc{"sttTotalSocial"}; }
-      }
-      if($pc{"combo${num}Stt"}){
-        if   ($pc{"combo${num}Stt"} eq '肉体'){ $stt = $pc{"sttTotalBody"}; }
-        elsif($pc{"combo${num}Stt"} eq '感覚'){ $stt = $pc{"sttTotalSense"}; }
-        elsif($pc{"combo${num}Stt"} eq '精神'){ $stt = $pc{"sttTotalMind"}; }
-        elsif($pc{"combo${num}Stt"} eq '社会'){ $stt = $pc{"sttTotalSocial"}; }
-      }
-      $stt;
-    };
-    if($pc{'comboCalcOff'}){
-      $lv = 0; $stt = 0;
-    }
-    foreach (1..4) {
-      my $dadd = $pc{"combo${num}DiceAdd".$_};
-      my $fadd = $pc{"combo${num}FixedAdd".$_};
-      $pc{"combo${num}Dice" .$_} = ($stt && $dadd) ? "$stt+$dadd" : ($stt||$dadd) if !$pc{"combo${num}Dice" .$_};
-      $pc{"combo${num}Fixed".$_} = ($lv  && $fadd) ? "$lv+$fadd"  : ($lv ||$fadd) if !$pc{"combo${num}Fixed".$_};
-    }
-  }
-  
   ### アイテム --------------------------------------------------
   foreach my $num (1 .. $pc{'weaponNum'}){
     $pc{'stockUsed'}   += $pc{"weapon${num}Stock"};
