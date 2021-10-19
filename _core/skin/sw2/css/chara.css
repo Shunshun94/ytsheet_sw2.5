@@ -55,7 +55,7 @@ body {
 #character-name rt {
   font-family: Arial,var(--base-font-family-min);
 }
-#level {
+#level dd {
   font-family: 'Verdana';
 }
 #personal dd,
@@ -801,7 +801,7 @@ dl#level dd {
 #package table tr td:nth-last-child(2) {
   font-size: 90%;
   white-space: nowrap;
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 #package table tr th {
   font-weight: normal;

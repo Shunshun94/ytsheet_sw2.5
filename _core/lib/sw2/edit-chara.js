@@ -181,7 +181,7 @@ function calcLv(){
   level = Math.max.apply(null, Object.values(lv));
   document.getElementById("level-value").innerHTML = level;
   
-  lv['Wiz'] = Math.max(lv['Sor'],lv['Con']);
+  lv['Wiz'] = (lv['Sor'] && lv['Con']) ? Math.max(lv['Sor'],lv['Con']) : 0;
   levelCasters.sort( function(a,b){ return (a < b ? 1 : -1); } );
   if(battleItemOn){
     const sLevel = Math.max.apply(null, [ lv['Sco'], lv['Ran'], lv['Sag'] ]);
@@ -486,11 +486,11 @@ function checkFeats(){
       let feat = box.options[box.selectedIndex].value;
       acquire += feat + ',';
       
-      if (feat.match(/足さばき/)){
-        if(level < 9){ cL.add("error"); }
+      if (feat.match(/追い打ち/)){
+        if(!acquire.match('シールドバッシュ')){ cL.add("error"); }
       }
       else if (feat.match(/ガーディアン/)){
-        if(level < 5 || !acquire.match('かばう')){ cL.add("error"); }
+        if(!acquire.match('かばう')){ cL.add("error"); }
         if(feat.match(/Ⅰ$/)){
           if (f2 && level >= 9) { (auto) ? box.value = "ガーディアンⅡ" : cL.add("mark") }
         }
@@ -499,7 +499,6 @@ function checkFeats(){
         }
       }
       else if (feat.match(/回避行動/)){
-        if(level < 3){ cL.add("error"); }
         if(feat.match(/Ⅰ$/)){
           if (f2 && lv['Fen'] >= 9) { (auto) ? box.value = "回避行動Ⅱ" : cL.add("mark") }
         }
@@ -510,8 +509,20 @@ function checkFeats(){
       else if (feat.match(/^頑強/)){
         if(lv['Fig'] < 5 && lv['Gra'] < 5 && lv['Fen'] < 5){ cL.add("error"); }
       }
-      else if (feat.match(/キャパシティ/)){
-        if(level < 11){ cL.add("error"); }
+      else if (feat.match(/鼓咆陣率追加/)){
+        if(lv['War'] < 1){ cL.add("error"); }
+        if(feat.match(/Ⅰ$/)){
+          if     (f3 && lv['War'] >= 13) { (auto) ? box.value = "鼓咆陣率追加Ⅲ" : cL.add("mark") }
+          else if(f2 && lv['War'] >=  7) { (auto) ? box.value = "鼓咆陣率追加Ⅱ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if     (f3 && lv['War'] >= 13) { (auto) ? box.value = "鼓咆陣率追加Ⅲ" : cL.add("mark") }
+          else if(!f2 || lv['War'] <  7) { (auto) ? box.value = "鼓咆陣率追加Ⅰ" : cL.add("error") }
+        }
+        else if(feat.match(/Ⅲ$/)){
+          if     (!f2 || lv['War'] <  7) { (auto) ? box.value = "鼓咆陣率追加Ⅰ" : cL.add("error") }
+          else if(!f3 || lv['War'] < 13) { (auto) ? box.value = "鼓咆陣率追加Ⅱ" : cL.add("error") }
+        }
       }
       else if (feat.match(/射手の体術/)){
         if(lv['Sho'] < 7){ cL.add("error"); }
@@ -537,6 +548,12 @@ function checkFeats(){
       else if (feat.match(/双撃/)){
         if(!acquire.match('両手利き')){ cL.add("error"); }
       }
+      else if (feat.match(/相克の標的/)){
+        if(lv['Geo'] < 1){ cL.add("error"); }
+      }
+      else if (feat.match(/相克の別離/)){
+        if(lv['Geo'] < 3){ cL.add("error"); }
+      }
       else if (feat.match(/鷹の目/)){
         if(!acquire.match('ターゲッティング')){ cL.add("error"); }
       }
@@ -550,6 +567,14 @@ function checkFeats(){
       }
       else if (feat.match(/超頑強/)){
         if((lv['Fig'] < 7 && lv['Gra'] < 7)|| !acquire.match('頑強')){ cL.add("error"); }
+      }
+      else if (feat.match(/抵抗強化/)){
+        if(feat.match(/Ⅰ$/)){
+          if (f2 && level >= 11) { (auto) ? box.value = "抵抗強化Ⅱ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if(!f2 || level < 11) { (auto) ? box.value = "抵抗強化Ⅰ" : cL.add("error") }
+        }
       }
       else if (feat.match(/特殊楽器習熟/)){
         if(lv['Bar'] < 1){ cL.add("error"); }
@@ -718,11 +743,47 @@ function checkFeats(){
           else if(!f3 || level < 11) { (auto) ? box.value = "牽制攻撃Ⅱ" : cL.add("error") }
         }
       }
-      else if (feat.match(/シェアパフォーマー/)){
+      else if (feat.match(/高度な柔軟性/)){
+        if(lv['War'] < 9){ cL.add("error"); }
+      }
+      else if (feat.match(/シールドバッシュ/)){
+        if(feat.match(/Ⅰ$/)){
+          if (f2 && level >= 5) { (auto) ? box.value = "シールドバッシュⅡ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if(!f2 || level < 5) { (auto) ? box.value = "シールドバッシュⅠ" : cL.add("error") }
+        }
+      }
+      else if (feat.match(/シャドウステップ/)){
+        if(feat.match(/Ⅰ$/)){
+          if (f2 && level >= 7) { (auto) ? box.value = "シャドウステップⅡ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if(!f2 || level < 7) { (auto) ? box.value = "シャドウステップⅠ" : cL.add("error") }
+        }
+      }
+      else if (feat.match(/シュアパフォーマー/)){
         if(lv['Bar'] < 3){ cL.add("error"); }
       }
       else if (feat.match(/スキルフルプレイ/)){
         if(lv['Bar'] < 7){ cL.add("error"); }
+      }
+      else if (feat.match(/捨て身攻撃/)){
+        if(feat.match(/Ⅰ$/)){
+          if     (f3 && level >= 15){ (auto) ? box.value = "捨て身攻撃Ⅲ" : cL.add("mark") }
+          else if(f2 && level >= 9) { (auto) ? box.value = "捨て身攻撃Ⅱ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if     (f3 && level >= 15){ (auto) ? box.value = "捨て身攻撃Ⅲ" : cL.add("mark") }
+          else if(!f2 || level < 7) { (auto) ? box.value = "捨て身攻撃Ⅰ" : cL.add("error") }
+        }
+        else if(feat.match(/Ⅲ$/)){
+          if     (!f2 || level < 7) { (auto) ? box.value = "捨て身攻撃Ⅰ" : cL.add("error") }
+          else if(!f3 || level < 15){ (auto) ? box.value = "捨て身攻撃Ⅱ" : cL.add("error") }
+        }
+      }
+      else if (feat.match(/先陣の才覚/)){
+        if(lv['War'] < 5){ cL.add("error"); }
       }
       else if (feat.match(/全力攻撃/)){
         if(feat.match(/Ⅰ$/)){
@@ -812,6 +873,14 @@ function checkFeats(){
       else if (feat.match(/魔法制御/)){
         if(!acquire.match('ターゲッティング') || !acquire.match('魔法収束')){ cL.add("error"); }
       }
+      else if (feat.match(/乱撃/)){
+        if(feat.match(/Ⅰ$/)){
+          if (f2 && level >= 7) { (auto) ? box.value = "乱撃Ⅱ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if(!f2 || level < 7) { (auto) ? box.value = "乱撃Ⅰ" : cL.add("error") }
+        }
+      }
       feat = box.options[box.selectedIndex].value;
       
       const weaponsRegex = new RegExp('武器習熟(Ａ|Ｓ)／(' + weapons.join('|') + ')');
@@ -846,6 +915,9 @@ function checkFeats(){
       else if(feat === "呪歌追加Ⅰ"){ feats['呪歌追加'] = 1; }
       else if(feat === "呪歌追加Ⅱ"){ feats['呪歌追加'] = 2; }
       else if(feat === "呪歌追加Ⅲ"){ feats['呪歌追加'] = 3; }
+      else if(feat === "鼓咆陣率追加Ⅰ"){ feats['鼓咆陣率追加'] = 1; }
+      else if(feat === "鼓咆陣率追加Ⅱ"){ feats['鼓咆陣率追加'] = 2; }
+      else if(feat === "鼓咆陣率追加Ⅲ"){ feats['鼓咆陣率追加'] = 3; }
       else if(feat === "抵抗強化Ⅰ"){ feats['抵抗強化'] = 1; }
       else if(feat === "抵抗強化Ⅱ"){ feats['抵抗強化'] = 2; }
       
@@ -868,12 +940,12 @@ function checkFeats(){
 // 技芸 ----------------------------------------
 function checkCraft() {
   Object.keys(classes).forEach(function(key) {
-    let cLv = (key === 'Wiz') ? Math.min(lv['Sor'],lv['Con']) : lv[key];
+    let cLv = lv[key];
     if (classes[key]['craftData']){
       const eName = classes[key]['craft'];
       document.getElementById("craft-"+eName).style.display = cLv ? "block" : "none";
-      const cMax = (key === 'Bar') ? 20 : (key === 'Art') ? 19 : 17;
-      cLv += (key === 'Bar') ? (feats['呪歌追加'] || 0) : (key === 'Art' && lv.Art === 16) ? 1 : (key === 'Art' && lv.Art === 17) ? 2 : 0;
+      const cMax = (key.match(/Bar|War/)) ? 20 : (key === 'Art') ? 19 : 17;
+      cLv += (key === 'Bar') ? (feats['呪歌追加'] || 0) : (key === 'War') ? (feats['鼓咆陣率追加'] || 0) : (key === 'Art' && lv.Art === 16) ? 1 : (key === 'Art' && lv.Art === 17) ? 2 : 0;
       for (let i = 1; i <= cMax; i++) {
         let cL = document.getElementById("craft-"+eName+i).classList;
         if (i <= cLv){
@@ -954,36 +1026,47 @@ function calcMobility() {
 
 // パッケージ計算 ----------------------------------------
 function calcPackage() {
-  document.getElementById("package-scout"    ).style.display = lv['Sco'] > 0 ? "" :"none";
-  document.getElementById("package-ranger"   ).style.display = lv['Ran'] > 0 ? "" :"none";
-  document.getElementById("package-sage"     ).style.display = lv['Sag'] > 0 ? "" :"none";
-  document.getElementById("package-rider"    ).style.display = lv['Rid'] > 0 ? "" :"none";
-  document.getElementById("package-alchemist").style.display = lv['Alc'] > 0 ? "" :"none";
-  document.getElementById("material-cards"   ).style.display = lv['Alc'] > 0 ? "" :"none";
+  const bonus = {
+    'A': bonusDex,
+    'B': bonusAgi,
+    'C': bonusStr,
+    'D': bonusVit,
+    'E': bonusInt,
+    'F': bonusMnd,
+  };
+  let lore = [];
+  let init = [];
+  Object.keys(classes).forEach(function(cId) {
+    if(classes[cId]['package']){
+      const className = classes[cId]['eName'];
+      const data = classes[cId]['package'];
+
+      document.getElementById(`package-${className}`).style.display = lv[cId] > 0 ? "" :"none";
+
+      Object.keys(data).forEach(function(pId) {
+        if(cId === 'War' && pId === 'Int'){
+          let hit = 0;
+          for(let i = 1; i <= lv['War']+(feats['鼓咆陣率追加']||0); i++){
+            if(form[`craftCommand${i}`].value.match(/軍師の知略$/)){ hit = 1; break; }
+          }
+          if(!hit){
+            document.getElementById(`package-${className}-${pId.toLowerCase()}`).innerHTML = '―';
+            return;
+          }
+        }
+        
+        let v = lv[cId] + bonus[data[pId]['stt']] + Number(form[`pack${cId}${pId}Add`].value);
+        document.getElementById(`package-${className}-${pId.toLowerCase()}`).innerHTML = v;
+
+        if(data[pId]['monsterLore']){ lore.push(lv[cId] > 0 ? v : 0); }
+        if(data[pId]['initiative' ]){ init.push(lv[cId] > 0 ? v : 0); }
+      });
+    }
+  });
+
   
-  document.getElementById("package-scout-tec"    ).innerHTML = lv['Sco'] + bonusDex + Number(form.packScoTecAdd.value);
-  document.getElementById("package-scout-agi"    ).innerHTML = lv['Sco'] + bonusAgi + Number(form.packScoAgiAdd.value);
-  document.getElementById("package-scout-obs"    ).innerHTML = lv['Sco'] + bonusInt + Number(form.packScoObsAdd.value);
-  document.getElementById("package-ranger-tec"   ).innerHTML = lv['Ran'] + bonusDex + Number(form.packRanTecAdd.value);
-  document.getElementById("package-ranger-agi"   ).innerHTML = lv['Ran'] + bonusAgi + Number(form.packRanAgiAdd.value);
-  document.getElementById("package-ranger-obs"   ).innerHTML = lv['Ran'] + bonusInt + Number(form.packRanObsAdd.value);
-  document.getElementById("package-sage-kno"     ).innerHTML = lv['Sag'] + bonusInt + Number(form.packSagKnoAdd.value);
-  document.getElementById("package-rider-agi"    ).innerHTML = lv['Rid'] + bonusAgi + Number(form.packRidAgiAdd.value);
-  document.getElementById("package-rider-kno"    ).innerHTML = lv['Rid'] + bonusInt + Number(form.packRidKnoAdd.value);
-  document.getElementById("package-rider-obs"    ).innerHTML = lv['Rid'] + bonusInt + Number(form.packRidObsAdd.value);
-  document.getElementById("package-alchemist-kno").innerHTML = lv['Alc'] + bonusInt + Number(form.packAlcKnoAdd.value);
-  
-  const loreSag = lv['Sag'] + bonusInt + Number(form.packSagKnoAdd.value);
-  const loreRid = lv['Rid'] + bonusInt + Number(form.packRidKnoAdd.value);
-  let lore = loreRid > loreSag ? loreRid : loreSag;
-      lore += Number(form.monsterLoreAdd.value);
-  document.getElementById("monster-lore-value").innerHTML = (lv['Sag'] || lv['Rid']) ? lore : 0;
-  
-  const initSco = lv['Sco'] + bonusAgi + Number(form.packScoAgiAdd.value);
-  const initWar = lv['War'] + bonusAgi;
-  let init = initWar > initSco ? initWar : initSco;
-      init += Number(form.initiativeAdd.value);
-  document.getElementById("initiative-value").innerHTML = (lv['Sco'] || lv['War']) > 0 ? init : 0;
+  document.getElementById("monster-lore-value").innerHTML = (Math.max(...lore) || 0) + Number(form.monsterLoreAdd.value);
+  document.getElementById("initiative-value"  ).innerHTML = (Math.max(...init) || 0) + Number(form.initiativeAdd.value);
 }
 
 // 魔力計算 ----------------------------------------
