@@ -153,8 +153,8 @@ window.onload = function() {
       </div>
       
       <div id="tags">
-        <TMPL_IF group><a href="./?group=<TMPL_VAR group>" id="group"><TMPL_VAR groupName></a></TMPL_IF>
-        <TMPL_LOOP Tags><a href="./?tag=<TMPL_VAR URL>"><TMPL_VAR TEXT></a></TMPL_LOOP>
+        <TMPL_IF group><a id="group" href="./?group=<TMPL_VAR group>"><TMPL_VAR groupName></a></TMPL_IF>
+        <TMPL_LOOP Tags><a class="tag" href="./?tag=<TMPL_VAR URL>"><TMPL_VAR TEXT></a></TMPL_LOOP>
       </div>
       <div class="column column-status"><!-- COLUMN -->
       <div id="area-status">
@@ -229,11 +229,11 @@ window.onload = function() {
 
         <div class="box-union" id="sub-status">
           <dl class="box">
-            <dt><span>生命抵抗力</span></dt>
+            <dt><span>生命抵抗<span class="sp-del">力</span></span></dt>
             <dd><TMPL_IF vitResistAddTotal><span class="sp-del"><TMPL_VAR vitResistBase></span>+<TMPL_VAR vitResistAddTotal>=</TMPL_IF><b><TMPL_VAR vitResistTotal></b></dd>
           </dl>
           <dl class="box">
-            <dt><span>精神抵抗力</span></dt>
+            <dt><span>精神抵抗<span class="sp-del">力</span></span></dt>
             <dd><TMPL_IF mndResistAddTotal><span class="sp-del"><TMPL_VAR mndResistBase></span>+<TMPL_VAR mndResistAddTotal>=</TMPL_IF><b><TMPL_VAR mndResistTotal></b></dd>
           </dl>
           <dl class="box">
@@ -248,9 +248,9 @@ window.onload = function() {
         
         <dl class="box" id="level">
           <TMPL_IF lvMonster>
-            <dt>魔物<span>レベル</span></dt><dd><TMPL_VAR lvMonster></dd>
+            <dt><span>魔物<span class="shorten">レベル</span></span></dt><dd><TMPL_VAR lvMonster></dd>
           <TMPL_ELSE>
-            <dt>冒険者<span>レベル</span></dt><dd><TMPL_VAR level></dd>
+            <dt><span>冒険者<span class="shorten">レベル</span></span></dt><dd><TMPL_VAR level></dd>
           </TMPL_IF>
         </dl>
         <section class="box" id="exp">
@@ -665,7 +665,7 @@ window.onload = function() {
       </section>
       <TMPL_IF cashbook>
       <section class="box" id="cashbook">
-        <h2>収支履歴</h2>
+        <h2><TMPL_IF head_cashbook><TMPL_VAR head_cashbook><TMPL_ELSE>収支履歴</TMPL_IF></h2>
         <div><p><TMPL_VAR cashbook></p></div>
       </section>
       </TMPL_IF>
