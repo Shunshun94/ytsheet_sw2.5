@@ -123,9 +123,10 @@ Content-type: text/html\n
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/edit.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/sw2/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
+  <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2/edit-chara.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
   <style>
     #image,
     .image-custom-view {
@@ -282,7 +283,7 @@ print <<"HTML";
         </dl>
       </details>
       <div id="area-status">
-        @{[ image_form ]}
+        @{[ image_form("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}") ]}
 
         <div id="personal">
           <dl class="box" id="race">
@@ -716,13 +717,14 @@ print <<"HTML";
             </tr>
 HTML
 my $fairyset = <<"HTML";
+<small>ランク</small><b id="fairy-rank"></b>
 <div id="fairycontact">
-  <label class="ft-earth">@{[ input 'fairyContractEarth', 'checkbox','calcMagic' ]}<span>土</span></label>
-  <label class="ft-water">@{[ input 'fairyContractWater', 'checkbox','calcMagic' ]}<span>水</span></label>
-  <label class="ft-fire" >@{[ input 'fairyContractFire' , 'checkbox','calcMagic' ]}<span>炎</span></label>
-  <label class="ft-wind" >@{[ input 'fairyContractWind' , 'checkbox','calcMagic' ]}<span>風</span></label>
-  <label class="ft-light">@{[ input 'fairyContractLight', 'checkbox','calcMagic' ]}<span>光</span></label>
-  <label class="ft-dark" >@{[ input 'fairyContractDark' , 'checkbox','calcMagic' ]}<span>闇</span></label>
+  <label class="ft-earth">@{[ input 'fairyContractEarth', 'checkbox','calcFairy' ]}<span>土</span></label>
+  <label class="ft-water">@{[ input 'fairyContractWater', 'checkbox','calcFairy' ]}<span>水</span></label>
+  <label class="ft-fire" >@{[ input 'fairyContractFire' , 'checkbox','calcFairy' ]}<span>炎</span></label>
+  <label class="ft-wind" >@{[ input 'fairyContractWind' , 'checkbox','calcFairy' ]}<span>風</span></label>
+  <label class="ft-light">@{[ input 'fairyContractLight', 'checkbox','calcFairy' ]}<span>光</span></label>
+  <label class="ft-dark" >@{[ input 'fairyContractDark' , 'checkbox','calcFairy' ]}<span>闇</span></label>
 </div>
 HTML
 foreach my $name (@data::class_caster){

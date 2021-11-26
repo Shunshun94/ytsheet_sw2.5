@@ -95,9 +95,10 @@ Content-type: text/html\n
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/edit.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/blp/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
+  <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/blp/edit-chara.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
   <style>
     #image,
     .image-custom-view {
@@ -241,7 +242,7 @@ print <<"HTML";
         </div>
       </details>
       <div id="area-status">
-        @{[ image_form ]}
+        @{[ image_form("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}") ]}
 
         <div id="factors" class="box-union">
           <dl class="box" id="factor">

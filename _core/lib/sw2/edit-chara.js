@@ -175,8 +175,8 @@ function calcLv(){
     expUse += expTable['S'][ lvSeeker ];
   }
   
-  document.getElementById("exp-use").innerHTML = expUse;
-  document.getElementById("exp-rest").innerHTML = expTotal - expUse;
+  document.getElementById("exp-use").innerHTML = commify(expUse);
+  document.getElementById("exp-rest").innerHTML = commify(expTotal - expUse);
   
   level = Math.max.apply(null, Object.values(lv));
   document.getElementById("level-value").innerHTML = level;
@@ -192,6 +192,7 @@ function calcLv(){
       else { cL.add("fail"); }
     }
   }
+  calcFairy();
 }
 
 // 種族変更 ----------------------------------------
@@ -1128,6 +1129,23 @@ function calcMagic() {
   document.getElementById("magic-power-hr"          ).style.display = openMagic && openCraft ? '' : 'none';
 }
 
+// 妖精魔法ランク計算 ----------------------------------------
+function calcFairy() {
+  const rank = {
+      4 : ['×','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'],
+      3 : ['×','×','×','4','5','6','8','9','10','12','13','14','15','15','15','15'],
+      6 : ['×','×','×','2&1','3&1','4&1','4&2','5&2','6&2','6&3','7&3','8&3','8&4','9&4','10&4','10&5'],
+  };
+  let i = 0;
+  Array('Earth','Water','Fire','Wind','Light','Dark').forEach((s) => {
+    if(form[`fairyContract${s}`].checked){ i++ }
+  });
+  let result = '×';
+  if(rank[i]){ result = rank[i][lv['Fai']] || '×'; }
+  else { result = '×'; }
+  document.getElementById('fairy-rank').innerHTML = result;
+}
+
 // 攻撃計算 ----------------------------------------
 function calcAttack() {
   document.getElementById("attack-fighter"   ).style.display = lv['Fig'] >   0 ? "" :"none";
@@ -1336,9 +1354,9 @@ function calcExp(){
       obj.classList.remove('error');
     }
   }
-  document.getElementById("exp-rest").innerHTML = expTotal - expUse;
-  document.getElementById("exp-total").innerHTML = expTotal;
-  document.getElementById("history-exp-total").innerHTML = expTotal;
+  document.getElementById("exp-rest").innerHTML = commify(expTotal - expUse);
+  document.getElementById("exp-total").innerHTML = commify(expTotal);
+  document.getElementById("history-exp-total").innerHTML = commify(expTotal);
   
   // 最大成長回数
   let growMax = 0;
@@ -1377,7 +1395,7 @@ function calcHonor(){
       obj.classList.remove('error');
     }
   }
-  document.getElementById("history-honor-total").innerHTML = pointTotal;
+  document.getElementById("history-honor-total").innerHTML = commify(pointTotal);
   // ランク
   const rank = form["rank"].options[form["rank"].selectedIndex].value;
   const rankNum = (adventurerRank[rank]["num"] === undefined) ? 0 : adventurerRank[rank]["num"];
@@ -1444,30 +1462,30 @@ function calcCash(){
       obj
     }
   }
-  document.getElementById("history-money-total").innerHTML = cash;
+  document.getElementById("history-money-total").innerHTML = commify(cash);
   let s = form.cashbook.value;
   s.replace(
-    /::([\+\-\*\/]?[0-9]+)+/g,
+    /::([\+\-\*\/]?[0-9,]+)+/g,
     function (num, idx, old) {
       cash += safeEval(num.slice(2)) || 0;
     }
   );
   s.replace(
-    /:>([\+\-\*\/]?[0-9]+)+/g,
+    /:>([\+\-\*\/]?[0-9,]+)+/g,
     function (num, idx, old) {
       deposit += safeEval(num.slice(2)) || 0;
     }
   );
   s.replace(
-    /:<([\+\-\*\/]?[0-9]+)+/g,
+    /:<([\+\-\*\/]?[0-9,]+)+/g,
     function (num, idx, old) {
       debt += safeEval(num.slice(2)) || 0;
     }
   );
   cash = cash - deposit + debt;
-  document.getElementById('cashbook-total-value').innerHTML = cash;
-  document.getElementById('cashbook-deposit-value').innerHTML = deposit;
-  document.getElementById('cashbook-debt-value').innerHTML = debt;
+  document.getElementById('cashbook-total-value').innerHTML = commify(cash);
+  document.getElementById('cashbook-deposit-value').innerHTML = commify(deposit);
+  document.getElementById('cashbook-debt-value').innerHTML = commify(debt);
 }
 
 // 装飾品欄 ----------------------------------------
