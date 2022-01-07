@@ -372,7 +372,6 @@ print <<"HTML";
               </tr>
             </tbody>
           </table>
-          <div class="annotate" style="border-top-width:1px;border-top-style:dotted;">※コンストラクション作成のフリーポイント3点は「成長」欄に記入してください。</div>
         </div>
         <div class="box-union" id="sub-status">
           <dl class="box" id="max-hp">
