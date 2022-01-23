@@ -52,20 +52,17 @@ elsif($pc{'forbidden'}){
     $pc{'freeHistory'} = '';
   }
   
-  $pc{'factorCore'}  = noiseText(2);
-  $pc{'factorStyle'} = noiseText(2);
-  $pc{'level'} = noiseText(1,2);
-  $pc{'statusMain1'} = noiseText(1,2);
-  $pc{'statusMain2'} = noiseText(1,2);
-  $pc{'endurance'}  = noiseText(1,2);
-  $pc{'initiative'} = noiseText(1,2);
+  $pc{'type'}  = noiseText(4);
+  $pc{'negaiOutside'} = noiseText(2);
+  $pc{'negaiInside'}  = noiseText(2);
+  $pc{'endurance'} = noiseText(1,2);
+  $pc{'operation'} = noiseText(1,2);
   $pc{'enduranceAdd'}  = 0;
-  $pc{'initiativeAdd'} = 0;
-  $pc{'enduranceGrow'}  = 0;
-  $pc{'initiativeGrow'} = 0;
-  
-  $pc{'scarName'} = noiseText(4,6);
-  $pc{'scarNote'} = noiseText(10,15);
+  $pc{'operationAdd'}  = 0;
+  $pc{'enduranceGrow'} = 0;
+  $pc{'operationGrow'} = 0;
+  $pc{'enduranceFormula'} = noiseText(5,7);
+  $pc{'operationFormula'} = noiseText(5,7);
   
   foreach(1..3){
     $pc{'bloodarts'.$_.'Name'}     = noiseText(5,10);
@@ -73,16 +70,21 @@ elsif($pc{'forbidden'}){
     $pc{'bloodarts'.$_.'Target'}   = noiseText(2,5);
     $pc{'bloodarts'.$_.'Note'}     = noiseText(10,15);
   }
-  $pc{'artsNum'} = int(rand 3) + 3;
-  foreach('S',1..$pc{'artsNum'}){
-    $pc{'arts'.$_.'Name'}     = noiseText(5,10);
-    $pc{'arts'.$_.'Timing'}   = noiseText(3,4);
-    $pc{'arts'.$_.'Target'}   = noiseText(2,5);
-    $pc{'arts'.$_.'Cost'}     = noiseText(2,5);
-    $pc{'arts'.$_.'Limited'}  = noiseText(2,4);
-    $pc{'arts'.$_.'Note'}     = noiseText(10,15);
+  $pc{'kizuatoNum'} = int(rand 3) + 1;
+  foreach(1..$pc{'kizuatoNum'}){
+    $pc{'kizuato'.$_.'Name'}     = noiseText(5,10);
+    $pc{'kizuato'.$_.'DramaTiming'}   = noiseText(3,4);
+    $pc{'kizuato'.$_.'DramaTarget'}   = noiseText(2,5);
+    $pc{'kizuato'.$_.'DramaHitogara'} = noiseText(4,8);
+    $pc{'kizuato'.$_.'DramaLimited'}  = noiseText(2,4);
+    $pc{'kizuato'.$_.'DramaNote'}     = noiseText(10,15);
+    $pc{'kizuato'.$_.'BattleTiming'}   = noiseText(3,4);
+    $pc{'kizuato'.$_.'BattleTarget'}   = noiseText(2,5);
+    $pc{'kizuato'.$_.'BattleCost'}     = noiseText(2,5);
+    $pc{'kizuato'.$_.'BattleLimited'}  = noiseText(2,4);
+    $pc{'kizuato'.$_.'BattleNote'}     = noiseText(10,15);
   }
-  $pc{'weaponNum'} = $pc{'armorNum'} = $pc{'itemNum'} = $pc{'historyNum'} = 0;
+  $pc{'historyNum'} = 0;
   $pc{'history0Exp'} = noiseText(1,3);
   
   $pc{'playerName'} = $author;
@@ -102,29 +104,31 @@ if(!$::in{'backup'}){
       $pc{'p1_'.$_} = $pr{$_} foreach keys %pr;
       $pc{'partner1Name'}     = $pr{'characterName'};
       $pc{'partner1NameRuby'} = $pr{'characterNameRuby'};
-      $pc{'partner1Factor'}  = $pr{'factorCore'}.'／'.$pr{'factorStyle'};
-      $pc{'partner1Age'}     = ($pr{'factor'} eq '吸血鬼' ? $pr{'ageApp'}.'／' : '').$pr{'age'};
+      $pc{'partner1Type'}    = $pr{'type'};
+      $pc{'partner1Age'}     = $pr{'age'};
       $pc{'partner1Gender'}  = $pr{'gender'};
-      $pc{'partner1Missing'} = $pr{'missing'};
+      $pc{'partner1NegaiOutside'} = $pr{'negaiOutside'};
+      $pc{'partner1NegaiInside'}  = $pr{'negaiInside'};
       if($pr{'convertSource'} eq 'キャラクターシート倉庫'){
         ($pc{'p1_imageSrc'} = $pc{'partner1Url'}) =~ s/edit\.html/image/;
         $pc{'p1_image'} = LWP::UserAgent->new->simple_request(HTTP::Request->new(GET => $pc{'p1_imageSrc'}))->code == 200;
         $pc{'partner1Url'} = './?url='.$pc{'partner1Url'};
       }
       else {
-        $pc{'fromPartner1SealPosition'} = $pr{'toPartner'.$pc{'partnerOrder'}.'SealPosition'};
-        $pc{'fromPartner1SealShape'}    = $pr{'toPartner'.$pc{'partnerOrder'}.'SealShape'};
+        $pc{'fromPartner1MarkerPosition'} = $pr{'toPartner'.$pc{'partnerOrder'}.'MarkerPosition'};
+        $pc{'fromPartner1MarkerColor'}    = $pr{'toPartner'.$pc{'partnerOrder'}.'MarkerColor'};
         $pc{'fromPartner1Emotion1'}     = $pr{'toPartner'.$pc{'partnerOrder'}.'Emotion1'};
         $pc{'fromPartner1Emotion2'}     = $pr{'toPartner'.$pc{'partnerOrder'}.'Emotion2'};
-        $pc{'p1_imageSrc'} = $pr{'imageURL'};
+        $pc{'p1_imageSrc'} = $pr{'imageURL'}."?$pr{'imageUpdate'}";
       }
       if($pr{'forbidden'}){
         $pc{'partner1Name'} = noiseText(6,14);
-        $pc{'partner1Factor'} = noiseTextTag(noiseText(2)).'／'.noiseTextTag(noiseText(2));
+        $pc{'partner1Type'} = noiseTextTag(noiseText(4));
         if($pr{'forbidden'} ne 'battle'){
           $pc{'partner1Age'}     = noiseTextTag(noiseText(2));
           $pc{'partner1Gender'}  = noiseTextTag(noiseText(2));
-          $pc{'partner1Missing'} = noiseTextTag(noiseText(2));
+          $pc{'partner1NegaiOutside'} = noiseTextTag(noiseText(2));
+          $pc{'partner1NegaiInside'}  = noiseTextTag(noiseText(2));
         }
       }
     }
@@ -135,23 +139,17 @@ if(!$::in{'backup'}){
       $pc{'p2_'.$_} = $pr{$_} foreach keys %pr;
       $pc{'partner2Name'}     = $pr{'characterName'};
       $pc{'partner2NameRuby'} = $pr{'characterNameRuby'};
-      $pc{'partner2Factor'}  = $pr{'factorCore'}.'／'.$pr{'factorStyle'};
-      $pc{'partner2Age'}     = ($pr{'factor'} eq '吸血鬼' ? $pr{'ageApp'}.'／' : '').$pr{'age'};
+      $pc{'partner2Type'}    = $pr{'type'};
+      $pc{'partner2Age'}     = $pr{'age'};
       $pc{'partner2Gender'}  = $pr{'gender'};
-      $pc{'partner2Missing'} = $pr{'missing'};
-      my $num = ($pc{'factor'} eq '人間') ? 1 : ($pc{'factor'} eq '吸血鬼') ? 2 : 0;
-      if($pr{'convertSource'} eq 'キャラクターシート倉庫'){
-        ($pc{'p2_imageSrc'} = $pc{'partner2Url'}) =~ s/edit\.html/image/;
-        $pc{'p2_image'} = LWP::UserAgent->new->simple_request(HTTP::Request->new(GET => $pc{'p2_imageSrc'}))->code == 200;
-        $pc{'partner2Url'} = './?url='.$pc{'partner2Url'};
-      }
-      else {
-        $pc{'fromPartner2SealPosition'} = $pr{'toPartner'.$num.'SealPosition'};
-        $pc{'fromPartner2SealShape'}    = $pr{'toPartner'.$num.'SealShape'};
-        $pc{'fromPartner2Emotion1'}     = $pr{'toPartner'.$num.'Emotion1'};
-        $pc{'fromPartner2Emotion2'}     = $pr{'toPartner'.$num.'Emotion2'};
-        $pc{'p2_imageSrc'} = $pr{'imageURL'};
-      }
+      $pc{'partner2NegaiOutside'} = $pr{'negaiOutside'};
+      $pc{'partner2NegaiInside'}  = $pr{'negaiInside'};
+      my $num = ($pc{'type'} eq 'オーナー') ? 1 : ($pc{'type'} eq 'ハウンド') ? 2 : 0;
+      $pc{'fromPartner2MarkerPosition'} = $pr{'toPartner'.$num.'MarkerPosition'};
+      $pc{'fromPartner2MarkerColor'}    = $pr{'toPartner'.$num.'MarkerColor'};
+      $pc{'fromPartner2Emotion1'}     = $pr{'toPartner'.$num.'Emotion1'};
+      $pc{'fromPartner2Emotion2'}     = $pr{'toPartner'.$num.'Emotion2'};
+      $pc{'p2_imageSrc'} = $pr{'imageURL'}."?$pr{'imageUpdate'}";
     }
   }
 }
@@ -233,95 +231,78 @@ foreach ('','p1_','p2_'){
   $SHEET->param($_."wordsY" => ($pc{$_.'wordsY'} eq '下' ? 'bottom:0;' : 'top:0;'));
 }
 
-### ファクター --------------------------------------------------
-if   ($pc{'factor'} eq '人間'){
-  $SHEET->param(typeH  => 1);
-  $SHEET->param(head_statusMain1 => '<i class="spade">♠</i>技');
-  $SHEET->param(head_statusMain2 => '<i class="club" >♣</i>情');
-  $SHEET->param(enduranceFormula  => "($pc{'statusMain1'}×2+$pc{'statusMain2'})"
-                                  . ($pc{'enduranceAdd'}  ? "+$pc{'enduranceAdd'}" :'')
-                                  . ($pc{'enduranceGrow'} ? "+$pc{'enduranceGrow'}":''));
-  $SHEET->param(initiativeFormula => "($pc{'statusMain2'}+10)"
-                                  . ($pc{'initiativeAdd'}  ? "+$pc{'initiativeAdd'}" :'')
-                                  . ($pc{'initiativeGrow'} ? "+$pc{'initiativeGrow'}":''));
-  $SHEET->param(head_p1 => '血契'.($pc{'partner2On'}?'１':''));
-  $SHEET->param(head_p2 => '血契２');
-  $SHEET->param(class_p2 => 'seal');
+### 種別 --------------------------------------------------
+if   ($pc{'type'} eq 'オーナー'){
+  $SHEET->param(typeO  => 1);
+  $SHEET->param(head_p1 => 'パートナー'.($pc{'partner2On'}?'１':''));
+  $SHEET->param(head_p2 => 'パートナー２');
+  $SHEET->param(class_p2 => 'marker');
 }
-elsif($pc{'factor'} eq '吸血鬼'){
-  $SHEET->param(typeV  => 1);
-  $SHEET->param(head_statusMain1 => '<i class="heart">♥</i>血');
-  $SHEET->param(head_statusMain2 => '<i class="dia"  >♦</i>想');
-  $SHEET->param(enduranceFormula  => "($pc{'statusMain1'}+20)"
-                                  . ($pc{'enduranceAdd'}  ? "+$pc{'enduranceAdd'}" :'')
-                                  . ($pc{'enduranceGrow'} ? "+$pc{'enduranceGrow'}":''));
-  $SHEET->param(initiativeFormula => "($pc{'statusMain2'}+4)"
-                                  . ($pc{'initiativeAdd'}  ? "+$pc{'initiativeAdd'}" :'')
-                                  . ($pc{'initiativeGrow'} ? "+$pc{'initiativeGrow'}":''));
-  $SHEET->param(head_p1 => '血契');
-  $SHEET->param(head_p2 => '連血鬼');
-  $SHEET->param(class_p2 => 'union');
+elsif($pc{'type'} eq 'ハウンド'){
+  $SHEET->param(typeH  => 1);
+  $SHEET->param(head_p1 => 'パートナー');
+  $SHEET->param(head_p2 => 'アナザー');
+  $SHEET->param(class_p2 => 'another');
 }
 else {
-  $SHEET->param(head_p1 => '血契');
+  $SHEET->param(head_p1 => 'パートナー');
   $SHEET->param(head_p2 => noiseText(2));
 }
-### パートナー --------------------------------------------------
 
-### 血威 --------------------------------------------------
-my @bloodarts;
-foreach (1 .. 3){
+### 能力値 --------------------------------------------------
+if(!$pc{'forbiddenMode'}){
+  $SHEET->param(enduranceFormula => "$pc{'enduranceType'}+$pc{'enduranceOutside'}+$pc{'enduranceInside'}".(addNum $pc{'enduranceAdd'}).(addNum $pc{'enduranceGrow'}));
+  $SHEET->param(operationFormula => "$pc{'operationType'}+$pc{'operationOutside'}+$pc{'operationInside'}".(addNum $pc{'operationAdd'}).(addNum $pc{'operationGrow'}));
+}
+
+### キズナ --------------------------------------------------
+my @kizuna;
+foreach (1 .. $pc{'kizunaNum'}){
+  next if(!$pc{'kizuna'.$_.'Name'} && !$pc{'kizuna'.$_.'Note'}   && !$pc{'kizuna'.$_.'Hibi'}  && !$pc{'kizuna'.$_.'Ware'});
+  push(@kizuna, {
+    "NAME" => $pc{'kizuna'.$_.'Name'},
+    "NOTE" => $pc{'kizuna'.$_.'Note'},
+    "HIBI" => ($pc{'kizuna'.$_.'Hibi'}?'hibi':''),
+    "WARE" => ($pc{'kizuna'.$_.'Ware'}?'ware':''),
+  });
+}
+$SHEET->param(Kizuna => \@kizuna);
+
+### キズアト --------------------------------------------------
+my @kizuato;
+foreach (1 .. $pc{'kizuatoNum'}){
   next if(
-    !$pc{'bloodarts'.$_.'Name'}  && !$pc{'bloodarts'.$_.'Timing'}  && !$pc{'bloodarts'.$_.'Target'} && !$pc{'bloodarts'.$_.'Note'}
+    !$pc{'kizuato'.$_.'Name'} &&
+    !$pc{'kizuato'.$_.'DramaTiming'}   && !$pc{'kizuato'.$_.'BattleTiming'}  && 
+    !$pc{'kizuato'.$_.'DramaTarget'}   && !$pc{'kizuato'.$_.'BattleTarget'}  && 
+    !$pc{'kizuato'.$_.'DramaHitogara'} && !$pc{'kizuato'.$_.'BattleCost'}    && 
+    !$pc{'kizuato'.$_.'DramaLimited'}  && !$pc{'kizuato'.$_.'BattleLimited'} && 
+    !$pc{'kizuato'.$_.'DramaNote'}     && !$pc{'kizuato'.$_.'BattleNote'}    
   );
-  push(@bloodarts, {
-    "NAME"     => $pc{'bloodarts'.$_.'Name'},
-    "LV"       => $pc{'bloodarts'.$_.'Lv'},
-    "TIMING"   => $pc{'bloodarts'.$_.'Timing'},
-    "TARGET"   => textTarget($pc{'bloodarts'.$_.'Target'}),
-    "NOTE"     => $pc{'bloodarts'.$_.'Note'},
+  push(@kizuato, {
+    "NAME"     => $pc{'kizuato'.$_.'Name'},
+    "D-TIMING"   => $pc{'kizuato'.$_.'DramaTiming'},
+    "D-TARGET"   => textTarget($pc{'kizuato'.$_.'DramaTarget'}),
+    "D-HITOGARA" => textHitogara($pc{'kizuato'.$_.'DramaHitogara'}),
+    "D-LIMITED"  => $pc{'kizuato'.$_.'DramaLimited'},
+    "D-NOTE"     => $pc{'kizuato'.$_.'DramaNote'},
+    "B-TIMING"   => $pc{'kizuato'.$_.'BattleTiming'},
+    "B-TARGET"   => textTarget($pc{'kizuato'.$_.'BattleTarget'}),
+    "B-COST"     => $pc{'kizuato'.$_.'BattleCost'},
+    "B-LIMITED"  => $pc{'kizuato'.$_.'BattleLimited'},
+    "B-NOTE"     => $pc{'kizuato'.$_.'BattleNote'},
   });
 }
-$SHEET->param(Bloodarts => \@bloodarts);
+$SHEET->param(Kizuato => \@kizuato);
 
-### 特技 --------------------------------------------------
-my @arts;
-foreach (1 .. $pc{'artsNum'}){
-  next if(
-    !$pc{'arts'.$_.'Name'}  && !$pc{'arts'.$_.'Timing'}  && !$pc{'arts'.$_.'Target'} && 
-    !$pc{'arts'.$_.'Cost'}  && !$pc{'arts'.$_.'Limited'} && !$pc{'arts'.$_.'Note'}
-  );
-  push(@arts, {
-    "NAME"     => $pc{'arts'.$_.'Name'},
-    "LV"       => $pc{'arts'.$_.'Lv'},
-    "TIMING"   => $pc{'arts'.$_.'Timing'},
-    "TARGET"   => textTarget($pc{'arts'.$_.'Target'}),
-    "COST"     => textCost($pc{'arts'.$_.'Cost'}),
-    "LIMITED"  => textCost($pc{'arts'.$_.'Limited'}),
-    "NOTE"     => $pc{'arts'.$_.'Note'},
-  });
+sub textHitogara {
+  my $text = shift;
+  $text =~ s#[:：](.+?)$#：<span>$1</span>#;
+  return $text;
 }
-if( $pc{'scarName'} && ($pc{'artsSLv'} || $pc{'artsSLv'} || $pc{'artsSTiming'} || $pc{'artsSTarget'} || $pc{'artsSCost'} || $pc{'artsSLimited'} || $pc{'artsSNote'}) ){
-  push(@arts, {
-    "NAME"     => '<b class="arts-scar-head">傷号:</b><span>'.$pc{'scarName'}.'</span>',
-    "LV"       => $pc{'artsSLv'},
-    "TIMING"   => $pc{'artsSTiming'},
-    "TARGET"   => textTarget($pc{'artsSTarget'}),
-    "COST"     => textCost($pc{'artsSCost'}),
-    "LIMITED"  => textCost($pc{'artsSLimited'}),
-    "NOTE"     => $pc{'artsSNote'},
-  });
-}
-$SHEET->param(Arts => \@arts);
-
 sub textTarget {
   my $text = shift;
   $text =~ s#[(（](.+?)[)）]#<span>($1)</span>#;
-  return $text;
-}
-sub textCost {
-  my $text = shift;
-  $text =~ s#^(.+?)((?:絵札)?[0-9０-９].*?)$#<span>$1</span><span>$2</span>#;
   return $text;
 }
 
@@ -349,8 +330,8 @@ foreach (0 .. $pc{'historyNum'}){
     "NUM"    => ($pc{'history'.$_.'Gm'} ? $h_num : ''),
     "DATE"   => $pc{'history'.$_.'Date'},
     "TITLE"  => $pc{'history'.$_.'Title'},
-    "GROW"   => ($pc{'history'.$_.'Grow'} eq 'endurance'  ? '耐久値+5'
-               : $pc{'history'.$_.'Grow'} eq 'initiative' ? '先制値+2'
+    "GROW"   => ($pc{'history'.$_.'Grow'} eq 'endurance' ? '耐久値+2'
+               : $pc{'history'.$_.'Grow'} eq 'operation' ? '先制値+1'
                : ''),
     "GM"     => $pc{'history'.$_.'Gm'},
     "MEMBER" => $members,
@@ -397,10 +378,6 @@ else {
   $SHEET->param(characterNameTitle => tag_delete name_plain($pc{'characterName'}||"“$pc{'aka'}”"));
 }
 
-### 種族名 --------------------------------------------------
-$pc{'race'} =~ s/［.*］//g;
-$SHEET->param("race" => $pc{'race'});
-
 ### 画像 --------------------------------------------------
 my $imgsrc;
 if($pc{'convertSource'} eq 'キャラクターシート倉庫'){
@@ -434,7 +411,7 @@ foreach ('','p1_','p2_'){
 ### OGP --------------------------------------------------
 $SHEET->param(ogUrl => url().($::in{'url'} ? "?url=$::in{'url'}" : "?id=$::in{'id'}"));
 if($pc{'image'}) { $SHEET->param(ogImg => url()."/".$imgsrc); }
-$SHEET->param(ogDescript => tag_delete "ファクター:$pc{'factor'}／$pc{'factorCore'}／$pc{'factorStyle'}　性別:$pc{'gender'}　年齢:$pc{'age'}　".($pc{'factor'} eq '吸血鬼' ? '欠落':'喪失').":$pc{'missing'}　所属:$pc{'belong'}");
+$SHEET->param(ogDescript => tag_delete "種別:$pc{'type'}　ネガイ:$pc{'negaiOutside'}／$pc{'negaiInside'}　性別:$pc{'gender'}　年齢:$pc{'age'}　所属:$pc{'belong'}");
 
 ### バージョン等 --------------------------------------------------
 $SHEET->param("ver" => $::ver);

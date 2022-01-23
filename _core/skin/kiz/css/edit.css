@@ -16,11 +16,11 @@
   padding-left: .5em;
 }
 
-body:not(.type-vampire) .v-only {
-  display: none;
+body:not(.type-hound) .h-only {
+  display: none !important;
 }
-body:not(.type-human) .h-only {
-  display: none;
+body:not(.type-owner) .o-only {
+  display: none !important;
 }
 
 #area-status {
@@ -35,36 +35,34 @@ body:not(.type-human) .h-only {
 
     grid-template-areas:
       "IMG "
-      "FAC "
+      "CLS "
       "PER "
-      "STT "
-      "SCR "
     ;
   }
 }
-#area-status #personal dl {
-  display: grid;
-  grid-template-columns: 10em 1fr;
+#classes {
+  display: block;
+  margin-top: 1rem;
 }
-#area-status #personal dl:nth-child(-n+2) {
-  grid-template-columns: 1fr;
+#classes table thead th:nth-child(1) { width: 8em; }
+#classes table thead th:nth-child(2) { width: 7em; }
+
+#classes table tbody th {
+  border-right-style: hidden;
+  text-align: right;
+  padding-right: .5em;
 }
-#area-status #personal input[name="ageApp"],
-#area-status #personal input[name="age"],
-#area-status #personal input[name="gender"] {
-  width: 7em;
+#classes table tbody th[colspan] {
+  border-right-style: dotted;
+}
+#classes table tbody tr.total td {
+  font-size: 110%;
+  font-weight: bold;
+}
+#classes table tbody input[type="number"] {
+  width: 5em;
 }
 
-#status {
-  grid-template-columns: 0.4fr 0.9fr 1.7fr;
-}
-#status > dl dd dl dt {
-  display: flex;
-  align-items: center;
-}
-#area-status #status input {
-  width: 4em;
-}
 @media screen and (max-width:735px){
   #status {
     grid-template-columns: 1fr 2fr;
@@ -93,7 +91,7 @@ body:not(.type-human) .h-only {
 }
 .partner-table > dl {
   display: grid;
-  grid-template-columns: 3.5em 1fr;
+  grid-template-columns: 4.5em 1fr;
   border-top-width: 1px;
   border-top-style: solid;
 }
@@ -150,8 +148,8 @@ body:not(.type-human) .h-only {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto auto auto;
 }
-.type-vampire #partner2area.partner-table > dl.partner-from dd dl,
-.type-vampire #partner2area.partner-table > dl.partner-to dd dl {
+.type-hound #partner2area.partner-table > dl.partner-from dd dl,
+.type-hound #partner2area.partner-table > dl.partner-to dd dl {
   grid-template-rows: auto auto;
 }
 
@@ -176,65 +174,25 @@ body:not(.type-human) .h-only {
   .partner-table > dl.partner-data > dd dl dd:nth-of-type(2) { grid-column: 1 / span 2; grid-row: 4; }
   .partner-table > dl.partner-data > dd dl dt:nth-of-type(6) { grid-column: 1 ; grid-row: 7; }
   .partner-table > dl.partner-data > dd dl dd:nth-of-type(6) { grid-column: 1 ; grid-row: 8; }
+  .partner-table > dl.partner-data > dd dl dt:nth-of-type(7) { grid-column: 1 / span2; grid-row: 9; }
+  .partner-table > dl.partner-data > dd dl dd:nth-of-type(7) { grid-column: 1 / span2 ; grid-row: 10; }
 }
 
-
-#bloodarts,
-#arts {
+#kizuato {
   margin-top: 1rem;
 }
-#bloodarts table,
-#arts table {
-  margin-top: -1rem;
+#kizuato table td.name input {
+  width: calc(100% - 6em);
+  max-width: 20em;
 }
-#bloodarts table thead th:nth-child(1) { width: 1.4em; }
-#bloodarts table thead th:nth-child(2) { width: 11em; } /* 名称 */
-#bloodarts table thead th:nth-child(3) { width: 5.5em; } /* タイミング */
-#bloodarts table thead th:nth-child(4) { width: 7.5em; } /* 対象 */
-#arts table thead th:nth-child(1) { width: 1.4em; }
-#arts table thead th:nth-child(2) { width: 11em; } /* 名称 */
-#arts table thead th:nth-child(3) { width: 5.5em; } /* タイミング */
-#arts table thead th:nth-child(4) { width: 7.5em; } /* 対象 */
-#arts table thead th:nth-child(5) { width: 8.4em; } /* 代償 */
-#arts table thead th:nth-child(6) { width: 7em; } /* 条件 */
-#arts table tbody td:nth-child(n+4):nth-child(-n+7) { font-size: 85%; }
-#arts table tbody td:nth-child(n+4):nth-child(-n+7) input { font-size: inherit; padding: 3px 2px; }
-#bloodarts thead th.left,
-#arts thead th.left {
-  padding-left: 1rem;
+#kizuato table tbody th {
+  border-top-width: 1px;
+  border-top-style: dotted;
 }
-#bloodarts table tbody td,
-#arts table tbody td {
-  padding: .3rem 0 .4rem !important;
-}
-
-#arts h2:not(:first-child) {
-  margin-top: 0;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-#arts #arts-scar {
-}
-#arts #arts-scar td:first-child {
-  font-size: 92%;
-  font-weight: normal;
-}
-#arts #arts-scar b.arts-scar-head {
-  margin-top: 0;
+#kizuato table tbody td.left {
+  padding-left: 0;
 }
 @media screen and (max-width:735px){
-  #bloodarts,
-  #arts {
-    overflow-x: auto;
-  }
-  #bloodarts table,
-  #arts table {
-    min-width: 0;
-    table-layout: fixed;
-  }
-  #bloodarts table thead th:last-child,
-  #arts table thead th:last-child { width: 16em; } /* 備考 */
-  #arts table tbody td:nth-child(n+4):nth-child(-n+7) { font-size: unset; }
 }
 
 #free-note,

@@ -10,7 +10,15 @@ my $LOGIN_ID = $::LOGIN_ID;
 ### 読込前処理 #######################################################################################
 require $set::lib_palette_sub;
 ### 各種データライブラリ読み込み --------------------------------------------------
-# なし
+my @negai = ('究明','守護','正裁','破壊','復讐','奉仕');
+my %negai = (
+  '究明' => {'out' => {'endurance' => 5,'operation' => 5}, 'in' => {'endurance' => 4,'operation' => 2}},
+  '守護' => {'out' => {'endurance' =>13,'operation' => 1}, 'in' => {'endurance' => 6,'operation' => 1}},
+  '正裁' => {'out' => {'endurance' => 7,'operation' => 4}, 'in' => {'endurance' => 4,'operation' => 2}},
+  '破壊' => {'out' => {'endurance' => 9,'operation' => 3}, 'in' => {'endurance' => 6,'operation' => 1}},
+  '復讐' => {'out' => {'endurance' =>11,'operation' => 2}, 'in' => {'endurance' => 6,'operation' => 1}},
+  '奉仕' => {'out' => {'endurance' => 9,'operation' => 3}, 'in' => {'endurance' => 4,'operation' => 2}},
+);
 
 ### データ読み込み ###################################################################################
 my ($data, $mode, $file, $message) = pcDataGet($::in{'mode'});
@@ -45,8 +53,8 @@ if($mode eq 'edit' || ($mode eq 'convert' && $pc{'ver'})){
 elsif($mode eq 'blanksheet' && !$::make_error){
   $pc{'group'} = $set::group_default;
   
-  $pc{'endurancePreGrow'}  = $set::make_endurance  || 0;
-  $pc{'initiativePreGrow'} = $set::make_initiative || 0;
+  $pc{'endurancePreGrow'} = $set::make_endurance || 0;
+  $pc{'operationPreGrow'} = $set::make_operation || 0;
   
   $pc{'partner1Auto'} = 1;
   $pc{'partner2Auto'} = 1;
@@ -69,14 +77,20 @@ $pc{'colorBaseBgS'} = $pc{'colorBaseBgS'} eq '' ?   0 : $pc{'colorBaseBgS'};
 $pc{'colorBaseBgL'} = $pc{'colorBaseBgL'} eq '' ? 100 : $pc{'colorBaseBgL'};
 
 $pc{'historyNum'} ||= 3;
-$pc{'artsNum'} ||= 3;
+$pc{'kizunaNum'}  ||= 3;
+$pc{'kizuatoNum'} ||= 2;
 
 ### 改行処理 --------------------------------------------------
-$pc{'words'}         =~ s/&lt;br&gt;/\n/g;
-$pc{'scarNote'}      =~ s/&lt;br&gt;/\n/g;
-$pc{'freeNote'}      =~ s/&lt;br&gt;/\n/g;
-$pc{'freeHistory'}   =~ s/&lt;br&gt;/\n/g;
-$pc{'chatPalette'}   =~ s/&lt;br&gt;/\n/g;
+foreach (
+  'words',
+  'freeNote',
+  'freeHistory',
+  'chatPalette',
+  'partner1Memory',
+  'partner2Memory',
+){
+  $pc{$_} =~ s/&lt;br&gt;/\n/g;
+}
 
 ### フォーム表示 #####################################################################################
 my $titlebarname = tag_delete name_plain tag_unescape ($pc{'characterName'}||"“$pc{'aka'}”");
@@ -91,13 +105,13 @@ Content-type: text/html\n
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/base.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/sheet.css?${main::ver}">
-  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/blp/css/chara.css?${main::ver}">
+  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/kiz/css/chara.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/edit.css?${main::ver}">
-  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/blp/css/edit.css?${main::ver}">
+  <link rel="stylesheet" media="all" href="${main::core_dir}/skin/kiz/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
   <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
-  <script src="${main::core_dir}/lib/blp/edit-chara.js?${main::ver}" defer></script>
+  <script src="${main::core_dir}/lib/kiz/edit-chara.js?${main::ver}" defer></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
   <style>
     #image,
@@ -225,95 +239,146 @@ print <<"HTML";
           <dt>タグ</dt><dd>@{[ input 'tags','','','' ]}</dd>
         </dl>
       </div>
-      <details class="box" id="regulation" @{[$mode eq 'edit' ? '':'open']}>
+      <details class="box" id="regulation" @{[$mode eq 'edit' ? '':'open']} style="display:none">
         <summary>作成レギュレーション</summary>
         <dl>
-          <dt>初期練度</dt>
+          <dt>初期成長</dt>
           <dd id="level-pre-grow"></dd>
           <dt>耐久値+</dt>
-          <dd>@{[input("endurancePreGrow",'number','changeRegu','step="5"'.($set::make_fix?' readonly':''))]}</dd>
-          <dt>先制値+</dt>
-          <dd>@{[input("initiativePreGrow",'number','changeRegu','step="2"'.($set::make_fix?' readonly':''))]}</dd>
+          <dd>@{[input("endurancePreGrow",'number','changeRegu','step="2"'.($set::make_fix?' readonly':''))]}</dd>
+          <dt>作戦力+</dt>
+          <dd>@{[input("operationPreGrow",'number','changeRegu','step="1"'.($set::make_fix?' readonly':''))]}</dd>
         </dl>
-        <div class="annotate" @{[ $pc{'convertSource'} eq 'キャラクターシート倉庫' ? '' : 'style="display:none"' ]}>
-          ※コンバート時、副能力値の基本値を超える値は、クローズ時の成長としてこの欄に振り分けられます。<br>
-          　ただし、（耐久は5、先制は2で）割り切れない「あまり」の値は特技等による補正として、副能力値の補正欄に振り分けています。<br>
-          　また、練度は自動的に計算されます。
-        </div>
       </details>
       <div id="area-status">
         @{[ image_form("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}") ]}
 
-        <div id="factors" class="box-union">
-          <dl class="box" id="factor">
-            <dt>ファクター</dt><dd><select name="factor" oninput="changeFactor();">@{[option "factor",'人間','吸血鬼']}</select></dd>
-          </dl>
-          <dl class="box" id="factor-core">
-            <dt><span class="h-only">信念</span><span class="v-only">起源</span></dt>
-            <dd>@{[input "factorCore"]}</dd>
-          </dl>
-          <dl class="box" id="factor-style">
-            <dt><span class="h-only">職能</span><span class="v-only">流儀</span></dt>
-            <dd>@{[input "factorStyle"]}</dd>
-          </dl>
+        <div id="classes" class="box">
+        <h2>種別／ネガイ／能力値</h2>
+          <table class="edit-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>耐久値</th>
+                <th>作戦力</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>種別</th>
+                <td><select name="type" oninput="changeType();">@{[option "type",'ハウンド','オーナー']}</select></td>
+                <td>@{[ input 'enduranceType','number','calcStt' ]}</td>
+                <td>@{[ input 'operationType','number','calcStt' ]}</td>
+              </tr>
+              <tr>
+                <th>ネガイ(表)</th>
+                <td>@{[ selectInput "negaiOutside",'',@negai ]}</td>
+                <td>@{[ input 'enduranceOutside','number','calcStt' ]}</td>
+                <td>@{[ input 'operationOutside','number','calcStt' ]}</td>
+              </tr>
+              <tr>
+                <th>ネガイ(裏)</th>
+                <td>@{[ selectInput "negaiInside",'',@negai ]}</td>
+                <td>@{[ input 'enduranceInside','number','calcStt' ]}</td>
+                <td>@{[ input 'operationInside','number','calcStt' ]}</td>
+              </tr>
+              <tr>
+                <th colspan="2">成長</th>
+                <td id="endurance-grow"></td>
+                <td id="operation-grow"></td>
+              </tr>
+              <tr>
+                <th colspan="2">その他修正</th>
+                <td>@{[ input 'enduranceAdd','number','calcStt' ]}</td>
+                <td>@{[ input 'operationAdd','number','calcStt' ]}</td>
+              </tr>
+              <tr class="total">
+                <th colspan="2">合計</th>
+                <td id="endurance-total"></td>
+                <td id="operation-total"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div id="personal" class="box-union">
-          <dl class="box"><dt><span class="v-only">外見年齢／実</span>年齢</dt><dd><span class="v-only">@{[input "ageApp"]}／</span>@{[input "age"]}</dd></dl>
-          <dl class="box"><dt>性別</dt><dd>@{[input "gender",'','','list="list-gender"']}</dd></dl>
-          <dl class="box"><dt>所属</dt><dd>@{[input "belong",'','','list="list-belong"']}</dd><dd>@{[input "belongNote",'','','placeholder="備考"']}</dd></dl>
-          <dl class="box"><dt>過去</dt><dd>@{[input "past"]}</dd><dd>@{[input "pastNote",'','','placeholder="備考"']}</dd></dl>
-          <dl class="box"><dt>経緯</dt><dd>@{[input "background"]}</dd><dd>@{[input "backgroundNote",'','','placeholder="備考"']}</dd></dl>
-          <dl class="box"><dt>喪失</dt><dd>@{[input "missing"]}</dd><dd>@{[input "missingNote",'','','placeholder="備考"']}</dd></dl>
-          <dl class="box"><dt>外見的特徴</dt><dd>@{[input "appearance"]}</dd><dd>@{[input "appearanceNote",'','','placeholder="備考"']}</dd></dl>
-          <dl class="box"><dt>住まい</dt><dd>@{[input "dwelling"]}</dd><dd>@{[input "dwellingNote",'','','placeholder="備考"']}</dd></dl>
-          <dl class="box"><dt>使用武器</dt><dd>@{[input "weapon"]}</dd><dd>@{[input "weaponNote",'','','placeholder="備考"']}</dd></dl>
-        </div>
-
-        <div id="status" class="box-union">
-          <dl class="box" id="level">
-            <dt>練度</dt>
-            <dd id="level-value">1</dd>
-          </dl>
-          <dl class="box">
-            <dt>能力値</dt>
-            <dd>
-              <dl>
-                <dt>
-                  <span class="h-only"><i>♠</i>技</span>
-                  <span class="v-only"><i>♥</i>血</span>
-                </dt>
-                <dd>@{[input "statusMain1",'number','calcStt']}</dd>
-                <dt>
-                  <span class="h-only"><i>♣</i>情</span>
-                  <span class="v-only"><i>♦</i>想</span>
-                </dt>
-                <dd>@{[input "statusMain2",'number','calcStt']}</dd>
-              </dl>
-            </dd>
-          </dl>
-          <dl class="box">
-            <dt>副能力値</dt>
-            <dd>
-              <dl>
-                <dt>耐久値</dt><dd><span class="small" id="endurance-base" >0</span> +@{[input "enduranceAdd" ,'number','calcStt']}=<b id="endurance-total" >0</b></dd>
-                <dt>先制値</dt><dd><span class="small" id="initiative-base">0</span> +@{[input "initiativeAdd",'number','calcStt']}=<b id="initiative-total">0</b></dd>
-              </dl>
-            </dd>
-          </dl>
-        </div>
-        
-        <div id="scar" class="box-union">
-          <dl class="box">
-            <dt>傷号</dt>
-            <dd>@{[input "scarName",'','scarCheck']}</dd>
-            <dd><textarea name="scarNote" placeholder="設定" rows="3">$pc{'scarNote'}</textarea></dd>
-          </dl>
+        <div id="hitogara" class="box">
+          <h2>ヒトガラ</h2>
+          <table class="edit-table">
+            <tr>
+              <th>年齢</th><td>@{[input "age"]}</td>
+              <th>性別</th><td>@{[input "gender",'','','list="list-gender"']}</td>
+            </tr>
+            <tr>
+              <th>過去</th>
+              <td colspan="3">@{[input "past"]}</td>
+            </tr>
+            <tr>
+              <th>
+                <span class="h-only">遭遇</span>
+                <span class="o-only">経緯</span>
+              </th>
+              <td colspan="3">@{[input "background"]}</td>
+            </tr>
+            <tr>
+              <th>外見の特徴</th>
+              <td colspan="3">@{[input "appearance"]}</td>
+            </tr>
+            <tr>
+              <th>
+                <span class="h-only">ケージ</span>
+                <span class="o-only">住居</span>
+              </th>
+              <td colspan="3">@{[input "dwelling"]}</td>
+            </tr>
+            <tr>
+              <th>好きなもの</th>
+              <td colspan="3">@{[input "like"]}</td>
+            </tr>
+            <tr>
+              <th>嫌いなもの</th>
+              <td colspan="3">@{[input "dislike"]}</td>
+            </tr>
+            <tr>
+              <th>得意なこと</th>
+              <td colspan="3">@{[input "good"]}</td>
+            </tr>
+            <tr>
+              <th>苦手なこと</th>
+              <td colspan="3">@{[input "notgood"]}</td>
+            </tr>
+            <tr>
+              <th>喪失</th>
+              <td colspan="3">@{[input "missing"]}</td>
+            </tr>
+            <tr>
+              <th>
+                <span class="h-only thin">リミッターの影響</span>
+                <span class="o-only thin">ペアリングの副作用</span>
+              </th>
+              <td colspan="3">@{[input "sideeffect"]}</td>
+            </tr>
+            <tr>
+              <th>
+                <span class="h-only">決意</span>
+                <span class="o-only">使命</span>
+              </th>
+              <td colspan="3">@{[input "resolution"]}</td>
+            </tr>
+            <tr>
+              <th>所属</th>
+              <td colspan="3">@{[input "belong",'','','list="list-belong"']}</td>
+            </tr>
+            <tr>
+              <th>おもな武器</th>
+              <td colspan="3">@{[input "weapon"]}</td>
+            </tr>
+          </table>
         </div>
       </div>
       
       <div class="box partner-edit">
-        <h2>血契</h2>
+        <h2>パートナー</h2>
         <div class="partner-table" id="partner1area">
           <dl class="partner-data">
             <dt>相手</dt>
@@ -325,58 +390,61 @@ print <<"HTML";
                 <dt>URL<small>（@{[ input 'partner1Auto','checkbox','autoInputPartner(1)' ]}相手のデータを自動入力）</small></dt>
                 <dd>@{[ input 'partner1Url','url','autoInputPartner(1)' ]}</dd>
                 
-                <dt id="partner1-factor-term">起源／流儀</dt>
-                <dd>@{[ input 'partner1Factor' ]}</dd>
-                
-                <dt id="partner1-age-term">年齢</dt>
+                <dt>年齢</dt>
                 <dd>@{[ input 'partner1Age' ]}</dd>
                 
                 <dt>性別</dt>
                 <dd>@{[ input 'partner1Gender' ]}</dd>
                 
-                <dt id="partner1-missing-term">欠落</dt>
-                <dd>@{[ input 'partner1Missing' ]}</dd>
+                <dt>ネガイ（表）</dt>
+                <dd>@{[ input 'partner1NegaiOutside' ]}</dd>
+                
+                <dt>ネガイ（裏）</dt>
+                <dd>@{[ input 'partner1NegaiInside' ]}</dd>
+                
+                <dt>リリースの方法</dt>
+                <dd>@{[ input 'partner1Release' ]}</dd>
               </dl>
             </dd>
           </dl>
           <dl class="partner-from">
-            <dt>自分の<br>痕印</dt>
+            <dt>自分の<br>マーカー</dt>
             <dd>
               <select name="partnerOrder" oninput="autoInputPartner(1)" style="width:auto;">
-                <option value="1">血契１
-                <option value="2">血契２
+                <option value="1">パートナー１
+                <option value="2">パートナー２
               </select>※相手から見て
             </dd>
             <dd>
               <dl>
-                <dt>位置</dt><dd>@{[ input 'fromPartner1SealPosition','','','list="list-seal-position"' ]}</dd>
-                <dt>形状</dt><dd>@{[ input 'fromPartner1SealShape','','','list="list-seal-shape"' ]}</dd>
+                <dt>位置</dt><dd>@{[ input 'fromPartner1MarkerPosition','','','list="list-marker-position"' ]}</dd>
+                <dt>色</dt><dd>@{[ input 'fromPartner1MarkerColor','','','list="list-marker-color"' ]}</dd>
                 <dt>相手からの感情1</dt><dd>@{[ input 'fromPartner1Emotion1','','','list="list-emotion1"' ]}</dd>
                 <dt>相手からの感情2</dt><dd>@{[ input 'fromPartner1Emotion2','','','list="list-emotion2"' ]}</dd>
               </dl>
             </dd>
           </dl>
           <dl class="partner-to">
-            <dt>相手の<br>痕印</dt>
+            <dt>相手の<br>マーカー</dt>
             <dd>※相手のシートへ表示される内容</dd>
             <dd>
               <dl>
-                <dt>位置</dt><dd>@{[ input 'toPartner1SealPosition','','','list="list-seal-position"' ]}</dd>
-                <dt>形状</dt><dd>@{[ input 'toPartner1SealShape','','','list="list-seal-shape"' ]}</dd>
+                <dt>位置</dt><dd>@{[ input 'toPartner1MarkerPosition','','','list="list-marker-position"' ]}</dd>
+                <dt>色</dt><dd>@{[ input 'toPartner1MarkerColor','','','list="list-marker-color"' ]}</dd>
                 <dt>相手への感情1</dt><dd>@{[ input 'toPartner1Emotion1','','','list="list-emotion1"' ]}</dd>
                 <dt>相手への感情2</dt><dd>@{[ input 'toPartner1Emotion2','','','list="list-emotion2"' ]}</dd>
               </dl>
             </dd>
           </dl>
           <dl class="partner-promise">
-            <dt>約束</dt>
-            <dd>@{[ input 'partner1Promise' ]}</dd>
+            <dt>最初の<br>思い出</dt>
+            <dd><textarea name="partner1Memory">$pc{'partner1Memory'}</textarea></dd>
           </dl>
         </div>
       </div>
       
       <div class="box partner-edit">
-        <h2 id="head-partner2">@{[ input 'partner2On','checkbox','togglePartner2' ]}<span class="h-only">血契２</span><span class="v-only">連血鬼</span></h2>
+        <h2 id="head-partner2">@{[ input 'partner2On','checkbox','togglePartner2' ]}<span class="h-only">アナザー</span><span class="o-only">パートナー２</span></h2>
         <div class="partner-table" id="partner2area">
           <dl class="partner-data">
             <dt>相手</dt>
@@ -388,121 +456,145 @@ print <<"HTML";
                 <dt>URL<small>（@{[ input 'partner2Auto','checkbox','autoInputPartner(2)' ]}相手のデータを自動入力）</small></dt>
                 <dd>@{[ input 'partner2Url','url','autoInputPartner(2)' ]}</dd>
                 
-                <dt id="partner1-factor-term">起源／流儀</dt>
-                <dd>@{[ input 'partner2Factor' ]}</dd>
-                
-                <dt id="partner1-age-term">年齢</dt>
+                <dt>年齢</dt>
                 <dd>@{[ input 'partner2Age' ]}</dd>
                 
                 <dt>性別</dt>
                 <dd>@{[ input 'partner2Gender' ]}</dd>
                 
-                <dt id="partner1-missing-term">欠落</dt>
-                <dd>@{[ input 'partner2Missing' ]}</dd>
+                <dt>ネガイ（表）</dt>
+                <dd>@{[ input 'partner2NegaiOutside' ]}</dd>
+                
+                <dt>ネガイ（裏）</dt>
+                <dd>@{[ input 'partner2NegaiInside' ]}</dd>
+
+                <dt>リリースの方法</dt>
+                <dd>@{[ input 'partner2Release' ]}</dd>
               </dl>
             </dd>
           </dl>
           <dl class="partner-from">
-            <dt>自分の<br>痕印</dt>
+            <dt>自分の<br>マーカー</dt>
             <dd></dd>
             <dd>
               <dl>
-                <dt class="h-only">位置</dt>
-                <dd class="h-only">@{[ input 'fromPartner2SealPosition','','','list="list-seal-position"' ]}</dd>
-                <dt class="h-only">形状</dt>
-                <dd class="h-only">@{[ input 'fromPartner2SealShape','','','list="list-seal-shape"' ]}</dd>
+                <dt class="o-only">位置</dt>
+                <dd class="o-only">@{[ input 'fromPartner2MarkerPosition','','','list="list-marker-position"' ]}</dd>
+                <dt class="o-only">色</dt>
+                <dd class="o-only">@{[ input 'fromPartner2MarkerColor','','','list="list-marker-color"' ]}</dd>
                 <dt>相手からの感情1</dt><dd>@{[ input 'fromPartner2Emotion1','','','list="list-emotion1"' ]}</dd>
                 <dt>相手からの感情2</dt><dd>@{[ input 'fromPartner2Emotion2','','','list="list-emotion2"' ]}</dd>
               </dl>
             </dd>
           </dl>
           <dl class="partner-to">
-            <dt>相手の<br>痕印</dt>
+            <dt>相手の<br>マーカー</dt>
             <dd>※相手のシートへ表示される内容</dd>
             <dd>
               <dl>
-                <dt class="h-only">位置</dt>
-                <dd class="h-only">@{[ input 'toPartner2SealPosition','','','list="list-seal-position"' ]}</dd>
-                <dt class="h-only">形状</dt>
-                <dd class="h-only">@{[ input 'toPartner2SealShape','','','list="list-seal-shape"' ]}</dd>
+                <dt class="o-only">位置</dt>
+                <dd class="o-only">@{[ input 'toPartner2MarkerPosition','','','list="list-marker-position"' ]}</dd>
+                <dt class="o-only">色</dt>
+                <dd class="o-only">@{[ input 'toPartner2MarkerColor','','','list="list-marker-color"' ]}</dd>
                 <dt>相手への感情1</dt><dd>@{[ input 'toPartner2Emotion1','','','list="list-emotion1"' ]}</dd>
                 <dt>相手への感情2</dt><dd>@{[ input 'toPartner2Emotion2','','','list="list-emotion2"' ]}</dd>
               </dl>
             </dd>
           </dl>
           <dl class="partner-promise">
-            <dt><span class="h-only">約束</span><span class="v-only">協定</span></dt>
-            <dd>@{[ input 'partner2Promise' ]}</dd>
+            <dt><span class="h-only">協定</span><span class="o-only">最初の<br>思い出</span></dt>
+            <dd><textarea name="partner2Memory">$pc{'partner2Memory'}</textarea></dd>
           </dl>
         </div>
       </div>
       
-      <div class="box" id="bloodarts">
-        <h2>血威</h2>
-        <table class="edit-table no-border-cells">
+      <div class="box" id="kizuna">
+        <h2>キズナ</h2>
+        @{[input 'kizunaNum','hidden']}
+        <table class="edit-table no-border-cells" id="kizuna-table">
           <thead>
-            <tr><th></th><th>名称</th><th>タイミング</th><th>対象</th><th class="left">解説</th></tr>
-          </thead>
-          <tbody id="bloodarts-list">
-HTML
-foreach my $num (1 .. 3) {
-print <<"HTML";
-            <tr id="bloodarts${num}">
-              <td class="handle"></td>
-              <td>@{[input "bloodarts${num}Name"]}</td>
-              <td>@{[input "bloodarts${num}Timing",'','','list="list-timing"']}</td>
-              <td>@{[input "bloodarts${num}Target",'','','list="list-target"']}</td>
-              <td>@{[input "bloodarts${num}Note"]}</td>
+            <tr>
+              <th></th>
+              <th>物・人・場所など</th>
+              <th>感情・思い出など</th>
+              <th>ヒビ</th>
+              <th>ワレ</th>
             </tr>
-HTML
-}
-print <<"HTML";
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="box" id="arts">
-        <h2>特技</h2>
-        @{[input 'artsNum','hidden']}
-        <table class="edit-table no-border-cells" id="arts-table">
-          <thead>
-            <tr><th></th><th>名称</th><th>タイミング</th><th>対象</th><th>代償</th><th>条件</th><th class="left">解説</th></tr>
-          </thead>
-          <tbody id="arts-list">
-HTML
-foreach my $num (1 .. $pc{'artsNum'}) {
-print <<"HTML";
-            <tr id="arts${num}">
-              <td class="handle"></td>
-              <td>@{[input "arts${num}Name"]}</td>
-              <td>@{[input "arts${num}Timing" ,'','','list="list-timing"']}</td>
-              <td>@{[input "arts${num}Target" ,'','','list="list-target"']}</td>
-              <td>@{[input "arts${num}Cost"   ,'','','list="list-cost"']}</td>
-              <td>@{[input "arts${num}Limited",'','','list="list-limited"']}</td>
-              <td>@{[input "arts${num}Note"]}</td>
-            </tr>
-HTML
-}
-print <<"HTML";
-          </tbody>
-        </table>
-        <div class="add-del-button"><a onclick="addArts()">▼</a><a onclick="delArts()">▲</a></div>
-        <h2 id="arts-scar-head">傷号特技</h2>
-        <table id="arts-scar" class="edit-table no-border-cells">
-          <thead>
-            <tr><th></th><th>名称</th><th>タイミング</th><th>対象</th><th>代償</th><th>条件</th><th class="left">解説</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td colspan="2" id="arts-scar-name"></td>
-              <td>@{[input "artsSTiming" ,'','','list="list-timing"']}</td>
-              <td>@{[input "artsSTarget" ,'','','list="list-target"']}</td>
-              <td>@{[input "artsSCost"   ,'','','list="list-cost"']}</td>
-              <td>@{[input "artsSLimited",'','','list="list-limited"']}</td>
-              <td>@{[input "artsSNote"]}</td>
+HTML
+foreach my $num (1 .. $pc{'kizunaNum'}) {
+print <<"HTML";
+            <tr id="kizuna${num}" class="@{[ $pc{"kizuna${num}Hibi"} ? 'hibi':'' ]}@{[ $pc{"kizuna${num}Ware"} ? 'ware':'' ]}">
+              <td class="handle"></td>
+              <td>@{[ input "kizuna${num}Name" ]}</td>
+              <td>@{[ input "kizuna${num}Note" ]}</td>
+              <td>@{[ input "kizuna${num}Hibi", 'checkbox', "checkHibi(${num})" ]}</td>
+              <td>@{[ input "kizuna${num}Ware", 'checkbox', "checkWare(${num})" ]}</td>
             </tr>
+HTML
+}
+print <<"HTML";
           </tbody>
         </table>
+        <div class="add-del-button"><a onclick="addKizuna()">▼</a><a onclick="delKizuna()">▲</a></div>
+      </div>
+
+      <div class="box" id="kizuato">
+        <h2>キズアト</h2>
+        @{[input 'kizuatoNum','hidden']}
+          <table class="edit-table line-tbody no-border-cells" id="kizuato-table">
+            <colgroup>
+              <col>
+              <col>
+              <col>
+              <col>
+              <col>
+              <col>
+            </colgroup>
+HTML
+foreach my $num (1 .. $pc{'kizuatoNum'}) {
+print <<"HTML";
+            <tbody id="kizuato${num}">
+              <tr>
+                <td class="name" colspan="6">名称:《@{[input "kizuato${num}Name"]}》</td>
+              </tr>
+              <tr>
+                <th rowspan="2">ドラマ</th>
+                <th>ヒトガラ</th>
+                <th>タイミング</th>
+                <th>対象</th>
+                <th>制限</th>
+                <th class="left">解説</th>
+              </tr>
+              <tr>
+                <td>@{[input "kizuato${num}DramaHitogara"]}</td>
+                <td>@{[input "kizuato${num}DramaTiming" ,'','','list="list-dtiming"']}</td>
+                <td>@{[input "kizuato${num}DramaTarget" ,'','','list="list-dtarget"']}</td>
+                <td>@{[input "kizuato${num}DramaLimited",'','','list="list-dlimited"']}</td>
+                <td class="left">@{[input "kizuato${num}DramaNote"]}</td>
+             </tr>
+             <tr>
+               <th rowspan="2">決戦</th>
+               <th>タイミング</th>
+               <th>対象</th>
+               <th>代償</th>
+               <th>制限</th>
+               <th class="left">解説</th>
+             </tr>
+             <tr>
+                <td>@{[input "kizuato${num}BattleTiming" ,'','','list="list-btiming"']}</td>
+                <td>@{[input "kizuato${num}BattleTarget" ,'','','list="list-btarget"']}</td>
+                <td>@{[input "kizuato${num}BattleCost"   ,'','','list="list-bcost"']}</td>
+                <td>@{[input "kizuato${num}BattleLimited",'','','list="list-blimited"']}</td>
+                <td class="left">@{[input "kizuato${num}BattleNote"]}</td>
+            </tr>
+          </tbody>
+HTML
+}
+print <<"HTML";
+        </table>
+        <div class="add-del-button"><a onclick="addKizuato()">▼</a><a onclick="delKizuato()">▲</a></div>
       </div>
       
       <details class="box" id="free-note" @{[$pc{'freeNote'}?'open':'']}>
@@ -558,7 +650,7 @@ print <<"HTML";
             <th></th>
             <th>日付</th>
             <th>タイトル</th>
-            <th>力の向上</th>
+            <th>成長</th>
             <th>GM</th>
             <th>参加者</th>
           </tr>
@@ -577,7 +669,7 @@ print <<"HTML";
             <td rowspan="2" class="handle"></td>
             <td rowspan="2">@{[ input"history${num}Date" ]}</td>
             <td rowspan="2">@{[ input"history${num}Title" ]}</td>
-            <td><select name="history${num}Grow" oninput="calcGrow()">@{[ option "history${num}Grow",'endurance|<耐久値+5>','initiative|<先制値+2>' ]}</select></td>
+            <td><select name="history${num}Grow" oninput="calcGrow()">@{[ option "history${num}Grow",'endurance|<耐久値+2>','operation|<作戦力+1>' ]}</select></td>
             <td>@{[ input "history${num}Gm" ]}</td>
             <td>@{[ input "history${num}Member" ]}</td>
           </tr>
@@ -598,7 +690,7 @@ print <<"HTML";
             <th></th>
             <th>日付</th>
             <th>タイトル</th>
-            <th>力の向上</th>
+            <th>成長</th>
             <th>GM</th>
             <th>参加者</th>
           </tr>
@@ -606,17 +698,14 @@ print <<"HTML";
           <tbody>
           <tr>
             <td>-</td>
-            <td><input type="text" value="2021-08-26" disabled></td>
+            <td><input type="text" value="2000-12-29" disabled></td>
             <td><input type="text" value="第一話「記入例」" disabled></td>
-            <td><select disabled><option><option>耐久値+5<option selected>先制値+2</select></td>
+            <td><select disabled><option><option>耐久値+2<option selected>作戦力+1</select></td>
             <td class="gm"><input type="text" value="サンプルGM" disabled></td>
-            <td class="member"><input type="text" value="遠野志貴　アルクェイド" disabled></td>
+            <td class="member"><input type="text" value="イユ　黒崎武" disabled></td>
           </tr>
           </tbody>
         </table>
-        <div class="annotate">
-        ※「力の向上」の選択を行うと、自動的に練度が+1されます。
-        </div>
       </div>
       </section>
       
@@ -725,41 +814,9 @@ print <<"HTML";
     </article>
   </main>
   <footer>
-    <p class="notes"><span>『人鬼血盟RPG ブラッドパス』は、</span><span>「からすば晴（N.G.P.）」及び「株式会社アークライト出版事業部」の著作物です。</span></p>
-    <p class="copyright">ゆとシートⅡ for BLP ver.${main::ver} - ゆとらいず工房</p>
+    <p class="notes"><span>『キズナバレット』は、</span><span>「からすば晴（N.G.P.）」及び「株式会社アークライト出版事業部」の著作物です。</span></p>
+    <p class="copyright">ゆとシートⅡ for KIZ ver.${main::ver} - ゆとらいず工房</p>
   </footer>
-  <datalist id="list-belief">
-    <option value="義士">
-    <option value="讐人">
-    <option value="傀儡">
-    <option value="金愚">
-    <option value="研人">
-    <option value="求道">
-  </datalist>
-  <datalist id="list-job">
-    <option value="監者">
-    <option value="戦衛">
-    <option value="狩人">
-    <option value="謀智">
-    <option value="術士">
-    <option value="資道">
-  </datalist>
-  <datalist id="list-origin">
-    <option value="源祖">
-    <option value="貴種">
-    <option value="夜者">
-    <option value="半鬼">
-    <option value="屍鬼">
-    <option value="綺獣">
-  </datalist>
-  <datalist id="list-style">
-    <option value="舞人">
-    <option value="戦鬼">
-    <option value="奏者">
-    <option value="火華">
-    <option value="群団">
-    <option value="界律">
-  </datalist>
   <datalist id="list-gender">
     <option value="男">
     <option value="女">
@@ -770,111 +827,83 @@ print <<"HTML";
   </datalist>
   <datalist id="list-belong">
     <option value="SID">
-    <option value="斬鬼衆">
-    <option value="異端改宗室">
-    <option value="鮮紅騎士団">
-    <option value="鬼灯寮">
-    <option value="学館・広魔学科">
-    <option value="八刃会">
-    <option value="フリーランス">
   </datalist>
   <datalist id="list-loss">
-    <option value="視覚（色彩）">
-    <option value="声">
-    <option value="怒り">
-    <option value="記憶（人間）">
-    <option value="身体（髪色）">
-    <option value="哀れみ">
-    <option value="視覚（顔）">
   </datalist>
-  <datalist id="list-lack">
-    <option value="執着（自身）">
-    <option value="喜び">
-    <option value="愛">
-    <option value="恐怖">
-    <option value="悲しみ">
-    <option value="執着（他人）">
-    <option value="希望">
-  </datalist>
-  <datalist id="list-timing">
+  <datalist id="list-dtiming">
     <option value="調査">
-    <option value="開始">
-    <option value="準備">
-    <option value="攻撃">
-    <option value="終了">
-    <option value="戦闘不能">
-    <option value="いつでも">
     <option value="常時">
     <option value="解説参照">
   </datalist>
-  <datalist id="list-target">
+  <datalist id="list-btiming">
+    <option value="開始">
+    <option value="準備">
+    <option value="攻撃">
+    <option value="威力の強化">
+    <option value="ダメージ軽減">
+    <option value="終了">
+    <option value="戦闘不能">
+    <option value="常時">
+    <option value="解説参照">
+  </datalist>
+  <datalist id="list-dtarget">
+    <option value="自身">
+    <option value="単体">
+  </datalist>
+  <datalist id="list-btarget">
     <option value="自身">
     <option value="単体">
     <option value="単体※">
-    <option value="単体（血盟）">
-    <option value="単体（血盟）※">
-    <option value="場面">
+    <option value="単体（バレット）">
+    <option value="エネミー">
     <option value="場面（選択）">
-    <option value="解説参照">
   </datalist>
-  <datalist id="list-cost">
+  <datalist id="list-bcost">
     <option value="なし">
-    <option value="手札1枚">
-    <option value="黒1枚">
-    <option value="黒絵札1枚">
-    <option value="赤1枚">
-    <option value="赤絵札1枚">
-    <option value="スペード1枚">
-    <option value="スペード絵札1枚">
-    <option value="クラブ1枚">
-    <option value="クラブ絵札1枚">
-    <option value="ハート1枚">
-    <option value="ハート絵札1枚">
-    <option value="ダイヤ1枚">
-    <option value="ダイヤ絵札1枚">
+    <option value="【励起値】">
     <option value="【耐久値】">
   </datalist>
-  <datalist id="list-limited">
+  <datalist id="list-dlimited">
     <option value="なし">
     <option value="ドラマ1回">
-    <option value="ラウンド1回">
-    <option value="血戦1回">
     <option value="シナリオ1回">
   </datalist>
-  <datalist id="list-seal-position">
+  <datalist id="list-blimited">
+    <option value="なし">
+    <option value="ラウンド1回">
+    <option value="シナリオ1回">
+    <option value="シナリオ3回">
+  </datalist>
+  <datalist id="list-marker-position">
+    <option value="手首">
     <option value="手の甲">
-    <option value="胸元">
-    <option value="掌">
     <option value="首">
     <option value="背中">
     <option value="脚">
-    <option value="指先（爪）">
+    <option value="手の平">
   </datalist>
-  <datalist id="list-seal-shape">
-    <option value="獣">
-    <option value="花">
-    <option value="剣">
-    <option value="星">
-    <option value="太陽">
-    <option value="月">
-    <option value="羽根">
+  <datalist id="list-marker-color">
+    <option value="赤">
+    <option value="青">
+    <option value="緑">
+    <option value="白">
+    <option value="黒">
+    <option value="紫">
   </datalist>
   <datalist id="list-emotion1">
+    <option value="束縛">
     <option value="尊敬">
-    <option value="独占欲">
-    <option value="親愛">
-    <option value="執着心">
+    <option value="執着">
     <option value="興味">
     <option value="依存">
-    <option value="崇拝">
+    <option value="親愛">
   </datalist>
   <datalist id="list-emotion2">
-    <option value="恐怖">
     <option value="憧憬">
-    <option value="憎しみ">
-    <option value="隔たり">
+    <option value="信頼">
+    <option value="安らぎ">
     <option value="劣等感">
-    <option value="安心感">
+    <option value="憎しみ">
     <option value="不安">
   </datalist>
   <script>

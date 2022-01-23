@@ -13,7 +13,7 @@ my $sort = $::in{'sort'};
 ### テンプレート読み込み #############################################################################
 my $INDEX;
 $INDEX = HTML::Template->new( filename  => $set::skin_tmpl , utf8 => 1,
-  path => ['./', $::core_dir."/skin/blp", $::core_dir."/skin/_common", $::core_dir],
+  path => ['./', $::core_dir."/skin/kiz", $::core_dir."/skin/_common", $::core_dir],
   search_path_on_include => 1,
   die_on_bad_params => 0, die_on_missing_include => 0, case_sensitive => 1, global_vars => 1);
 
@@ -30,7 +30,7 @@ $INDEX->param(mode => $mode);
 ### データ処理 #######################################################################################
 ### クエリ --------------------------------------------------
 my $index_mode;
-if(!($mode eq 'mylist' || $::in{'tag'} || $::in{'group'} || $::in{'name'} || $::in{'player'} || $::in{'exp-min'} || $::in{'exp-max'} || $::in{'factor'} || $::in{'belong'} || $::in{'missing'} || $::in{'image'})){
+if(!($mode eq 'mylist' || $::in{'tag'} || $::in{'group'} || $::in{'name'} || $::in{'player'} || $::in{'type'} || $::in{'negai'} || $::in{'belong'} || $::in{'grow'} || $::in{'image'})){
   $index_mode = 1;
   $INDEX->param(modeIndex => 1);
   $INDEX->param(simpleMode => 1) if $set::simplelist;
@@ -42,9 +42,10 @@ foreach(
   #'group',
   'name',
   'player',
-  'factor',
+  'type',
+  'negai',
   'belong',
-  'missing',
+  'grow',
   'image',
   'fellow',
   ){
@@ -82,7 +83,7 @@ elsif (
   && !($mode eq 'mylist')
   && !$::in{'tag'}
 ){
-  @list = grep { !(split(/<>/))[19] } @list;
+  @list = grep { !(split(/<>/))[9] } @list;
 }
 
 ## グループ
@@ -106,7 +107,7 @@ $INDEX->param(group => $group_name{$group_query});
 
 ## タグ検索
 my $tag_query = decode('utf8', $::in{'tag'});
-if($tag_query) { @list = grep { (split(/<>/))[17] =~ / $tag_query / } @list; }
+if($tag_query) { @list = grep { (split(/<>/))[8] =~ / $tag_query / } @list; }
 $INDEX->param(tag => $tag_query);
 
 ## 名前検索
@@ -119,30 +120,30 @@ my $pl_query = decode('utf8', $::in{'player'});
 if($pl_query) { @list = grep { (split(/<>/))[5] =~ /$pl_query/ } @list; }
 $INDEX->param(player => $pl_query);
 
-## ファクター検索
-my @factor_query = split('\s', decode('utf8', $::in{'factor'}));
-foreach my $q (@factor_query) {
-  @list = grep { (split(/<>/))[7] =~ /$q/ || (split(/<>/))[8] =~ /$q/ } @list;
+## 種別検索
+my @type_query = split('\s', decode('utf8', $::in{'type'}));
+foreach my $q (@type_query) { @list = grep { (split(/<>/))[10] =~ /$q/ } @list; }
+$INDEX->param(type => "@type_query");
+
+## ネガイ検索
+my @negai_query = split('\s', decode('utf8', $::in{'negai'}));
+foreach my $q (@negai_query) {
+  @list = grep { (split(/<>/))[11] =~ /$q/ || (split(/<>/))[12] =~ /$q/ } @list;
 }
-$INDEX->param(factor => "@factor_query");
+$INDEX->param(type => "@negai_query");
 
 ## 所属検索
 my @belong_query = split('\s', decode('utf8', $::in{'belong'}));
-foreach my $q (@belong_query) { @list = grep { (split(/<>/))[13] =~ /$q/ } @list; }
+foreach my $q (@belong_query) { @list = grep { (split(/<>/))[15] =~ /$q/ } @list; }
 $INDEX->param(belong => "@belong_query");
-
-## 喪失検索
-my @missing_query = split('\s', decode('utf8', $::in{'missing'}));
-foreach my $q (@missing_query) { @list = grep { (split(/<>/))[14] =~ /$q/ } @list; }
-$INDEX->param(missing => "@missing_query");
 
 ## 画像フィルタ
 if($::in{'image'} == 1) {
-  @list = grep { (split(/<>/))[16] } @list;
+  @list = grep { (split(/<>/))[7] } @list;
   $INDEX->param(image => 1);
 }
 elsif($::in{'image'} eq 'N') {
-  @list = grep { !(split(/<>/))[16] } @list;
+  @list = grep { !(split(/<>/))[7] } @list;
   $INDEX->param(image => 1);
 }
 
@@ -152,10 +153,10 @@ my %grouplist;
 foreach (@list) {
   my (
     $id, undef, undef, $updatetime, $name, $player, $group, #0-6
-    $factor, $core, $style, $gender, $age, $ageapp, #7-12
-    $belong, $missing, $level, #13-15
-    $session, $image, $tag, $hide #16-19
-  ) = (split /<>/, $_)[0..19];
+    $image, $tag, $hide, #7-9
+    $type, $outside, $inside, $gender, $age, #10-14
+    $belong, $bigamy, $kizuna, $hibiware #15-18
+  ) = (split /<>/, $_)[0..18];
   
   #グループ
   $group = $set::group_default if (!$group || !$group_name{$group});
@@ -180,7 +181,6 @@ foreach (@list) {
   else { $gender = '？' }
   
   #年齢
-  $age = $ageapp.'／'.$age if $ageapp;
   $age =~ s/^(.+?)[\(（].*?[）\)]$/$1/;
   $age =~ tr/０-９/0-9/;
   
@@ -205,11 +205,11 @@ foreach (@list) {
     "GROUP" => $group,
     "AGE" => $age,
     "GENDER" => $gender,
-    "FACTOR" => $factor,
-    "FACTORS" => $core.'／'.$style,
+    "TYPE" => $type,
+    "NEGAI" => $outside.'／'.$inside,
     "BELONG" => $belong,
-    "MISSING" => $missing,
-    "LEVEL" => $level,
+    "KIZUNA" => $kizuna,
+    "HIBIWARE" => $hibiware,
     "DATE" => $updatetime,
     "HIDE" => $hide,
   });
@@ -227,7 +227,6 @@ foreach (sort {$group_sort{$a} <=> $group_sort{$b}} keys %grouplist){
   if   ($sort eq 'name'){ @{$grouplist{$_}} = sort { $a->{'SORT'} cmp $b->{'SORT'} } @{$grouplist{$_}}; }
   elsif($sort eq 'pl')  { @{$grouplist{$_}} = sort { $a->{'PLAYER'} cmp $b->{'PLAYER'} } @{$grouplist{$_}}; }
   elsif($sort eq 'gender'){ @{$grouplist{$_}} = sort { $a->{'GENDER'} cmp $b->{'GENDER'} } @{$grouplist{$_}}; }
-  elsif($sort eq 'level'){ @{$grouplist{$_}} = sort { $b->{'LEVEL'} <=> $a->{'LEVEL'} } @{$grouplist{$_}}; }
   elsif($sort eq 'date'){ @{$grouplist{$_}} = sort { $b->{'DATE'} <=> $a->{'DATE'} } @{$grouplist{$_}}; }
   
   ## ページネーション
