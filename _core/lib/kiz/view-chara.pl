@@ -20,12 +20,7 @@ $SHEET = HTML::Template->new( filename => $set::skin_sheet, utf8 => 1,
 our %pc = pcDataGet();
 
 ### 閲覧禁止データ ###################################################################################
-if($::in{'checkView'}){ $::LOGIN_ID = ''; }
-
-if($pc{'forbidden'} && (getfile($::in{'id'},'',$::LOGIN_ID))[0]){
-  $pc{'forbiddenAuthor'} = 1;
-}
-elsif($pc{'forbidden'}){
+if($pc{'forbidden'}){
   my $author = $pc{'playerName'};
   my $protect   = $pc{'protect'};
   my $forbidden = $pc{'forbidden'};
@@ -98,7 +93,7 @@ elsif($pc{'forbidden'}){
 require $set::lib_convert if !$::in{'url'};
 if(!$::in{'backup'}){
   if($pc{'partner1Url'} && $pc{'partner1Auto'}){
-    my %pr = data_partner_get($pc{'partner1Url'});
+    my %pr = dataPartnerGet($pc{'partner1Url'});
     if($pr{'convertSource'}){
       if($pr{'ver'}){ %pr = data_update_chara(\%pr); }
       $pc{'p1_'.$_} = $pr{$_} foreach keys %pr;
@@ -134,7 +129,7 @@ if(!$::in{'backup'}){
     }
   }
   if($pc{'partner2Url'} && $pc{'partner2Auto'}){
-    my %pr = data_partner_get($pc{'partner2Url'});
+    my %pr = dataPartnerGet($pc{'partner2Url'});
     if($pr{'convertSource'}){
       $pc{'p2_'.$_} = $pr{$_} foreach keys %pr;
       $pc{'partner2Name'}     = $pr{'characterName'};
@@ -347,27 +342,15 @@ foreach ('','p1_','p2_'){
   $SHEET->param($_."colorBaseBgD" => 15);
 }
 
-
 ### バックアップ --------------------------------------------------
-opendir(my $DIR,"${set::char_dir}${main::file}/backup");
-my @backlist = readdir($DIR);
-closedir($DIR);
-my @backup;
-foreach (reverse sort @backlist) {
-  if ($_ =~ s/\.cgi//) {
-    my $url = $_;
-    $_ =~ s/^([0-9]{4}-[0-9]{2}-[0-9]{2})-([0-9]{2})-([0-9]{2})$/$1 $2\:$3/;
-    push(@backup, {
-      "NOW"  => ($url eq $::in{'backup'} ? 1 : 0),
-      "URL"  => $url,
-      "DATE" => $_,
-    });
+if($::in{'id'}){
+  my($selected, $list) = getBackupList($set::char_dir, $main::file);
+  $SHEET->param(Backup => $list);
+  $SHEET->param(selectedBackupName => $selected);
+  if($::in{'backup'} && ( $pc{'yourAuthor'} || $pc{'protect'} eq 'password' )){
+    $SHEET->param(viewBackupNaming => 1);
   }
 }
-$SHEET->param(Backup => \@backup);
-
-### パスワード要求 --------------------------------------------------
-$SHEET->param(ReqdPassword => (!$pc{'protect'} || $pc{'protect'} eq 'password' ? 1 : 0) );
 
 ### タイトル --------------------------------------------------
 $SHEET->param(title => $set::title);

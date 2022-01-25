@@ -24,12 +24,7 @@ if($pc{'description'} =~ s/#login-only//i){
   $pc{'forbidden'} = 'all' if !$::LOGIN_ID;
 }
 ### 閲覧禁止データ ###################################################################################
-if($::in{'checkView'}){ $::LOGIN_ID = ''; }
-
-if($pc{'forbidden'} && (getfile($::in{'id'},'',$::LOGIN_ID))[0]){
-  $pc{'forbiddenAuthor'} = 1;
-}
-elsif($pc{'forbidden'}){
+if($pc{'forbidden'}){
   my $author = $pc{'author'};
   my $protect   = $pc{'protect'};
   my $forbidden = $pc{'forbidden'};
@@ -177,26 +172,13 @@ $SHEET->param(Loots => \@loots);
 
 ### バックアップ --------------------------------------------------
 if($::in{'id'}){
-  opendir(my $DIR,"${set::mons_dir}${main::file}/backup");
-  my @backlist = readdir($DIR);
-  closedir($DIR);
-  my @backup;
-  foreach (reverse sort @backlist) {
-    if ($_ =~ s/\.cgi//) {
-      my $url = $_;
-      $_ =~ s/^([0-9]{4}-[0-9]{2}-[0-9]{2})-([0-9]{2})-([0-9]{2})$/$1 $2\:$3/;
-      push(@backup, {
-        "NOW"  => ($url eq $::in{'backup'} ? 1 : 0),
-        "URL"  => $url,
-        "DATE" => $_,
-      });
-    }
+  my($selected, $list) = getBackupList($set::mons_dir, $main::file);
+  $SHEET->param(Backup => $list);
+  $SHEET->param(selectedBackupName => $selected);
+  if($::in{'backup'} && ( $pc{'yourAuthor'} || $pc{'protect'} eq 'password' )){
+    $SHEET->param(viewBackupNaming => 1);
   }
-  $SHEET->param(Backup => \@backup);
 }
-
-### パスワード要求 --------------------------------------------------
-$SHEET->param(ReqdPassword => (!$pc{'protect'} || $pc{'protect'} eq 'password' ? 1 : 0) );
 
 ### タイトル --------------------------------------------------
 $SHEET->param(title => $set::title);

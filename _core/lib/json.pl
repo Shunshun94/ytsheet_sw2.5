@@ -19,7 +19,7 @@ my $url = $::in{'url'};
 my ($file, $type);
 my %pc = ();
 if($id){
-  ($file, $type) = getfile_open($id);
+  ($file, $type, undef) = getfile_open($id);
 
   my $data_dir;
      if($type eq 'm'){ $data_dir = $set::mons_dir; }
@@ -42,7 +42,7 @@ if($id){
 }
 elsif($::in{'url'}){
   require $set::lib_convert;
-  %pc = data_convert($::in{'url'});
+  %pc = dataConvert($::in{'url'});
   $type = $pc{'type'};
 }
 
