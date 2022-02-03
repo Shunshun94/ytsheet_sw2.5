@@ -1727,6 +1727,7 @@ print <<"HTML";
     'bcdice' : { 'full': `@{[ palettePreset('bcdice') ]}`, 'simple': `@{[ palettePresetSimple('bcdice') ]}` } ,
   };
   </script>
+  <script src="${main::core_dir}/skin/sw2/js/lib/quickInsertionForSW25.js?${main::ver}" defer></script>
 </body>
 
 </html>
