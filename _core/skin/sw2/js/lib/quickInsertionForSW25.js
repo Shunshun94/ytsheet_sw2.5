@@ -213,18 +213,85 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         cost: ''
     }, {
         name: '冒険者セット',
-        content: '背負い袋\n水袋\n毛布\nたいまつ6本\n火口箱\nロープ10m\nナイフ',
+        content: '背負い袋\n水袋\n毛布\n火口箱\nナイフ\n\n|ロープ|10m|\n|たいまつ|6本|',
         cost: '100'
     }, {
+        name: 'ランタンと油',
+        content: 'ランタン\n油',
+        cost: '60'
+    }, {
+        name: 'ロープ10m',
+        content: 'ロープ10m',
+        note: '1m毎に +1 / 100mなら100G',
+        cost: '10'
+    }, {
+        name: 'テント(4人用)',
+        content: 'テント(4人用)',
+        note: '1人分サイズを大きくする毎に+50',
+        cost: '250'
+    }, {
         name: '着替えセット',
-        content: '着替え7日分',
+        content: '|着替え|7日分|',
         cost: '10'
     }, {
         name: '保存食1週間分',
-        content: '保存食21食分',
+        content: '|保存食|21食分|',
         cost: '50'
+    }, {
+        name: 'ワイン',
+        content: 'ワイン',
+        note: '市場の最低価格',
+        cost: '20'
+    }, {
+        name: '羽根ペンとインク',
+        content: '羽根ペン\nインク',
+        cost: '5'
+    }, {
+        name: '羊皮紙5枚',
+        content: '|羊皮紙|5枚|',
+        cost: '5'
     }
 ];
+
+io.github.shunshun94.trpg.ytsheet.QuickInsertion.appendCommonItem = (e) => {
+    e.preventDefault();
+    const id = 'io-github-shunshun94-trpg-ytsheet-quickInsertion-CommonItemSelector';
+    const itemNumber = Number(document.getElementById(`${id}-select`).value);
+    if(itemNumber === 0) {return;}
+    const item = io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems[itemNumber];
+    document.getElementsByName('items')[0].value += `\n${item.content}`;
+    document.getElementsByName('items')[0].value = document.getElementsByName('items')[0].value.trim();
+    document.getElementsByName('cashbook')[0].value += `\n${item.name}::-${item.cost}`;
+    document.getElementsByName('cashbook')[0].value = document.getElementsByName('cashbook')[0].value.trim();
+    const event = document.createEvent("HTMLEvents");
+    event.initEvent('input', true, true);
+    document.getElementsByName('cashbook')[0].dispatchEvent(event);
+};
+
+io.github.shunshun94.trpg.ytsheet.QuickInsertion.generateCommonItemSelector = () => {
+    const id = 'io-github-shunshun94-trpg-ytsheet-quickInsertion-CommonItemSelector';
+    const baseDiv = document.createElement('div');
+    baseDiv.id = id;
+
+    const selector = document.createElement('select');
+    selector.id = `${id}-select`;
+    selector.style = 'max-width:200px;';
+    io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems.forEach((d, i)=>{
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = d.name;
+        selector.appendChild(option);
+    });
+    baseDiv.appendChild(selector);
+
+    const exec = document.createElement('button');
+    exec.id = `${id}-exec`;
+    exec.textContent = '購入';
+    exec.onclick = io.github.shunshun94.trpg.ytsheet.QuickInsertion.appendCommonItem;
+    baseDiv.appendChild(exec);
+
+    return baseDiv;
+};
 
 io.github.shunshun94.trpg.ytsheet.QuickInsertion.inputData = (domName, value) => {
     document.getElementsByName(domName)[0].value = value;
@@ -263,17 +330,16 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.generateInitialValueSelector = 
     const id = 'io-github-shunshun94-trpg-ytsheet-quickInsertion-initialValueSelector';
     const baseDiv = document.createElement('div');
     baseDiv.id = id;
-    baseDiv.style = 'width:200px;';
 
     const selector = document.createElement('select');
     selector.id = `${id}-select`;
+    selector.style = 'max-width:200px;';
     io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.InitialValues.forEach((d, i)=>{
         const option = document.createElement('option');
         option.value = i;
         option.textContent = d.regulation;
         selector.appendChild(option);
     });
-    selector.style = 'display:block;';
     baseDiv.appendChild(selector);
 
     const exec = document.createElement('button');
@@ -287,5 +353,7 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.generateInitialValueSelector = 
 
 if(location.search.includes('mode=blanksheet')) {
     document.getElementById('regulation').appendChild(io.github.shunshun94.trpg.ytsheet.QuickInsertion.generateInitialValueSelector());
+    document.getElementsByName('money')[0].value = 'auto';
+    document.getElementsByName('deposit')[0].value = 'auto';
 }
-
+document.getElementById('items').getElementsByTagName('h2')[0].appendChild(io.github.shunshun94.trpg.ytsheet.QuickInsertion.generateCommonItemSelector())
