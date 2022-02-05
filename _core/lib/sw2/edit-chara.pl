@@ -266,11 +266,11 @@ print <<"HTML";
         <dl>
           <dt>経験点</dt>
           <dd>@{[input("history0Exp",'number','changeRegu','step="500"'.($set::make_fix?' readonly':''))]}</dd>
-          <dt>名誉点</dt>
-          <dd>@{[input("history0Honor",'number','changeRegu', ($set::make_fix?' readonly':''))]}</dd>
           <dt>所持金</dt>
           <dd>@{[input("history0Money",'number','changeRegu', ($set::make_fix?' readonly':''))]}</dd>
-          <dt>初期成長</dt>
+          <dt>名誉点</dt>
+          <dd>@{[input("history0Honor",'number','changeRegu', ($set::make_fix?' readonly':''))]}</dd>
+          <dt>成長</dt>
           <dd>
             <dl id="regulation-grow">
               <dt>器用度</dt><dd>@{[ input "sttPreGrowA",'number','calcStt' ]}</dd>
@@ -282,6 +282,7 @@ print <<"HTML";
             </dl>
           </dd>
         </dl>
+        <div class="annotate">※経験点は、初期所有技能のぶんを含みます。</div>
       </details>
       <div id="area-status">
         @{[ image_form("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}") ]}
@@ -290,11 +291,11 @@ print <<"HTML";
           <dl class="box" id="race">
             <dt>種族</dt><dd><select name="race" oninput="changeRace()">@{[ option 'race', @data::race_list ]}</select></dd>
           </dl>
-          <dl class="box" id="gender">
-            <dt>性別</dt><dd>@{[input('gender','','','list="list-gender"')]}</dd>
-          </dl>
           <dl class="box" id="age">
             <dt>年齢</dt><dd>@{[input('age')]}</dd>
+          </dl>
+          <dl class="box" id="gender">
+            <dt>性別</dt><dd>@{[input('gender','','','list="list-gender"')]}</dd>
           </dl>
           <dl class="box" id="race-ability">
             <dt>種族特徴</dt>
@@ -319,7 +320,7 @@ print <<"HTML";
           </dl>
           <dl class="box" id="faith">
 HTML
-print '<dt>信仰</dt><dd><select name="faith" oninput="changeFaith(this)">';
+print '<dt>信仰</dt><dd class="select-input '.($pc{"faith"} eq 'その他の信仰' ? 'free' : '').'"><select name="faith" oninput="changeFaith(this)">';
 print '<option>';
 print '<option'.($pc{"faith"} eq 'なし' ? ' selected' : '').'>なし';
 foreach my $type (1,3,2,0) {
@@ -331,7 +332,7 @@ foreach my $type (1,3,2,0) {
   }
   print '</optgroup>';
 }
-print "</select>".input('faithOther','text','', ' placeholder="自由記入欄"'.($pc{"faith"} eq 'その他の信仰'?'':'style="display:none"'))."</dl>\n";
+print "</select>".input('faithOther','text','', ' placeholder="自由記入欄"')."</dl>\n";
 print <<"HTML";
         </div>
 
@@ -1303,8 +1304,8 @@ print <<"HTML";
               <th>日付</th>
               <th>タイトル</th>
               <th>経験点</th>
-              <th>名誉点</th>
               <th>ガメル</th>
+              <th>名誉点</th>
               <th>成長</th>
               <th>GM</th>
               <th>参加者</th>
@@ -1314,8 +1315,8 @@ print <<"HTML";
               <td></td>
               <td>キャラクター作成</td>
               <td id="history0-exp">$pc{'history0Exp'}</td>
-              <td id="history0-honor">$pc{'history0Honor'}</td>
               <td id="history0-money">$pc{'history0Money'}</td>
+              <td id="history0-honor">$pc{'history0Honor'}</td>
               <td id="history0-grow">$pc{'history0Grow'}</td>
             </tr>
           </thead>
@@ -1328,8 +1329,8 @@ print <<"HTML";
               <td rowspan="2">@{[input("history${num}Date")]}</td>
               <td rowspan="2">@{[input("history${num}Title")]}</td>
               <td>@{[input("history${num}Exp",'text','calcExp')]}</td>
-              <td>@{[input("history${num}Honor",'text','calcHonor')]}</td>
               <td>@{[input("history${num}Money",'text','calcCash')]}</td>
+              <td>@{[input("history${num}Honor",'text','calcHonor')]}</td>
               <td>@{[input("history${num}Grow",'text','calcStt','list="list-grow"')]}</td>
               <td>@{[input("history${num}Gm")]}</td>
               <td>@{[input("history${num}Member")]}</td>
@@ -1345,8 +1346,8 @@ print <<"HTML";
               <td></td>
               <td>取得総計</td>
               <td id="history-exp-total"></td>
-              <td id="history-honor-total"></td>
               <td id="history-money-total"></td>
+              <td id="history-honor-total"></td>
               <td id="history-grow-total"><span id="history-grow-total-value"></span><span id="history-grow-max-value"></span></td>
             </tr>
             <tr>
@@ -1354,8 +1355,8 @@ print <<"HTML";
               <th>日付</th>
               <th>タイトル</th>
               <th>経験点</th>
-              <th>名誉点</th>
               <th>ガメル</th>
+              <th>名誉点</th>
               <th>成長</th>
               <th>GM</th>
               <th>参加者</th>
@@ -1364,15 +1365,15 @@ print <<"HTML";
         </table>
         <div class="add-del-button"><a onclick="addHistory()">▼</a><a onclick="delHistory()">▲</a></div>
         <h2>記入例</h2>
-        <table class="example edit-table line-tbody">
+        <table class="example edit-table line-tbody no-border-cells">
           <thead>
           <tr>
             <th></th>
             <th>日付</th>
             <th>タイトル</th>
             <th>経験点</th>
-            <th>名誉点</th>
             <th>ガメル</th>
+            <th>名誉点</th>
             <th>成長</th>
             <th>GM</th>
             <th>参加者</th>
@@ -1384,8 +1385,8 @@ print <<"HTML";
             <td><input type="text" value="2015-05-01" disabled></td>
             <td><input type="text" value="第一話「記入例」" disabled></td>
             <td><input type="text" value="1100+50" disabled></td>
-            <td><input type="text" value="17" disabled></td>
             <td><input type="text" value="1800" disabled></td>
+            <td><input type="text" value="17" disabled></td>
             <td><input type="text" value="筋力" disabled></td>
             <td><input type="text" value="サンプルさん" disabled></td>
             <td><input type="text" value="ブラッド　マリー　ガス" disabled></td>

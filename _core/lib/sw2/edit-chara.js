@@ -133,12 +133,8 @@ function changeRegu(){
 }
 
 // 信仰チェック ----------------------------------------
-function changeFaith(Faith) {
-  if(Faith.options[Faith.selectedIndex].value === 'その他の信仰'){
-    form.faithOther.style.display = '';
-  } else {
-    form.faithOther.style.display = 'none';
-  }
+function changeFaith(obj) {
+  obj.parentNode.classList.toggle('free', obj.value === 'その他の信仰');
 }
 
 // レベル変更 ----------------------------------------
@@ -1881,8 +1877,8 @@ function addHistory(){
     <td rowspan="2"><input name="history${num}Date"   type="text"></td>
     <td rowspan="2"><input name="history${num}Title"  type="text"></td>
     <td><input name="history${num}Exp"    type="text" oninput="calcExp()"></td>
-    <td><input name="history${num}Honor"  type="text" oninput="calcHonor()"></td>
     <td><input name="history${num}Money"  type="text" oninput="calcCash()"></td>
+    <td><input name="history${num}Honor"  type="text" oninput="calcHonor()"></td>
     <td><input name="history${num}Grow"   type="text" oninput="calcStt()" list="list-grow"></td>
     <td><input name="history${num}Gm"     type="text"></td>
     <td><input name="history${num}Member" type="text"></td>
