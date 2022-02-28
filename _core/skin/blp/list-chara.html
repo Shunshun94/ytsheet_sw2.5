@@ -21,7 +21,6 @@
           ファクター：<input type="text" name="factor" value="<TMPL_VAR factor>"><br>
           所属　　　：<input type="text" name="belong" value="<TMPL_VAR belong>"><br>
           喪失／欠落：<input type="text" name="missing" value="<TMPL_VAR missing>"><br>
-          名前　：<input type="text" name="name" value="<TMPL_VAR name>"><br>
           タグ　：<input type="text" name="tag" value="<TMPL_VAR tag>"><br>
           画像　：<input type="checkbox" name="image" value="1" >あり<br>
           <input type="submit" value="検索">
@@ -35,7 +34,7 @@
         <TMPL_IF simpleMode>
         <ul>
           <TMPL_LOOP Characters><li<TMPL_IF HIDE> class="hide"</TMPL_IF>>
-            <a href="./?id=<TMPL_VAR ID>" data-lv="<TMPL_VAR LV>"><TMPL_VAR NAME><small><TMPL_VAR PLAYER></small></a>
+            <a href="./?id=<TMPL_VAR ID>" data-type="<TMPL_VAR TYPE>"><TMPL_VAR NAME><small><TMPL_VAR PLAYER></small></a>
           </li></TMPL_LOOP>
         </ul>
         <TMPL_ELSE>
@@ -71,5 +70,12 @@
         <TMPL_IF modeIndex><p class="more"><a href="./?group=<TMPL_VAR ID>">>>MORE</a></p></TMPL_IF>
       </section>
       </TMPL_LOOP>
+      <TMPL_IF ListGroups><section class="list">
+        <ul class="grouplist">
+        <TMPL_LOOP ListGroups><li>
+          <a href="./?group=<TMPL_VAR ID>"><TMPL_VAR NAME><small><TMPL_VAR TEXT></small></a>
+        </li></TMPL_LOOP>
+      </ul>
+      </section></TMPL_IF>
     </article>
     <div id="page-top-button"><a href="#"></a></div>

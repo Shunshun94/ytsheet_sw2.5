@@ -6,6 +6,8 @@ use open ":utf8";
 
 our $LOGIN_ID = check;
 
+our $mode_save = 1;
+
 our $mode = $::in{'mode'};
 our $pass = $::in{'pass'};
 our $new_id;
@@ -103,22 +105,6 @@ else                       { require $set::lib_calc_char; $data_dir = $set::char
 
 ## データ計算
 %pc = data_calc(\%pc);
-
-### エスケープ --------------------------------------------------
-foreach (keys %pc) {
-  $pc{$_} =~ s/&/&amp;/g;
-  $pc{$_} =~ s/"/&quot;/g;
-  $pc{$_} =~ s/</&lt;/g;
-  $pc{$_} =~ s/>/&gt;/g;
-  $pc{$_} =~ s/\r//g;
-  $pc{$_} =~ s/\n//g;
-}
-
-## タグ：全角スペース・英数を半角に変換 --------------------------------------------------
-$pc{'tags'} =~ tr/　/ /;
-$pc{'tags'} =~ tr/０-９Ａ-Ｚａ-ｚ/0-9A-Za-z/;
-$pc{'tags'} =~ tr/＋－＊／．，＿/\+\-\*\/\.,_/;
-$pc{'tags'} =~ tr/ / /s;
 
 ### 画像アップロード --------------------------------------------------
 my $oldext;
@@ -283,8 +269,7 @@ sub passfile_write_make {
   flock($FH, 2);
   my @list = <$FH>;
   foreach (@list){
-    my @data = split /<>/;
-    if ($data[2] eq $now){
+    if ($_ =~ /^(?:[^<]*?<>){2}$now</){
       close($FH);
       $make_error = '新規作成が衝突しました。再度保存してください。';
       require $set::lib_edit; exit;
@@ -307,8 +292,8 @@ sub passfile_write_save {
   my @list = <$FH>;
   seek($FH, 0, 0);
   foreach (@list){
-    my @data = split /<>/;
-    if ($data[0] eq $id){
+    if ($_ =~ /^$id</){
+      my @data = split /<>/;
       $file = $data[2];
       my $passwrite = $data[1];
       if($passwrite =~ /^\[(.+?)\]$/){ $old_dir = '_'.$1.'/'; }
@@ -328,7 +313,8 @@ sub passfile_write_save {
         if($old_dir) { $move = 1; }
       }
       print $FH "$data[0]<>$passwrite<>$data[2]<>$data[3]<>\n";
-    }else{
+    }
+    else {
       print $FH $_;
     }
   }
@@ -350,14 +336,14 @@ sub list_save {
   my $newline  = shift;
   sysopen (my $FH, $listfile, O_RDWR | O_CREAT, 0666);
   flock($FH, 2);
-  my @list = sort { (split(/<>/,$b))[3] cmp (split(/<>/,$a))[3] } <$FH>;
+  my @list = <$FH>;
+  my @tmp = map { (split /<>/)[3] } @list;
+  @list = @list[sort {$tmp[$b] <=> $tmp[$a]} 0 .. $#tmp];
   seek($FH, 0, 0);
   print $FH "$newline\n";
   foreach (@list){
-    chomp $_;
-    my( $id, undef ) = split /<>/;
-    if ($id && $id ne $pc{'id'}){
-      print $FH $_,"\n";
+    if ($_ !~ /^$pc{'id'}</){
+      print $FH $_;
     }
   }
   truncate($FH, tell($FH));

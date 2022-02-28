@@ -273,11 +273,12 @@ function checkClass(){
     form[`mpSupport`].readOnly = true;
   }
 
+  // サポートクラス欄から条件に合わない選択肢を削除
   // レベルアップ履歴のクラスチェンジ欄から条件に合わない選択肢を削除
-  document.querySelectorAll(`#levelup select[name$="Class"] option`).forEach(opt => {
+  document.querySelectorAll(`#levelup select[name$="Class"] option, select[name="classSupportLv1"] option`).forEach(opt => {
     const name = opt.value;
-    if(classes[name] && classes[name]['base']){
-      opt.style.display = (classes[name]['base'] === classMainLv1 ? '' : 'none');
+    if(classes[name] && (classes[name]['base'] || classes[name]['limited'])){
+      opt.style.display = (classes[name]['base'] === classMainLv1 || classes[name]['limited'] === classMainLv1 ? '' : 'none');
     }
   });
   // スキルの種別選択肢のクラス部分を書き換え
@@ -309,7 +310,7 @@ function checkClass(){
     select.value = selected;
   }
   //ライフパスの見出し
-  document.querySelector(`#lifepath-motive th`).innerHTML = (classes[classMain]['type'] === 'fate') ? '運命' : '目的';
+  document.querySelector(`#lifepath-motive th`).innerHTML = (classes[classMain] && classes[classMain]['type'] === 'fate') ? '運命' : '目的';
 }
 // 成長チェック ----------------------------------------
 function checkGrow(num) {
@@ -547,16 +548,16 @@ function calcSkills(){
     bg.toggle('another', type === 'another');
     
     let markFlag = 0;
-    if     (name.match(/インテンション/)    ){ autoCalcSkill['インテンション']     = lv; markFlag = 1; }
-    else if(name.match(/バイタリティ/)      ){ autoCalcSkill['バイタリティ']       = lv; markFlag = 1; }
-    else if(name.match(/エンラージリミット/)){ autoCalcSkill['エンラージリミット'] = lv; markFlag = 1; }
-    else if(name.match(/アストラルボディ/)  ){ autoCalcSkill['アストラルボディ']   = lv ? 'Mnd' : ''; markFlag = 1; }
-    else if(name.match(/ファランクススタイル[:：]器用/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Dex' : ''; markFlag = 1; }
-    else if(name.match(/ファランクススタイル[:：]敏捷/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Agi' : ''; markFlag = 1; }
-    else if(name.match(/ファランクススタイル[:：]知力/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Int' : ''; markFlag = 1; }
-    else if(name.match(/ファランクススタイル[:：]感知/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Sen' : ''; markFlag = 1; }
-    else if(name.match(/ファランクススタイル[:：]精神/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Mnd' : ''; markFlag = 1; }
-    else if(name.match(/ファランクススタイル[:：]幸運/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Luk' : ''; markFlag = 1; }
+    if     (name.match(/(^|[\/／])インテンション/)    ){ autoCalcSkill['インテンション']     = lv; markFlag = 1; }
+    else if(name.match(/(^|[\/／])バイタリティ/)      ){ autoCalcSkill['バイタリティ']       = lv; markFlag = 1; }
+    else if(name.match(/(^|[\/／])エンラージリミット/)){ autoCalcSkill['エンラージリミット'] = lv; markFlag = 1; }
+    else if(name.match(/(^|[\/／])アストラルボディ/)  ){ autoCalcSkill['アストラルボディ']   = lv ? 'Mnd' : ''; markFlag = 1; }
+    else if(name.match(/(^|[\/／])ファランクススタイル[:：]器用/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Dex' : ''; markFlag = 1; }
+    else if(name.match(/(^|[\/／])ファランクススタイル[:：]敏捷/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Agi' : ''; markFlag = 1; }
+    else if(name.match(/(^|[\/／])ファランクススタイル[:：]知力/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Int' : ''; markFlag = 1; }
+    else if(name.match(/(^|[\/／])ファランクススタイル[:：]感知/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Sen' : ''; markFlag = 1; }
+    else if(name.match(/(^|[\/／])ファランクススタイル[:：]精神/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Mnd' : ''; markFlag = 1; }
+    else if(name.match(/(^|[\/／])ファランクススタイル[:：]幸運/)){ autoCalcSkill['ファランクススタイル'] = lv ? 'Luk' : ''; markFlag = 1; }
     form[`skill${num}Name`].parentNode.classList.toggle('calc', markFlag);
   }
   document.getElementById('skills-lv-total').innerHTML = total;
