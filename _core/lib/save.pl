@@ -86,7 +86,7 @@ if($main::new_id){ $pc{'id'} = $main::new_id; }
 ## 現在時刻
 our $now = time;
 ## 最終更新
-$pc{'updateTime'} = time_convert($now);
+$pc{'updateTime'} = epocToDate($now);
 
 ## ファイル名取得
 our $file;
@@ -214,13 +214,7 @@ else {
 
 
 ### サブルーチン ###################################################################################
-use File::Copy qw/copy move/;
-
-sub time_convert {
-  my ($min,$hour,$day,$mon,$year) = (localtime($_[0]))[1..5];
-  $year += 1900; $mon++;
-  return sprintf("%04d-%02d-%02d %02d:%02d",$year,$mon,$day,$hour,$min);
-}
+use File::Copy qw/move/;
 
 sub data_save {
   my $mode = shift;
@@ -244,21 +238,124 @@ sub data_save {
     mkdir "${dir}${file}" or error("データファイルの作成に失敗しました。");
   }
 
+  ## バックアップ作成
   if($mode eq 'save'){
-    if (!-d "${dir}${file}/backup/"){ mkdir "${dir}${file}/backup/"; }
+    my $lately_term    = 60*60*24;
+    my $interval_long  = 60 * ($set::log_interval_long  || 60);
+    my $interval_short = 60 * ($set::log_interval_short || 15);
+    
+    my $latest_epoc;
+    my %log_name;
+    my %log_save;
+    my @log_list;
+    my $delete_flag;
+    if(!-f "${dir}${file}/log-list.cgi"){ logFileCheck("${dir}${file}") }
+    open (my $FH, "${dir}${file}/log-list.cgi");
+    flock($FH, 1);
+    while (<$FH>){
+      chomp;
+      my ($date, $epoc, $name) = split('<>', $_, 3);
+      if($name){ $log_name{$date} = $name; }
+      if($date eq 'latest'){
+        $latest_epoc = $epoc;
+      }
+      else {
+        push(@log_list, { date => $date, epoc => $epoc, name => $name });
+      }
+    }
+    close($FH);
+    $latest_epoc ||= (stat("${dir}${file}/data.cgi"))[9];
+    my $latest_date = epocToDateQuery($latest_epoc);
+    
+    if($now - $latest_epoc > 3){ #3秒未満の連続更新は処理を飛ばす
+      my $before_saved = 0;
+      foreach my $i (0 .. $#log_list){
+        my $epoc = $log_list[$i]{epoc};
+        my $next = $log_list[$i+1]{epoc} || $latest_epoc;
+        if (
+          $now - $epoc <= $lately_term ||
+          $log_list[$i]{name} ne '' ||
+          $next - $epoc >= $interval_long ||
+          ($next - $epoc >= $interval_short &&
+           $epoc - $before_saved >= $interval_long)
+        ){
+          $before_saved = $epoc;
+          $log_save{ $log_list[$i]{date} } = $epoc;
+        }
+        else {
+          $delete_flag = 1
+        }
+      }
 
-    my $modtime = (stat("${dir}${file}/data.cgi"))[9];
-    my ($min, $hour, $day, $mon, $year) = (localtime($modtime))[1..5];
-    $year += 1900; $mon++;
-    my $update_date = sprintf("%04d-%02d-%02d-%02d-%02d",$year,$mon,$day,$hour,$min);
-    copy("${dir}${file}/data.cgi", "${dir}${file}/backup/${update_date}.cgi");
+      # set::log_max 以上を削除
+      if($set::log_max && scalar(keys %log_save) >= $set::log_max){
+        my $max_over = scalar(keys %log_save)+1 - $set::log_max;
+        foreach (sort keys %log_save){
+          if($max_over <= 0){ last; }
+          if(!exists $log_name{$_}){ delete $log_save{$_}; $delete_flag = 1; $max_over--; }
+        }
+      }
+    
+      # data => logs (削除あり)
+      if($delete_flag){
+        sysopen(my $BU,"${dir}${file}/logs.cgi", O_RDWR | O_CREAT, 0666);
+        flock($BU, 2);
+        my @lines = <$BU>;
+        seek($BU, 0, 0);
+
+        my $cut = 0;
+        foreach (@lines) {
+          if (index($_, "=") == 0){
+            $cut = 0;
+            if($_ =~ /^=(.+?)=/){
+              if(!$log_save{$1}){ $cut = 1; }
+            }
+          }
+          print $BU $_ if !$cut;
+        }
+
+        print $BU "=${latest_date}=\n";
+        open (my $IN, '<', "${dir}${file}/data.cgi");
+        flock($IN, 2);
+        print $BU $_ while (<$IN>);
+        close($IN);
+
+        truncate($BU, tell($BU));
+        close($BU);
+      }
+      # data => logs (追記のみ)
+      else {
+        open (my $IN, '<', "${dir}${file}/data.cgi");
+        sysopen (my $BU, "${dir}${file}/logs.cgi", O_WRONLY | O_APPEND | O_CREAT, 0666);
+        flock($BU, 2);
+        print $BU "=${latest_date}=\n";
+        print $BU $_ while (<$IN>);
+        close($BU);
+        close($IN);
+      }
+      
+      sysopen (my $BUL, "${dir}${file}/log-list.cgi", O_WRONLY | O_TRUNC | O_CREAT, 0666);
+      flock($BUL, 2);
+      print $BUL "$_<>$log_save{$_}<>$log_name{$_}\n" foreach (sort keys %log_save);
+      print $BUL "${latest_date}<>${latest_epoc}<>$log_name{'latest'}\n";
+      print $BUL "latest<>${now}<>\n";
+      close($BUL);
+    }
+  }
+  elsif($mode eq 'make'){
+    sysopen (my $BUL, "${dir}${file}/log-list.cgi", O_WRONLY | O_TRUNC | O_CREAT, 0666);
+    flock($BUL, 2);
+    print $BUL "latest<>${now}<>\n";
+    close($BUL);
   }
 
+  ## data.cgi保存／更新
   sysopen (my $DD, "${dir}${file}/data.cgi", O_WRONLY | O_TRUNC | O_CREAT, 0666);
-    print $DD "ver<>".$main::ver."\n";
-    foreach (sort keys %pc){
-      if($pc{$_} ne "") { print $DD "$_<>".$pc{$_}."\n"; }
-    }
+  flock($DD, 2);
+  print $DD "ver<>",$main::ver,"\n";
+  foreach (sort keys %pc){
+    if($pc{$_} ne "") { print $DD "$_<>$pc{$_}\n"; }
+  }
   close($DD);
 }
 

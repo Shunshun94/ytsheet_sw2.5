@@ -89,7 +89,7 @@ if($pc{'forbidden'} && !$pc{'yourAuthor'}){
 ### 置換前出力 #######################################################################################
 ### パートナーデータ取得 --------------------------------------------------
 require $set::lib_convert if !$::in{'url'};
-if(!$::in{'backup'}){
+if(!$::in{'log'}){
   if($pc{'partner1Url'} && $pc{'partner1Auto'}){
     my %pr = dataPartnerGet($pc{'partner1Url'});
     if($pr{'convertSource'}){
@@ -174,11 +174,11 @@ while (my ($key, $value) = each(%pc)){
   $SHEET->param("$key" => $value);
 }
 ### ID / URL--------------------------------------------------
-$SHEET->param("id" => $::in{'id'});
+$SHEET->param(id => $::in{'id'});
 
 if($::in{'url'}){
-  $SHEET->param("convertMode" => 1);
-  $SHEET->param("convertUrl" => $::in{'url'});
+  $SHEET->param(convertMode => 1);
+  $SHEET->param(convertUrl => $::in{'url'});
 }
 ### キャラクター名 --------------------------------------------------
 foreach ('characterName','partner1Name','partner2Name'){
@@ -187,7 +187,7 @@ foreach ('characterName','partner1Name','partner2Name'){
 ### プレイヤー名 --------------------------------------------------
 if($set::playerlist){
   my $pl_id = (split(/-/, $::in{'id'}))[0];
-  $SHEET->param("playerName" => '<a href="'.$set::playerlist.'?id='.$pl_id.'">'.$pc{'playerName'}.'</a>');
+  $SHEET->param(playerName => '<a href="'.$set::playerlist.'?id='.$pl_id.'">'.$pc{'playerName'}.'</a>');
 }
 ### グループ --------------------------------------------------
 if($::in{'url'}){
@@ -363,11 +363,11 @@ foreach ('','p1_','p2_'){
 
 ### バックアップ --------------------------------------------------
 if($::in{'id'}){
-  my($selected, $list) = getBackupList($set::char_dir, $main::file);
-  $SHEET->param(Backup => $list);
-  $SHEET->param(selectedBackupName => $selected);
-  if($::in{'backup'} && ( $pc{'yourAuthor'} || $pc{'protect'} eq 'password' )){
-    $SHEET->param(viewBackupNaming => 1);
+  my($selected, $list) = getLogList($set::char_dir, $main::file);
+  $SHEET->param(LogList => $list);
+  $SHEET->param(selectedLogName => $selected);
+  if($pc{'yourAuthor'} || $pc{'protect'} eq 'password'){
+    $SHEET->param(viewLogNaming => 1);
   }
 }
 
@@ -382,14 +382,14 @@ else {
 
 ### 種族名 --------------------------------------------------
 $pc{'race'} =~ s/［.*］//g;
-$SHEET->param("race" => $pc{'race'});
+$SHEET->param(race => $pc{'race'});
 
 ### 画像 --------------------------------------------------
 my $imgsrc;
 if($pc{'convertSource'} eq 'キャラクターシート倉庫'){
   ($imgsrc = $::in{'url'}) =~ s/edit\.html/image/;
   my $code = LWP::UserAgent->new->simple_request(HTTP::Request->new(GET => $imgsrc))->code == 200;
-  $SHEET->param("image" => $code);
+  $SHEET->param(image => $code);
 }
 elsif($pc{'convertSource'} eq '別のゆとシートⅡ') {
   $imgsrc = $pc{'imageURL'}."?$pc{'imageUpdate'}";
@@ -397,7 +397,7 @@ elsif($pc{'convertSource'} eq '別のゆとシートⅡ') {
 else {
   $imgsrc = "${set::char_dir}${main::file}/image.$pc{'image'}?$pc{'imageUpdate'}";
 }
-$SHEET->param("imageSrc" => $imgsrc);
+$SHEET->param(imageSrc => $imgsrc);
 
 ## パートナー
 foreach ('','p1_','p2_'){
@@ -420,8 +420,8 @@ if($pc{'image'}) { $SHEET->param(ogImg => url()."/".$imgsrc); }
 $SHEET->param(ogDescript => tag_delete "ファクター:$pc{'factor'}／$pc{'factorCore'}／$pc{'factorStyle'}　性別:$pc{'gender'}　年齢:$pc{'age'}　".($pc{'factor'} eq '吸血鬼' ? '欠落':'喪失').":$pc{'missing'}　所属:$pc{'belong'}");
 
 ### バージョン等 --------------------------------------------------
-$SHEET->param("ver" => $::ver);
-$SHEET->param("coreDir" => $::core_dir);
+$SHEET->param(ver => $::ver);
+$SHEET->param(coreDir => $::core_dir);
 
 ### エラー --------------------------------------------------
 $SHEET->param(error => $main::login_error);

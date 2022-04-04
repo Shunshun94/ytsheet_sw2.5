@@ -68,15 +68,8 @@ if($mode eq 'mylist'){
 
 ## リスト取得
 my @list;
-if($set::simpleindex && $index_mode){ #グループ見出しのみ
-  my @grouplist;
-  foreach (sort { $a->[1] cmp $b->[1] } @data::taxa){
-    push(@grouplist, {
-      "ID" => @$_[0],
-      "NAME" => @$_[0],
-    });
-  }
-  $INDEX->param("ListGroups" => \@grouplist);
+if($set::simpleindex && $index_mode) { #グループ見出しのみ
+  $INDEX->param(simpleIndex => 1);
 }
 else { #通常
   open (my $FH, "<", $set::monslist);
@@ -107,11 +100,12 @@ $INDEX->param(group => $taxa_query);
 my @taxalist;
 foreach (sort { $a->[1] cmp $b->[1] } @data::taxa){
   push(@taxalist, {
+    "ID"   => @$_[0],
     "NAME" => @$_[0],
     "SELECTED" => $taxa_query eq @$_[0] ? 'selected' : '',
   });
 }
-$INDEX->param("Taxa" => \@taxalist);
+$INDEX->param(Taxa => \@taxalist);
 
 ## タグ検索
 my $tag_query = decode('utf8', $::in{'tag'});
@@ -227,14 +221,14 @@ foreach (@data::taxa){
   });
 }
 
-$INDEX->param("qLinks" => $q_links);
+$INDEX->param(qLinks => $q_links);
 
-$INDEX->param("Lists" => \@characterlists);
+$INDEX->param(Lists => \@characterlists);
 
 
-$INDEX->param("title" => $set::title);
-$INDEX->param("ver" => $::ver);
-$INDEX->param("coreDir" => $::core_dir);
+$INDEX->param(title => $set::title);
+$INDEX->param(ver => $::ver);
+$INDEX->param(coreDir => $::core_dir);
 
 ### 出力 #############################################################################################
 print "Content-Type: text/html\n\n";
