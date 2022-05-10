@@ -16,9 +16,6 @@ require './config.cgi';
 require $core_dir.'/lib/subroutine.pl';
 require $core_dir.'/lib/oauth.pl';
 
-our %in;
-for (param()){ $in{$_} = param($_); }
-
 sub error {
     die shift;
 }
@@ -54,11 +51,33 @@ sub getDataFromYtsheet {
   }
 }
 
-our %beforeData = getDataFromYtsheet($in{'before'});
-our %afterData = getDataFromYtsheet($in{'after'});
+my $url = param('sheet');
+my $before = param('before');
+my $after  = param('after');
+
+our %beforeData = getDataFromYtsheet($url.'&log='.$before);
+our %afterData  = getDataFromYtsheet($url.'&log='.$after);
 
 print "Status: 200 OK\n";
-print "Content-type: text/html\n\n";
+print "Content-type: application/json\n\n";
 
-print $beforeData{'characterName'};
-print $beforeData{'characterName'};
+my %result;
+my @ignore = {'freeNote', 'freeHistory', 'cashbook'};
+foreach my $column(keys(%afterData)){
+  my $afterText  = $afterData{$column};
+  my $beforeText = $beforeData{$column};
+  if( grep { $_ eq $column } @ignore ) {
+    $result{$column} = '比較対象外です';
+  }
+  else {
+    if($afterText ne $beforeText) {
+      $result{$column} = '%%'.$beforeText.'%% '.$afterText;
+    }
+    else {
+      $result{$column} = $afterText;
+    }
+  }
+}
+
+my $jsonText = JSON::PP->new->canonical(1)->encode( \%result );
+print $jsonText;
