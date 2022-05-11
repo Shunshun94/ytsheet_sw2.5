@@ -34,7 +34,7 @@ sub urlDataGet {
 
 sub getDataFromYtsheet {
   my $set_url = shift;
-  my $data    = urlDataGet($set_url.'&mode=json') or error 'Could not access to url '.$set_url;
+  my $data    = urlDataGet($set_url.'&mode=json') or error 'コンバート元のデータが取得できませんでした。URL:'.$set_url;
   if($data !~ /^{/){ error 'JSONデータが取得できませんでした' }
   my %pc = %{ decode_json(join '', $data) };
   if($pc{'result'} eq 'OK'){
@@ -55,29 +55,55 @@ my $url = param('sheet');
 my $before = param('before');
 my $after  = param('after');
 
-our %beforeData = getDataFromYtsheet($url.'&log='.$before);
-our %afterData  = getDataFromYtsheet($url.'&log='.$after);
+my $beforeUrl = $url.'&log='.$before;
+my $afterUrl  = $url.'&log='.$after;
+
+my %beforeData = getDataFromYtsheet($beforeUrl);
+my %afterData  = getDataFromYtsheet($afterUrl);
 
 print "Status: 200 OK\n";
 print "Content-type: application/json\n\n";
 
+sub is_ignorable {
+  my $column = shift;
+  my @ignore = ('freeNote', 'freeHistory', 'cashbook', 'items');
+  return grep { $_ eq $column } @ignore;
+}
+
 my %result;
-my @ignore = {'freeNote', 'freeHistory', 'cashbook'};
+
 foreach my $column(keys(%afterData)){
   my $afterText  = $afterData{$column};
   my $beforeText = $beforeData{$column};
-  if( grep { $_ eq $column } @ignore ) {
+  if( is_ignorable($column) ) {
     $result{$column} = '比較対象外です';
+  }
+  elsif ($column eq 'updateTime') {
+    $result{'updateTime'} = '[[Before('.$beforeData{'updateTime'}.')&gt;'.$beforeUrl.']] / [[After('.$afterData{'updateTime'}.')&gt;'.$afterUrl.']]';
   }
   else {
     if($afterText ne $beforeText) {
-      $result{$column} = '%%'.$beforeText.'%% '.$afterText;
+      if($beforeText) {
+        $result{$column} = '%%'.$beforeText.'%% __'.$afterText.'__';
+      }
+      else {
+        $result{$column} = '__'.$afterText.'__';
+      }
     }
     else {
       $result{$column} = $afterText;
     }
   }
 }
+foreach my $column(keys(%beforeData)){
+  if($result{$column}) {
+    # skip
+  }
+  else {
+    # $result{$column} = '%%'.$beforeData{$column}.'%%';
+  }
+}
+$result{'convertSource'} = 'ゆとシート履歴比較ツール';
 
 my $jsonText = JSON::PP->new->canonical(1)->encode( \%result );
 print $jsonText;
