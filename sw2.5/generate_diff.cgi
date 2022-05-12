@@ -109,6 +109,8 @@ foreach my $column(keys(%beforeData)){
   }
 }
 $result{'convertSource'} = 'ゆとシート履歴比較ツール';
+$result{'sourceUrl'} = $url;
+$result{'unableConvert'} = 1;
 
 my $jsonText = JSON::PP->new->canonical(1)->encode( \%result );
 print $jsonText;
