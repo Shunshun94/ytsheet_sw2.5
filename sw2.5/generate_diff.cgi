@@ -88,7 +88,12 @@ foreach my $column(keys(%afterData)){
           $result{$column} = $beforeText > $afterText ? $beforeText : $afterText;
         }
         elsif ($column eq 'level') {
-          $result{'level'} = $beforeText.'→__'.$afterText.'__';
+          if( $beforeText > $afterText ) {
+            $result{'level'} = $beforeText.'→__'.$afterText.'__';
+          }
+          else {
+            $result{'level'} = $afterText.'←%%'.$beforeText.'%%';
+          }
         }
         else {
           $result{$column} = $beforeText.'&gt;__'.$afterText.'__';
