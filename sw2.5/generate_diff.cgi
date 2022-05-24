@@ -87,6 +87,9 @@ foreach my $column(keys(%afterData)){
         if($column =~ /Num$/) {
           $result{$column} = $beforeText > $afterText ? $beforeText : $afterText;
         }
+        elsif ($column =~ /^image/) {
+          $result{$column} = $afterText;
+        }
         elsif ($column eq 'level') {
           if( $beforeText > $afterText ) {
             $result{$column} = $beforeText.'→__'.$afterText.'__';
@@ -109,12 +112,12 @@ foreach my $column(keys(%afterData)){
   }
 }
 foreach my $column(keys(%beforeData)){
-  if($result{$column} eq "") {
+  if(($result{$column} eq "") && ($beforeData{$column}) ) {
     $result{$column} = '%%'.$beforeData{$column}.'%%';
   }
 }
 $result{'convertSource'} = 'ゆとシート履歴比較ツール';
-$result{'sourceUrl'} = $url;
+$result{'sourceUrls'} = $url;
 $result{'unableConvert'} = 1;
 
 my $jsonText = JSON::PP->new->canonical(1)->encode( \%result );
