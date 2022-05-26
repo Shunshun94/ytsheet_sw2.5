@@ -54,7 +54,7 @@ sub dataConvert {
     if($pc{'result'} eq 'OK'){
       our $base_url = $set_url;
       $base_url =~ s|/[^/]+?$|/|;
-      $pc{'convertSource'} = '別のゆとシートⅡ';
+      $pc{'convertSource'} = $pc{'convertSource'} || '別のゆとシートⅡ';
       return %pc;
     }
     elsif($pc{'result'}) {
