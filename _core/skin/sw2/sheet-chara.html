@@ -62,7 +62,9 @@ window.onload = function() {
       <ul>
         <li class="small"><a href="./">⏎</a></li>
         <TMPL_IF convertMode>
-          <li><a href="./?mode=convert&url=<TMPL_VAR convertUrl>"><span>コンバート</span></a></li>
+          <TMPL_IF convertable>
+            <li><a href="./?mode=convert&url=<TMPL_VAR convertUrl>"><span>コンバート</span></a></li>
+          </TMPL_IF>
         <TMPL_ELSE>
           <TMPL_IF logId>
             <TMPL_IF FellowMode><li><a href="./?id=<TMPL_VAR id>&log=<TMPL_VAR logId>">通常</a></li></TMPL_IF>

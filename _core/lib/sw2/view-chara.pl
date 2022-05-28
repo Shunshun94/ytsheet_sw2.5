@@ -153,6 +153,7 @@ $SHEET->param(id => $::in{'id'});
 if($::in{'url'}){
   $SHEET->param(convertMode => 1);
   $SHEET->param(convertUrl => $::in{'url'});
+  $SHEET->param(convertable => ($pc{'unableConvert'} != 1));
 }
 
 ### 二つ名 --------------------------------------------------
