@@ -35,7 +35,7 @@ sub urlDataGet {
 sub getDataFromYtsheet {
   my $set_url = shift;
   my $data    = urlDataGet($set_url.'&mode=json') or error 'コンバート元のデータが取得できませんでした。URL:'.$set_url;
-  if($data !~ /^{/){ error 'JSONデータが取得できませんでした' }
+  if($data !~ /^{/){ error 'JSONデータが取得できませんでした。URL:'.$set_url }
   my %pc = %{ decode_json(join '', $data) };
   if($pc{'result'} eq 'OK'){
     our $base_url = $set_url;
@@ -51,7 +51,21 @@ sub getDataFromYtsheet {
   }
 }
 
-my $url = param('sheet');
+
+
+
+my $url;
+if(param('url')) {
+  $url = param('url');
+}
+elsif(param('id')) {
+  $url = url(-path_info=>1) . '?id=' . param('id');
+  $url =~ s/generate_diff\.cgi//;
+}
+else {
+  error 'シートが指定されていません';
+}
+
 my $before = param('before');
 my $after  = param('after');
 
