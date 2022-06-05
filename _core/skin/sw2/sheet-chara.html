@@ -19,10 +19,14 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
   <script>
 const sheetId = '<TMPL_VAR id>';
+const logId = '<TMPL_VAR logId>';
 const paletteTool = '<TMPL_VAR paletteTool>';
 const generateType = 'SwordWorld2PC';
 const defaultImage = '<TMPL_VAR coreDir>/skin/sw2/img/default_pc.png';
-
+const jumpToDiff = (targetVersionQuery) => {
+  const diffUrl = `${location.origin}${location.pathname}generate_diff.cgi?id=${sheetId}&before=${targetVersionQuery.replace('&log=', '')}&after=${logId}`;
+  location.href = `${location.origin}${location.pathname}?url=${encodeURIComponent(diffUrl)}`;
+};
 <TMPL_IF error>
 window.onload = function() {
   editOn();
@@ -107,7 +111,7 @@ window.onload = function() {
     <aside id="loglist" class="float-box">
       <h2>過去ログ（バックアップ）</h2>
       <ul>
-        <TMPL_LOOP LogList><li class="<TMPL_VAR SELECTED>"><a href="?id=<TMPL_VAR id><TMPL_VAR URL>"><TMPL_VAR DATE></a></li></TMPL_LOOP>
+        <TMPL_LOOP LogList><li class="<TMPL_VAR SELECTED>"><a href="?id=<TMPL_VAR id><TMPL_VAR URL>"><TMPL_VAR DATE></a><TMPL_UNLESS SELECTED><small><a onclick="jumpToDiff('<TMPL_VAR URL>')">閲覧中のログとこのログを比較する</a></small></TMPL_UNLESS></li></TMPL_LOOP>
       </ul>
       <TMPL_IF viewLogNaming><details id="log-naming">
         <summary>閲覧中のログ<TMPL_IF selectedLogName>の名前をつけなおす<TMPL_ELSE>に名前をつける</TMPL_IF></summary>
