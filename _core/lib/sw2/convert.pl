@@ -60,6 +60,7 @@ sub dataConvert {
   {
     my $data = urlDataGet($set_url.'&mode=json') or error 'コンバート元のデータが取得できませんでした';
     if($data !~ /^{/){ error 'JSONデータが取得できませんでした' }
+    $data = thanSignEscape($data);
     my %pc = %{ decode_json(join '', $data) };
     if($pc{'result'} eq 'OK'){
       our $base_url = $set_url;
@@ -444,6 +445,9 @@ sub convertHokanjoToYtsheet {
   $pc{'freeNoteView'} = (tag_unescape tag_unescape_lines $profile).$in{'pc_making_memo'};
   $pc{'freeNoteView'} =~ s/\r\n?|\n/<br>/g;
   
+  ## チャットパレット
+  $pc{'paletteUseBuff'} = 1;
+  
   ## 〆
   $pc{'ver'} = 0;
   return %pc;
@@ -686,6 +690,8 @@ sub convert1to2 {
   
   $pc{'deposit'} = $pc{'money_save'};
   
+  $pc{'paletteUseBuff'} = 1;
+
   $pc{'ver'} = 0;
   return %pc;
 }

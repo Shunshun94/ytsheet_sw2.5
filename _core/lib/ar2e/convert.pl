@@ -36,6 +36,7 @@ sub dataConvert {
   {
     my $data = urlDataGet($set_url.'&mode=json') or error 'コンバート元のデータが取得できませんでした';
     if($data !~ /^{/){ error 'JSONデータが取得できませんでした' }
+    $data = thanSignEscape($data);
     my %pc = %{ decode_json(join '', $data) };
     if($pc{'result'} eq 'OK'){
       our $base_url = $set_url;
@@ -280,8 +281,8 @@ sub convertHokanjoToYtsheet {
     
     'rollTrapDetectDiceAdd'   => $in{'dice_wanatanti'}-2 || '',
     'rollTrapReleaseDiceAdd'  => $in{'dice_wanakaijo'}-2 || '',
-    'rollEnemyLoreDiceAdd'    => $in{'dice_kanti'}-2     || '',
-    'rollDangerDetectDiceAdd' => $in{'dice_sikibetu'}-2  || '',
+    'rollEnemyLoreDiceAdd'    => $in{'dice_sikibetu'}-2     || '',
+    'rollDangerDetectDiceAdd' => $in{'dice_kanti'}-2  || '',
     'rollAppraisalDiceAdd'    => $in{'dice_kantei'}-2    || '',
     'rollMagicDiceAdd'        => ($in{'dice_majutu'}+0 || 2)-2 || '',
     'rollSongDiceAdd'         => ($in{'dice_juka'}+0   || 2)-2 || '',
@@ -450,6 +451,9 @@ sub convertHokanjoToYtsheet {
   $pc{'freeNote'} = $profile.$in{'pc_making_memo'};
   $pc{'freeNoteView'} = (tag_unescape tag_unescape_lines $profile).$in{'pc_making_memo'};
   $pc{'freeNoteView'} =~ s/\r\n?|\n/<br>/g;
+  
+  ## チャットパレット
+  $pc{'paletteUseBuff'} = 1;
   
   ## 〆
   $pc{'ver'} = 0;

@@ -10,7 +10,7 @@ my $LOGIN_ID = $::LOGIN_ID;
 ### 読込前処理 #######################################################################################
 require $set::lib_palette_sub;
 ### 各種データライブラリ読み込み --------------------------------------------------
-my @negai = ('究明','守護','正裁','破壊','復讐','奉仕');
+my @negai = ('究明','守護','正裁','破壊','復讐','奉仕','享楽','功名','善行','無垢');
 my %negai = (
   '究明' => {'out' => {'endurance' => 5,'operation' => 5}, 'in' => {'endurance' => 4,'operation' => 2}},
   '守護' => {'out' => {'endurance' =>13,'operation' => 1}, 'in' => {'endurance' => 6,'operation' => 1}},
@@ -18,6 +18,10 @@ my %negai = (
   '破壊' => {'out' => {'endurance' => 9,'operation' => 3}, 'in' => {'endurance' => 6,'operation' => 1}},
   '復讐' => {'out' => {'endurance' =>11,'operation' => 2}, 'in' => {'endurance' => 6,'operation' => 1}},
   '奉仕' => {'out' => {'endurance' => 9,'operation' => 3}, 'in' => {'endurance' => 4,'operation' => 2}},
+  '享楽' => {'out' => {'endurance' =>11,'operation' => 2}, 'in' => {'endurance' => 6,'operation' => 1}},
+  '功名' => {'out' => {'endurance' => 7,'operation' => 4}, 'in' => {'endurance' => 4,'operation' => 2}},
+  '善行' => {'out' => {'endurance' => 5,'operation' => 5}, 'in' => {'endurance' => 4,'operation' => 2}},
+  '無垢' => {'out' => {'endurance' => 9,'operation' => 3}, 'in' => {'endurance' => 2,'operation' => 3}},
 );
 
 ### データ読み込み ###################################################################################
@@ -268,18 +272,18 @@ print <<"HTML";
               <tr>
                 <th>種別</th>
                 <td><select name="class" oninput="changeType();">@{[option "class",'ハウンド','オーナー']}</select></td>
-                <td>@{[ input 'enduranceType','number','calcStt' ]}</td>
-                <td>@{[ input 'operationType','number','calcStt' ]}</td>
+                <td>@{[ input 'enduranceType','number','calcStt', "readonly tabindex='-1'" ]}</td>
+                <td>@{[ input 'operationType','number','calcStt', "readonly tabindex='-1'" ]}</td>
               </tr>
               <tr>
                 <th>ネガイ(表)</th>
-                <td>@{[ selectInput "negaiOutside",'',@negai ]}</td>
+                <td>@{[ selectInput "negaiOutside","changeNegai('Out',this.value)",@negai ]}</td>
                 <td>@{[ input 'enduranceOutside','number','calcStt' ]}</td>
                 <td>@{[ input 'operationOutside','number','calcStt' ]}</td>
               </tr>
               <tr>
                 <th>ネガイ(裏)</th>
-                <td>@{[ selectInput "negaiInside",'',@negai ]}</td>
+                <td>@{[ selectInput "negaiInside","changeNegai('In',this.value)",@negai ]}</td>
                 <td>@{[ input 'enduranceInside','number','calcStt' ]}</td>
                 <td>@{[ input 'operationInside','number','calcStt' ]}</td>
               </tr>
@@ -538,6 +542,15 @@ print <<"HTML";
           </tbody>
         </table>
         <div class="add-del-button"><a onclick="addKizuna()">▼</a><a onclick="delKizuna()">▲</a></div>
+      </div>
+
+      <div class="box" id="shougou">
+        <h2>傷号</h2>
+        <dl>
+          <dt>1</dt><dd>@{[ input "shougou1" ]}</dd>
+          <dt>2</dt><dd>@{[ input "shougou2" ]}</dd>
+          <dt>3</dt><dd>@{[ input "shougou3" ]}</dd>
+        </dl>
       </div>
 
       <div class="box" id="kizuato">
@@ -827,6 +840,12 @@ print <<"HTML";
   </datalist>
   <datalist id="list-belong">
     <option value="SID">
+    <option value="藤宮学園">
+    <option value="聖伐騎士団">
+    <option value="白獅子組">
+    <option value="沌竜会">
+    <option value="コープス・コー">
+    <option value="フリーランス">
   </datalist>
   <datalist id="list-loss">
   </datalist>
@@ -908,23 +927,7 @@ print <<"HTML";
   </datalist>
   <script>
 HTML
-print 'const synStats = {';
-foreach (keys %data::syndrome_status) {
-  next if !$_;
-  my @ar = @{$data::syndrome_status{$_}};
-  print '"'.$_.'":{"body":'.$ar[0].',"sense":'.$ar[1].',"mind":'.$ar[2].',"social":'.$ar[3].'},'
-}
-print "};\n";
-print 'const awakens = {';
-foreach (@data::awakens) {
-  print '"'.@$_[0].'":'.@$_[1].','
-}
-print "};\n";
-print 'const impulses = {';
-foreach (@data::impulses) {
-  print '"'.@$_[0].'":'.@$_[1].','
-}
-print "};\n";
+print 'const negaiData = '.(JSON::PP->new->encode(\%negai)).";\n";
 ## チャットパレット
 print <<"HTML";
   let palettePresetText = {
