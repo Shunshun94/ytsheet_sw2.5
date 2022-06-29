@@ -81,11 +81,21 @@ Content-type: text/html\n
     window.onload = function() { checkCategory(); checkMagicClass(); }
     // 送信前チェック ----------------------------------------
     function formCheck(){
-      //if(form.magicName.value === ''){
-      //  alert('名称を入力してください。');
-      //  form.itemName.focus();
-      //  return false;
-      //}
+      if(form.category.value === ''){
+        alert('カテゴリを選択してください。');
+        form.category.focus();
+        return false;
+      }
+      else if(form.category.value === 'magic' && form.magicName.value === ''){
+        alert('名称を入力してください。');
+        form.magicName.focus();
+        return false;
+      }
+      else if(form.category.value === 'god' && form.godName.value === ''){
+        alert('名称を入力してください。');
+        form.godName.focus();
+        return false;
+      }
       if(form.protect.value === 'password' && form.pass.value === ''){
         alert('パスワードが入力されていません。');
         form.pass.focus();
@@ -133,6 +143,7 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
+          <li onclick="view('text-rule')" class="help-button"></li>
           <li class="button">
 HTML
 if($mode eq 'edit'){
@@ -273,7 +284,7 @@ HTML
           <dl class="symbol"><dt>聖印と神像</dt><dd><textarea name="godSymbol">$pc{'godSymbol'}</textarea></dd></dl>
           <dl class="deity "><dt>神格と教義</dt><dd><textarea name="godDeity">$pc{'godDeity'}</textarea></dd></dl>
           <dl class="maxim "><dt>格言      </dt><dd>「@{[ input "godMaxim1" ]}」<br>「@{[ input "godMaxim2" ]}」<br>「@{[ input "godMaxim3" ]}」</dd></dl>
-          <dl class="deity "><dt>備考      </dt><dd><textarea name="godNote" placeholder="多神との関係やその他逸話、データの諸注意などなんでも">$pc{'godNote'}</textarea></dd></dl>
+          <dl class="deity "><dt>備考      </dt><dd><textarea name="godNote" placeholder="他神との関係やその他逸話、データの諸注意などなんでも">$pc{'godNote'}</textarea></dd></dl>
         </div>
         <div class="box input-data">
 HTML
@@ -286,7 +297,7 @@ print <<"HTML";
           <dl class="range   "><dt>射程／形状</dt><dd>@{[ input "godMagic${lv}Range",'','','list="list-range"' ]}／@{[ input "godMagic${lv}Form",'','','list="list-form"' ]}</dd></dl>
           <dl class="duration"><dt>時間      </dt><dd>@{[ input "godMagic${lv}Duration",'','','list="list-duration"' ]}</dd></dl>
           <dl class="resist  "><dt>抵抗      </dt><dd>@{[ input "godMagic${lv}Resist",'','','list="list-resist"' ]}</dd></dl>
-          <dl class="element "><dt>属性      </dt><dd>@{[ input 'godMagic${lv}Element','','','list="list-element"' ]}</dd></dl>
+          <dl class="element "><dt>属性      </dt><dd>@{[ input "godMagic${lv}Element",'','','list="list-element"' ]}</dd></dl>
           <dl class="summary "><dt>概要      </dt><dd>@{[ input "godMagic${lv}Summary" ]}</dd></dl>
           <dl class="effect  "><dt>効果      </dt><dd><textarea name="godMagic${lv}Effect">$pc{"godMagic${lv}Effect"}</textarea></dd></dl>
 HTML
@@ -319,6 +330,17 @@ HTML
 }
 print <<"HTML";
     </article>
+HTML
+# ヘルプ
+my $text_rule = <<"HTML";
+        アイコン<br>
+        　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
+        　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
+        　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
+HTML
+print textRuleArea( $text_rule,'「効果」「備考」「由来・逸話など」' );
+
+print <<"HTML";
   </main>
   <footer>
     『ソード・ワールド2.5』は、「グループSNE」及び「KADOKAWA」の著作物です。<br>
