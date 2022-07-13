@@ -34,6 +34,10 @@ if($mode eq 'blanksheet' && !$::make_error){
   $pc{'paletteUseBuff'} = 1;
 }
 
+## カラー
+setDefaultColors();
+
+## その他
 $pc{'statusNum'} ||= 1;
 $pc{'lootsNum'}  ||= 2;
 
@@ -94,7 +98,9 @@ print <<"HTML";
         <ul>
           <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span></li>
           <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>
-          <li onclick="view('text-rule')" class="help-button"></li>
+          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム"></span></li>
+          <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール"></li>
+          <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替"></li>
           <li class="button">
 HTML
 if($mode eq 'edit'){
@@ -339,6 +345,8 @@ print <<"HTML";
         </div>
       </div>
       </section>
+      
+      @{[ colorCostomForm ]}
     
       @{[ input 'birthTime','hidden' ]}
       @{[ input 'id','hidden' ]}

@@ -400,6 +400,7 @@
   pointer-events: none;
 }
 #language select + .lang-select-view { background: var(--input-bg-color); }
+.night #language select option { color: var(--text-color); }
 #language select option[value="auto"],
 #language select[data-type="auto"] + .lang-select-view { background: #00ccff22; }
 #language select[data-type="auto"] + .lang-select-view::before { content: '自動'; }
@@ -1075,6 +1076,67 @@ form#monster ul#loots-num {
   background-color: rgba(127,127,127,0.3);
 }
 
+form#monster .color-sample .name {
+  border-width: 2px 0 0;
+  border-color: var(--monster-level-bg-color);
+  background: transparent;
+  position: relative;
+  padding-left: 1.8em;
+}
+form#monster .color-sample .name::before {
+  content: "！";
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1.5em;
+  background-color: var(--monster-level-bg-color);
+  background-image: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4));
+  color: #fff;
+  text-align: center;
+}
+form#monster .color-sample .box,
+form#item .color-sample .box,
+form#arts .color-sample .box {
+  border-width: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--box-base-bg-color);
+}
+.night form#monster .color-sample .night,
+.night form#item .color-sample .night,
+.night form#arts .color-sample .night {
+  --box-base-bg-color-d: var(--box-base-bg-color-l);
+}
+form#monster .color-sample .data-table,
+form#item .color-sample .data-table,
+form#arts .color-sample .data-table {
+  width: 100%;
+  border-width: 1.01px;
+  border-style: double;
+  border-color: var(--box-outside-border-color);
+}
+form#monster .color-sample .data-table th {
+  background-color: var(--monster-head-bg-color);
+}
+form#monster .color-sample .data-table td,
+form#item .color-sample .data-table td,
+form#arts .color-sample .data-table td {
+  padding: .2rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--box-inside-border-color);
+  text-align: center;
+}
+form#monster .color-sample .data-table tbody tr:nth-child(even) td,
+form#item .color-sample .data-table tbody tr:nth-child(even) td {
+  background-color: var(--box-even-rows-bg-color);
+}
+form#monster .color-sample .box h2 {
+  padding: .3rem .5rem;
+  background-color: var(--monster-head-bg-color) !important;
+}
 /* // アイテム
 ---------------------------------------------------------------------------------------------------- */
 form#item div.box {
@@ -1175,6 +1237,24 @@ form#item textarea[name="description"] {
   form#item div.input-data dl {
     display: block;
   }
+}
+
+form#item .color-sample .name {
+  border-width: 2px 0 0;
+  border-color: var(--box-outside-border-color);
+  background: transparent;
+  position: relative;
+  padding-left: .2em;
+}
+form#item .color-sample .data-table th {
+  background-color: var(--item-head-bg-color);
+}
+form#item .color-sample .box h2,
+form#arts .color-sample .box h2 {
+  border-width: 1px 0;
+  border-style: solid;
+  border-color: var(--box-outside-border-color);
+  padding-left: .3em;
 }
 
 
@@ -1288,6 +1368,14 @@ form#arts textarea[name="godNote"] {
   form#arts div.input-data dl dd small {
     display: block;
   }
+}
+
+form#arts .color-sample .data-table th {
+  background-color: var(--arts-head-bg-color);
+}
+form#arts .color-sample .data-table th:first-child {
+  background-color: var(--arts-name-bg-color);
+  color: #fff;
 }
 
 form#arts #image {

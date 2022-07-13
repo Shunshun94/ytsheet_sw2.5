@@ -9,7 +9,7 @@ our $LOGIN_ID = check;
 our $mode = $::in{'mode'};
 $::in{'log'} ||= $::in{'backup'};
 
-if($set::user_reqd && !check){ error('ログインしていません。'); }
+if($set::user_reqd && !$LOGIN_ID){ error('ログインしていません。'); }
 ### 個別処理 --------------------------------------------------
 my $type = $::in{'type'};
 our %conv_data = ();
@@ -32,6 +32,19 @@ if($mode eq 'convert'){
   }
   else {
     error('URLが入力されていない、または、ファイルが選択されていません。');
+  }
+}
+if(!$LOGIN_ID && $mode =~ /^(?:blanksheet|copy|convert)$/){
+  my $max_files = 32000;
+  my $data_dir;
+  if   ($type eq 'm'){ $data_dir = $set::mons_dir; }
+  elsif($type eq 'i'){ $data_dir = $set::item_dir; }
+  elsif($type eq 'a'){ $data_dir = $set::arts_dir; }
+  else               { $data_dir = $set::char_dir; }
+  opendir my $dh, $data_dir;
+  my $num_files = () = readdir($dh);
+  if($num_files-2 >= $max_files){
+    error("登録数上限です。($num_files/$max_files)<br>アカウントに紐づけないデータは、これ以上登録できないため、アカウント登録・ログインをしてから作成を行ってください。");
   }
 }
 
@@ -103,7 +116,7 @@ sub pcDataGet {
     if($datatype eq 'logs' && !$hit){ error("過去ログ（$::in{'log'}）が見つかりません。"); }
 
     delete $pc{'image'};
-    $pc{'protect'} = 'password';
+    delete $pc{'protect'};
 
     $message  = '「<a href="./?id='.$::in{'id'}.'" target="_blank"><!NAME></a>」';
     $message .= 'の<br><a href="./?id='.$::in{'id'}.'&log='.$::in{'log'}.'" target="_blank">'.$pc{'updateTime'}.'</a> 時点のバックアップデータ' if $::in{'log'};
@@ -112,9 +125,10 @@ sub pcDataGet {
   elsif($mode eq 'convert'){
     %pc = %::conv_data;
     delete $pc{'image'};
-    $pc{'protect'} = 'password';
+    delete $pc{'protect'};
     $message = '「<a href="'.$::in{'url'}.'" target="_blank"><!NAME></a>」をコンバートして新規作成します。<br>（まだ保存はされていません）';
   }
+  ##
   return (\%pc, $mode, $file, $message)
 }
 ## トークン生成
@@ -261,6 +275,84 @@ sub image_form {
 HTML
 }
 
+## カラーカスタム欄
+sub colorCostomForm {
+  return <<"HTML";
+      <section id="section-color" style="display:none;">
+      <h2>シートのカラー設定</h2>
+      <div class="box-union">
+        <div class="box color-custom">
+          <h2>メインカラー</h2>
+          <table>
+          <tr class="color-range-H"><th>色相</th><td><input type="range" name="colorHeadBgH" min="0" max="360" value="$::pc{'colorHeadBgH'}" oninput="changeColor();"></td><td id="colorHeadBgHValue">$::pc{'colorHeadBgH'}</td></tr>
+          <tr class="color-range-S"><th>彩度</th><td><input type="range" name="colorHeadBgS" min="0" max="100" value="$::pc{'colorHeadBgS'}" oninput="changeColor();"></td><td id="colorHeadBgSValue">$::pc{'colorHeadBgS'}</td></tr>
+          <tr class="color-range-L"><th>輝度</th><td><input type="range" name="colorHeadBgL" min="0" max="100" value="$::pc{'colorHeadBgL'}" oninput="changeColor();"></td><td id="colorHeadBgLValue">$::pc{'colorHeadBgL'}</td></tr>
+          </table>
+        </div>
+        <div class="box color-custom">
+          <h2>サブカラー</h2>
+          <table>
+          <tr class="color-range-H"><th>色相</th><td><input type="range" name="colorBaseBgH"  min="0" max="360" value="$::pc{'colorBaseBgH'}" oninput="changeColor();"></td><td id="colorBaseBgHValue">$::pc{'colorBaseBgH'}</td></tr>
+          <tr class="color-range-S"><th>色の濃さ</th><td><input type="range" name="colorBaseBgS"  min="0" max="100" value="$::pc{'colorBaseBgS'}" oninput="changeColor();"></td><td id="colorBaseBgSValue">$::pc{'colorBaseBgS'}</td></tr>
+          </table>
+          <hr>
+          <p class="right"><span class="button" onclick="setDefaultColor();">デフォルトに戻す</span></p>
+        </div>
+      </div>
+      <div class="color-sample">
+        <div class="light">
+          <div class="name">色見本</div>
+          <div class="box">
+            <table class="data-table">
+              <thead><tr><th>データ表組み</th><th>項目1</th><th>項目2</th></tr></thead>
+              <tbody>
+                <tr><td>ＡＡＡ</td><td>+1</td><td>+0</td></tr>
+                <tr><td>ＢＢＢ</td><td>+2</td><td>+0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="box">
+            <h2>大見出し</h2>
+            <h3>中見出し</h3>
+            <h4>小見出し</h4>
+            <table class="note-table">
+              <thead><tr><th>テーブルヘッダ</th><td></td></tr></thead>
+              <tbody><tr><th>テーブル見出し</th><td>テーブルセル</td></tr></tbody>
+            </table>
+            <p>
+              <a class="link">未読リンク</a> <a class="visited">既読リンク</a>
+            </p>
+          </div>
+        </div>
+        <div class="night">
+          <div class="name">色見本</div>
+          <div class="box">
+            <table class="data-table">
+              <thead><tr><th>データ表組み</th><th>項目1</th><th>項目2</th></tr></thead>
+              <tbody>
+                <tr><td>ＡＡＡ</td><td>+1</td><td>+0</td></tr>
+                <tr><td>ＢＢＢ</td><td>+2</td><td>+0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="box">
+            <h2>大見出し</h2>
+            <h3>中見出し</h3>
+            <h4>小見出し</h4>
+            <table class="note-table">
+              <thead><tr><th>テーブルヘッダ</th><td></td></tr></thead>
+              <tbody><tr><th>テーブル見出し</th><td>テーブルセル</td></tr></tbody>
+            </table>
+            <p>
+              <a class="link">未読リンク</a> <a class="visited">既読リンク</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      </section>
+HTML
+}
+
 ## テキスト整形ルール
 sub textRuleArea {
   my $system_rule = shift;
@@ -288,7 +380,7 @@ sub textRuleArea {
         （有効な欄：${multiline}）<br>
         大見出し：行頭に<code>*</code>：1行目に記述すると項目の見出しを差し替え<br>
         中見出し：行頭に<code>**</code><br>
-        少見出し：行頭に<code>***</code><br>
+        小見出し：行頭に<code>***</code><br>
         左寄せ　：行頭に<code>LEFT:</code>：以降のテキストがすべて左寄せになります。<br>
         中央寄せ：行頭に<code>CENTER:</code>：以降のテキストがすべて中央寄せになります。<br>
         右寄せ　：行頭に<code>RIGHT:</code>：以降のテキストがすべて右寄せになります。<br>
