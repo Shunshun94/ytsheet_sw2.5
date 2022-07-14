@@ -91,6 +91,7 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
+          <li onclick="sectionSelect('common');"><span>アイテム</span><span>データ</span></li>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム"></span></li>
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール"></li>
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替"></li>
@@ -110,18 +111,6 @@ print <<"HTML";
       <aside class="message">$message</aside>
       
       <section id="section-common">
-      <div class="box" id="name-form">
-        <div>
-          <dl id="character-name">
-            <dt>名称</dt>
-            <dd>@{[ input('itemName','text',"nameSet('itemName')") ]}</dd>
-          </dl>
-        </div>
-        <dl id="player-name">
-          <dt>製作者</dt>
-          <dd>@{[input('author')]}</dd>
-        </dl>
-      </div>
 HTML
 if($set::user_reqd){
   print <<"HTML";
@@ -177,6 +166,19 @@ HTML
       <div class="box" id="group">
         <dl>
           <dt>タグ</dt><dd>@{[ input 'tags' ]}</dd>
+        </dl>
+      </div>
+
+      <div class="box" id="name-form">
+        <div>
+          <dl id="character-name">
+            <dt>名称</dt>
+            <dd>@{[ input('itemName','text',"nameSet('itemName')") ]}</dd>
+          </dl>
+        </div>
+        <dl id="player-name">
+          <dt>製作者</dt>
+          <dd>@{[input('author')]}</dd>
         </dl>
       </div>
       

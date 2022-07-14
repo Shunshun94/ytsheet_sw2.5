@@ -96,7 +96,7 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
-          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span></li>
+          <li onclick="sectionSelect('common');"><span>魔物</span><span>データ</span></li>
           <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span></li>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム"></span></li>
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール"></li>
@@ -117,22 +117,6 @@ print <<"HTML";
       <aside class="message">$message</aside>
       
       <section id="section-common">
-      <div class="box" id="name-form">
-        <div>
-          <dl id="character-name">
-            <dt>名称</dt>
-            <dd>@{[ input('monsterName','text',"nameSet") ]}</dd>
-          </dl>
-          <dl id="aka">
-            <dt>名前</dt>
-            <dd>@{[ input 'characterName','text','nameSet','placeholder="※名前を持つ魔物のみ"' ]}</dd>
-          </dl>
-        </div>
-        <dl id="player-name">
-          <dt>製作者</dt>
-          <dd>@{[input('author')]}</dd>
-        </dl>
-      </div>
 HTML
 if($set::user_reqd){
   print <<"HTML";
@@ -197,6 +181,24 @@ print <<"HTML";
           <dt>タグ</dt><dd>@{[ input 'tags' ]}</dd>
         </dl>
       </div>
+
+      <div class="box" id="name-form">
+        <div>
+          <dl id="character-name">
+            <dt>名称</dt>
+            <dd>@{[ input('monsterName','text',"nameSet") ]}</dd>
+          </dl>
+          <dl id="aka">
+            <dt>名前</dt>
+            <dd>@{[ input 'characterName','text','nameSet','placeholder="※名前を持つ魔物のみ"' ]}</dd>
+          </dl>
+        </div>
+        <dl id="player-name">
+          <dt>製作者</dt>
+          <dd>@{[input('author')]}</dd>
+        </dl>
+      </div>
+
       <div class="box status">
         <dl><dt>レベル</dt><dd>@{[ input 'lv','number','','min="0"' ]}</dd></dl>
         <dl><dt>知能</dt><dd>@{[ input 'intellect','','','list="data-intellect"' ]}</dd></dl>
