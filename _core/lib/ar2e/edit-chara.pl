@@ -160,12 +160,12 @@ Content-type: text/html\n
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/ar2e/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
   <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
-  <script src="https://unpkg.com/\@yaireo/tagify"></script>
-  <script src="https://unpkg.com/\@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-  <link href="https://unpkg.com/\@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/\@yaireo/tagify"></script>
+  <script src="https://cdn.jsdelivr.net/npm/\@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/\@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css">
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/ar2e/edit-chara.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/\@fortawesome/fontawesome-free\@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
   <style>
     #image,
     .image-custom-view {
@@ -1351,11 +1351,11 @@ print <<"HTML";
         <h2>プリセット （コピーペースト用）</h2>
         <textarea id="palettePreset" readonly style="height:20em"></textarea>
         <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
+          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
           ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
+          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
           <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
+          使用ダイスbot: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
           <option value="">ゆとチャadv.
           <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
           </select>
@@ -1412,8 +1412,8 @@ print textRuleArea( '','「容姿・経歴・その他メモ」「履歴（自�
 print <<"HTML";
   </main>
   <footer>
-    『アリアンロッドRPG 2E』は、</span><span>「菊池たけし」「F.E.A.R.」「KADOKAWA」の著作物です。<br>
-    　ゆとシートⅡ for AR2E ver.${main::ver} - ゆとらいず工房
+    <p class="notes">©FarEast Amusement Research Co.,Ltd.「アリアンロッドRPG 2E」</p>
+    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <datalist id="list-gender">
     <option value="男">
@@ -1569,12 +1569,7 @@ print <<"HTML";
     'geises'     : @{[ $pc{'expUsedGeises'} || 0 ]},
   };
 HTML
-## チャットパレット
 print <<"HTML";
-  let palettePresetText = {
-    'ytc'    : { 'full': `@{[ palettePreset()         ]}`, 'simple': `@{[ palettePresetSimple()         ]}` } ,
-    'bcdice' : { 'full': `@{[ palettePreset('bcdice') ]}`, 'simple': `@{[ palettePresetSimple('bcdice') ]}` } ,
-  };
   </script>
 </body>
 

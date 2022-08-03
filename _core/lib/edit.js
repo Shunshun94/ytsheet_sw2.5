@@ -34,22 +34,23 @@ function formSubmit() {
   const sendCount = formChangeCount;
   formChangeCount = 0;
   fetch(action, options)
-    .then((response) => {
+    .then(response => {
       if(response.status === 200) {
         return response.json()
       }
-      if(!formChangeCount){ formChangeCount = sendCount; }
-      saveInfo('error');
-      alert("保存できませんでした。しばらく立ってから再度保存を試みてください。");
+      throw Error(response.statusText);
     })
-    .then((data) => {
+    .then(data => {
       if     (data.result === 'make' ){ window.location.href = './?id='+data.message; }
       else if(data.result === 'ok'   ){ saveInfo('saved'); console.log(data.message) }
       else{
-        if(!formChangeCount){ formChangeCount = sendCount; }
-        saveInfo('error');
-        alert((data.result === 'error') ? 'エラー: '+data.message : "保存できませんでした。");
+        throw Error(data.result === 'error' ? data.message : "保存できませんでした。");
       }
+    })
+    .catch(error => {
+      if(!formChangeCount){ formChangeCount = sendCount; }
+      saveInfo('error');
+      alert(error);
     })
 }
 function formCheck(){
@@ -118,39 +119,24 @@ function ruby(text){
 }
 
 // チャットパレット ----------------------------------------
-function palettePresetChange (){
-  const tool = form.paletteTool.value || 'ytc';
-  const type = form.paletteUseVar.checked ? 'full' : 'simple';
-  let presetText = palettePresetText[tool][type];
-  if(!form.paletteUseBuff.checked){
-    let property = {};
-    presetText.split("\n").forEach(text => {
-      if(text.match(/^\/\/(.+?)=(.*?)$/)){ property[RegExp.$1] = RegExp.$2; }
-    });
-    let hit;
-    for (let i=0; i<100; i++) {
-      hit = 0;
-      Object.keys(property).forEach(key => {
-        presetText = presetText.replace(new RegExp('{'+key+'}',"g"), ()=>{
-          hit = 1;
-          return property[key];
-        });
-      });
-      if(!hit) break;
-    };
-    if     (gameSystem == 'sw2'){
-      presetText = presetText.replace(/^\/\/(.+?)=(.*?)(\n|$)/gm, '');
-      presetText = presetText.replace(/\$\+0/g, '');
-      presetText = presetText.replace(/\+0/g, '');
-      presetText = presetText.replace(/\#0\$/g, '');
-    }
-    else if(gameSystem == 'dx3'){
-      presetText = presetText.replace(/^\/\/(.+?)=(.*?)(\n|$)/gm, '');
-      presetText = presetText.replace(/\+0/g, '');
-      presetText = presetText.replace(/^### ■バフ・デバフ\n/g, '');
-    }
+function setChatPalette(){
+  const formData = new FormData(form)
+  formData.set("mode", "palette");
+  formData.set("editingMode", "1");
+  formData.delete("password");
+  formData.delete("imageFile");
+  formData.delete("imageCompressed");
+  const action = form.getAttribute("action")
+  const options = {
+    method: 'POST',
+    body: formData,
   }
-  document.getElementById('palettePreset').value = presetText;
+  fetch(action, options)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('paletteDefaultProperties').value = data['properties'] || '';
+      document.getElementById('palettePreset').value = data['preset'] || '';
+    })
 }
 
 // 画像配置 ----------------------------------------
@@ -412,6 +398,7 @@ function sectionSelect(id){
     obj.style.display = 'none';
   });
   document.getElementById('section-'+id).style.display = 'block';
+  if(id === 'palette'){ setChatPalette() }
 }
 
 // セレクトorインプット ----------------------------------------

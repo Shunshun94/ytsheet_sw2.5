@@ -53,7 +53,7 @@ Content-type: text/html\n
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/sw2/css/edit.css?${main::ver}">
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2/edit-item.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/\@fortawesome/fontawesome-free\@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
 </head>
 <body>
   <script src="${main::core_dir}/skin/_common/js/common.js?${main::ver}"></script>
@@ -284,8 +284,8 @@ print textRuleArea( $text_rule,'「効果」「解説」' );
 print <<"HTML";
   </main>
   <footer>
-    『ソード・ワールド2.5』は、「グループSNE」及び「KADOKAWA」の著作物です。<br>
-    　ゆとシートⅡ for SW2.5 ver.${main::ver} - ゆとらいず工房
+    <p class="notes">(C)Group SNE「ソード・ワールド2.0／2.5」</p>
+    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <datalist id="list-usage">
     <option value="1H">

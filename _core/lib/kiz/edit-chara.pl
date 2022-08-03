@@ -114,7 +114,7 @@ Content-type: text/html\n
   <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/kiz/edit-chara.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/\@fortawesome/fontawesome-free\@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
   <style>
     #image,
     .image-custom-view {
@@ -716,11 +716,11 @@ print <<"HTML";
         <h2>プリセット （コピーペースト用）</h2>
         <textarea id="palettePreset" readonly style="height:20em"></textarea>
         <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
+          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
           ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
+          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
           <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
+          使用ダイスbot: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
           <option value="">ゆとチャadv.
           <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
           </select>
@@ -777,8 +777,8 @@ print textRuleArea( '','「容姿・経歴・その他メモ」「履歴（自�
 print <<"HTML";
   </main>
   <footer>
-    <p class="notes"><span>『キズナバレット』は、</span><span>「からすば晴（N.G.P.）」及び「株式会社アークライト出版事業部」の著作物です。</span></p>
-    <p class="copyright">ゆとシートⅡ for KIZ ver.${main::ver} - ゆとらいず工房</p>
+    <p class="notes">©からすば晴／N.G.P.／アークライト／新紀元社「キズナバレット」</p>
+    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <datalist id="list-gender">
     <option value="男">
@@ -878,12 +878,7 @@ print <<"HTML";
   <script>
 HTML
 print 'const negaiData = '.(JSON::PP->new->encode(\%negai)).";\n";
-## チャットパレット
 print <<"HTML";
-  let palettePresetText = {
-    'ytc'    : { 'full': `@{[ palettePreset()         ]}`, 'simple': `@{[ palettePresetSimple()         ]}` } ,
-    'bcdice' : { 'full': `@{[ palettePreset('bcdice') ]}`, 'simple': `@{[ palettePresetSimple('bcdice') ]}` } ,
-  };
   </script>
 </body>
 

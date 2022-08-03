@@ -150,7 +150,7 @@ Content-type: text/html\n
   <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/dx3/edit-chara.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/\@fortawesome/fontawesome-free\@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
   <style>
     #image,
     .image-custom-view {
@@ -544,6 +544,21 @@ print <<"HTML";
           </tbody>
         </table>
       </details>
+      <div id="enc-bonus" style="position: relative;">
+        <div class="box">
+          <h2>侵蝕率効果表</h2>
+          <p>
+            <!-- 現在侵蝕率:@{[ input 'currentEncroach','number','encroachBonusSet(this.value)','style="width: 4em;"' ]} -->
+            @{[ checkbox 'encroachEaOn','エフェクトアーカイブ適用','encroachBonusType' ]}
+          </p>
+          <table class="data-table" id="enc-table">
+            <colgroup></colgroup>
+            <tr id="enc-table-head"></tr>
+            <tr id="enc-table-dices"></tr>
+            <tr id="enc-table-level"></tr>
+          </table>
+        </div>
+      </div>
       <details class="box" id="lois" $open{'lois'} style="position:relative">
         <summary>ロイス</summary>
         <table class="edit-table no-border-cells" id="lois-table">
@@ -564,7 +579,7 @@ if(!$pc{"lois${num}State"}){ $pc{"lois${num}State"} = 'ロイス' }
 print <<"HTML";
             <tr id="lois${num}">
               <td><span class="handle"></span>@{[input "lois${num}Relation"]}</td>
-              <td>@{[input "lois${num}Name"]}</td>
+              <td>@{[input "lois${num}Name",'','encroachBonusType']}</td>
               <td class="emo">@{[input "lois${num}EmoPosiCheck",'checkbox',"emoP($num)"]}@{[input "lois${num}EmoPosi",'','','list="list-emotionP"']}</td>
               <td>／</td>
               <td class="emo">@{[input "lois${num}EmoNegaCheck",'checkbox',"emoN($num)"]}@{[input "lois${num}EmoNega",'','','list="list-emotionN"']}</td>
@@ -1041,11 +1056,11 @@ print <<"HTML";
         <h2>プリセット （コピーペースト用）</h2>
         <textarea id="palettePreset" readonly style="height:20em"></textarea>
         <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
+          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
           ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
+          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
           <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
+          使用ダイスbot: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
           <option value="">ゆとチャadv.
           <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
           </select>
@@ -1102,8 +1117,8 @@ print textRuleArea( '','「容姿・経歴・その他メモ」「履歴（自�
 print <<"HTML";
   </main>
   <footer>
-    <p class="notes"><span>『ダブルクロスThe 3rd Edition』は、</span><span>「矢野俊策」及び「有限会社F.E.A.R.」の著作物です。</span></p>
-    <p class="copyright">ゆとシートⅡ for DX3rd ver.${main::ver} - ゆとらいず工房</p>
+    <p class="notes">©FarEast Amusement Research Co.,Ltd.「ダブルクロスThe 3rd Edition」</p>
+    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <datalist id="list-stage">
     <option value="基本ステージ">
@@ -1427,12 +1442,7 @@ foreach (@data::impulses) {
   print '"'.@$_[0].'":'.@$_[1].','
 }
 print "};\n";
-## チャットパレット
 print <<"HTML";
-  let palettePresetText = {
-    'ytc'    : { 'full': `@{[ palettePreset()         ]}`, 'simple': `@{[ palettePresetSimple()         ]}` } ,
-    'bcdice' : { 'full': `@{[ palettePreset('bcdice') ]}`, 'simple': `@{[ palettePresetSimple('bcdice') ]}` } ,
-  };
   </script>
 </body>
 

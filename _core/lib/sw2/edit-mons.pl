@@ -65,7 +65,7 @@ Content-type: text/html\n
   <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2/edit-mons.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/\@fortawesome/fontawesome-free\@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
   <style>
     #image {
       background-image: url("${set::char_dir}${file}/image.$pc{'image'}");
@@ -333,11 +333,11 @@ print <<"HTML";
         <h2>プリセット （コピーペースト用）</h2>
         <textarea id="palettePreset" readonly style="height:20em"></textarea>
         <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
+          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
           ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
+          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
           <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
+          使用ダイスbot: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
           <option value="">ゆとチャadv.
           <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
           </select>
@@ -378,8 +378,8 @@ print textRuleArea( '','「特殊能力」「解説」' );
 print <<"HTML";
   </main>
   <footer>
-    『ソード・ワールド2.5』は、「グループSNE」及び「KADOKAWA」の著作物です。<br>
-    　ゆとシートⅡ for SW2.5 ver.${main::ver} - ゆとらいず工房
+    <p class="notes">(C)Group SNE「ソード・ワールド2.0／2.5」</p>
+    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <datalist id="data-intellect">
   <option value="なし">
@@ -411,12 +411,6 @@ print <<"HTML";
   <option value="回復効果ダメージ+3点">
   <option value="なし">
   </datalist>
-  <script>
-  let palettePresetText = {
-    'ytc'    : { 'full': `@{[ palettePreset('','m')       ]}`, 'simple': `@{[ palettePresetSimple('','m')       ]}` } ,
-    'bcdice' : { 'full': `@{[ palettePreset('bcdice','m') ]}`, 'simple': `@{[ palettePresetSimple('bcdice','m') ]}` } ,
-  };
-  </script>
 </body>
 
 </html>

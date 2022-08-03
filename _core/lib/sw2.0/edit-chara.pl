@@ -121,7 +121,7 @@ Content-type: text/html\n
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2/edit-chara.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2.0/edit-chara.js?${main::ver}" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/\@fortawesome/fontawesome-free\@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
   <style>
     #image,
     .image-custom-view {
@@ -558,19 +558,26 @@ foreach my $class (@data::class_caster){
 HTML
   foreach my $lv (1..20){
     next if $data::class{$class}{'magic'}{'trancendOnly'} && $lv <= 15;
-    print '<li id="magic-'.$name.$lv.'"><select name="magic'.$Name.$lv.'">';
+    print '<li id="magic-'.$name.$lv.'"><div class="select-input"><select name="magic'.$Name.$lv.'" oninput="selectInputCheck(\'magic'.$Name.$lv.'\',this);">';
     print '<option></option>';
-    my %only;
+    my %only; my $hit; my $value = $pc{"magic${Name}${lv}"};
     foreach my $data (@{$data::class{$class}{'magic'}{'data'}}){
       next if $lv < @$data[0];
-      my $item = '<option'.(($pc{"magic${Name}${lv}"} eq @$data[1])?' selected':'').' value="'.@$data[1].'">'.@$data[1];
+      my $item = '<option';
+      if($value eq @$data[1]){
+        $item .= ' selected';
+        $hit = 1;
+      }
+      $item .= ' value="'.@$data[1].'">'.@$data[1];
       print $item;
       if ($class eq 'グリモワール'){ print "（@$data[2]）"; }
     }
     foreach my $key (sort keys %only) {
       print "<optgroup label=\"${key}\">$only{$key}</optgroup>";
     }
-    print "</select></li>\n";
+    print '<option value="free">その他（自由記入）';
+    if(!$hit && $value){ print '<option value="'.$value.'" selected>'.$value; }
+    print '</select><input type="text" name="magic'.$Name.$lv.'Free"></div></li>'."\n";
   }
   print <<"HTML";
             </ul>
@@ -588,12 +595,17 @@ foreach my $class (@data::class_names){
 HTML
   my $c_max = 20;
   foreach my $lv (1..$c_max){
-    print '<li id="craft-'.$name.$lv.'"><select name="craft'.$Name.$lv.'">';
+    print '<li id="craft-'.$name.$lv.'"><div class="select-input"><select name="craft'.$Name.$lv.'" oninput="selectInputCheck(\'craft'.$Name.$lv.'\',this);">';
     print '<option></option>';
-    my %only;
+    my %only; my $hit; my $value = $pc{"craft${Name}${lv}"};
     foreach my $data (@{$data::class{$class}{'craft'}{'data'}}){
       next if $lv < @$data[0];
-      my $item = '<option'.(($pc{"craft${Name}${lv}"} eq @$data[1])?' selected':'').' value="'.@$data[1].'">'.@$data[1];
+      my $item = '<option';
+      if($value eq @$data[1]){
+        $item .= ' selected';
+        $hit = 1;
+      }
+      $item .= ' value="'.@$data[1].'">'.@$data[1];
       
       if(@$data[2] =~ /^(.*?)専用/){ $only{@$data[2]} .= $item; }
       else { print $item; }
@@ -601,7 +613,9 @@ HTML
     foreach my $key (sort keys %only) {
       print "<optgroup label=\"${key}\">$only{$key}</optgroup>";
     }
-    print "</select></li>\n";
+    print '<option value="free">その他（自由記入）';
+    if(!$hit && $value){ print '<option value="'.$value.'" selected>'.$value; }
+    print '</select><input type="text" name="craft'.$Name.$lv.'Free"></div></li>'."\n";
   }
   print <<"HTML";
             </ul>
@@ -1408,11 +1422,11 @@ print <<"HTML";
         <h2>プリセット （コピーペースト用）</h2>
         <textarea id="palettePreset" readonly style="height:20em"></textarea>
         <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','palettePresetChange']}デフォルト変数を使う</label>
+          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
           ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','palettePresetChange']}バフデバフ用変数を使う</label>
+          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
           <br>
-          使用ダイスbot: <select name="paletteTool" onchange="palettePresetChange();" style="width:auto;">
+          使用ダイスbot: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
           <option value="">ゆとチャadv.
           <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
           </select>
@@ -1475,8 +1489,8 @@ print textRuleArea( $text_rule,'「容姿・経歴・その他メモ」「履歴
 print <<"HTML";
   </main>
   <footer>
-    『ソード・ワールド2.5』は、「グループSNE」及び「KADOKAWA」の著作物です。<br>
-    　ゆとシートⅡ for SW2.5 ver.${main::ver} - ゆとらいず工房
+    <p class="notes">(C)Group SNE「ソード・ワールド2.0」</p>
+    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <datalist id="list-gender">
     <option value="男">
@@ -1600,12 +1614,7 @@ foreach(@set::notoriety_rank){
   print "'@$_[0]' : { 'num': @$_[1] },";
 }
 print "};\n";
-## チャットパレット
 print <<"HTML";
-  let palettePresetText = {
-    'ytc'    : { 'full': `@{[ palettePreset()         ]}`, 'simple': `@{[ palettePresetSimple()         ]}` } ,
-    'bcdice' : { 'full': `@{[ palettePreset('bcdice') ]}`, 'simple': `@{[ palettePresetSimple('bcdice') ]}` } ,
-  };
   </script>
 </body>
 
