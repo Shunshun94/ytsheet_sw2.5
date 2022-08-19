@@ -73,7 +73,6 @@
     if(localStorage.getItem('R18-mode')) {
       // no action
     } else {
-      const removeList = ['サキュバス'];
       Array.from(document.getElementsByName('race')[0].children).forEach((race)=>{
         if(removeList.includes(race.innerText)) {
           race.remove();
