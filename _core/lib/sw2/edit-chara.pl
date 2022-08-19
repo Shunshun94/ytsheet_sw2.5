@@ -1684,6 +1684,8 @@ foreach(@set::notoriety_rank){
   print "'@$_[0]' : { 'num': @$_[1] },";
 }
 print "};\n";
+print("const removeList = ['サキュバス'];");
+print("if(localStorage.getItem('R18-mode')) {} else {Array.from(document.getElementsByName('race')[0].children).forEach((race)=>{if(removeList.includes(race.innerText)) {race.remove();}});}");
 print <<"HTML";
   </script>
 </body>
