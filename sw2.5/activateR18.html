@@ -1,0 +1,15 @@
+<html>
+    <div id="console"></div>
+    <script>
+        if(localStorage.getItem('R18-mode')) {
+            localStorage.removeItem('R18-mode');
+            document.getElementById('console').innerHTML = `<h1>健全モードです</h1><p>R-18 モードを無効にしました。このページに再度アクセスすると有効になります</p>`;
+            document.getElementsByTagName('body')[0].style.backgroundColor = 'skyblue';
+        } else {
+            localStorage.setItem('R18-mode', 1);
+            document.getElementById('console').innerHTML = `<h1>えっちモードです</h1><p>R-18 モードを有効にしました。このページに再度アクセスすると無効になります</p>`;
+            document.getElementsByTagName('body')[0].style.backgroundColor = 'pink';
+        }
+
+    </script>
+</html>
