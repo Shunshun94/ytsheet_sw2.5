@@ -69,4 +69,25 @@
     <TMPL_IF pageNextOn><a href="./?mode=making<TMPL_VAR pageId>&page=<TMPL_VAR pageNext>">次の10件</a></TMPL_IF>
   </div>
   </section>
+  <script>
+    if(localStorage.getItem('R18-mode')) {
+      // no action
+    } else {
+      const removeList = ['サキュバス'];
+      Array.from(document.getElementsByName('race')[0].children).forEach((race)=>{
+        if(removeList.includes(race.innerText)) {
+          race.remove();
+        }
+      });
+      Array.from(document.getElementsByClassName('post')).forEach((post)=>{
+        const shouldRemove = removeList.filter((race)=>{
+          return post.innerHTML.includes(`>${race}<`);
+        })
+        if(shouldRemove.length) {
+          post.remove();
+        }
+      });
+    }
+
+  </script>
 </article>
