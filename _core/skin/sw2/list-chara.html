@@ -84,3 +84,17 @@
       </section></TMPL_IF>
     </article>
     <div id="page-top-button"><a href="#"></a></div>
+    <script>
+    if(localStorage.getItem('R18-mode')) {
+      // no action
+    } else {
+      Array.from(document.getElementsByClassName('list')).forEach((table)=>{
+        Array.from(table.getElementsByTagName('tr')).forEach((tr)=>{
+          const race = tr.getElementsByClassName('race')[0].innerText;
+          if(removeList.includes(race)) {
+            tr.remove();
+          }
+        })
+      });
+    }
+    </script>
