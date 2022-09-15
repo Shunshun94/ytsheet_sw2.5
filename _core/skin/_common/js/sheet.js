@@ -36,7 +36,7 @@ function loglistOn() {
   document.querySelectorAll('.float-box:not(#loglist)').forEach(obj => { obj.classList.remove('show') });
   document.getElementById("loglist").classList.toggle('show');
 }
-function donwloadListOn() {
+function downloadListOn() {
   document.querySelectorAll('.float-box:not(#downloadlist)').forEach(obj => { obj.classList.remove('show') });
   document.getElementById("downloadlist").classList.toggle('show');
 }
@@ -59,7 +59,7 @@ function chatPaletteSelect(tool) {
 }
 // 保存系 ----------------------------------------
 function getJsonData() {
-  const paramId = /id=[0-9a-zA-Z]+/.exec(location.href)[0];
+  const paramId = /id=[0-9a-zA-Z\-]+/.exec(location.href)[0];
   return new Promise((resolve, reject)=>{
     let xhr = new XMLHttpRequest();
     xhr.open('GET', `./?${paramId}&mode=json`, true);
@@ -187,7 +187,7 @@ async function downloadAsCcfolia() {
   }  
 }
 
-async function donloadAsText() {
+async function downloadAsText() {
   const characterDataJson = await getJsonData();
   const characterId = characterDataJson.characterName || characterDataJson.monsterName || characterDataJson.aka || '無題';
   const textData = io.github.shunshun94.trpg.ytsheet[`generateCharacterTextFromYtSheet2${generateType}`](characterDataJson);
@@ -195,9 +195,50 @@ async function donloadAsText() {
   downloadFile(`data_${characterId}.txt`, textUrl);
 }
 
-async function donloadAsJson() {
+async function downloadAsJson() {
   const characterDataJson = await getJsonData();
   const characterId = characterDataJson.characterName || characterDataJson.monsterName || characterDataJson.aka || characterDataJson.itemName || characterDataJson.artsName || '無題';
   const jsonUrl = window.URL.createObjectURL(new Blob([ JSON.stringify(characterDataJson) ], { "type" : 'text/json;charset=utf-8;' }));
   downloadFile(`data_${characterId}.json`, jsonUrl);
+}
+async function downloadAsHtml(){
+  const title = document.querySelector('title').innerHTML;
+  const name = title.replace(/ - .+?$/,'');
+  const url = location.href.replace(/#(.+)$/,'').replace(/&mode=(.+?)(&|$)/,'')+'&mode=download';
+  downloadFile(title+'.html', url);
+}
+async function downloadAsFullSet(){
+  const title = document.querySelector('title').innerHTML;
+  const name = title.replace(/ - .+?$/,'');
+  const url = location.href.replace(/#(.+)$/,'').replace(/&mode=(.+?)(&|$)/,'');
+  let zip = new JSZip();
+  zip.file(name+'.html', await JSZipUtils.getBinaryContent(url+'&mode=download'));
+  zip.file(name+'.json', await JSZipUtils.getBinaryContent(url+'&mode=json'));
+  if(document.getElementById('chatPaletteBox')) zip.file(name+'_チャットパレット.txt', await JSZipUtils.getBinaryContent(url+'&mode=palette'));
+  
+  const characterDataJson = await getJsonData();
+  // ユドナリウム
+  if(document.getElementById('downloadlist-udonarium')){
+    const image = await io.github.shunshun94.trpg.ytsheet.getPicture(characterDataJson.imageURL || defaultImage);
+    const udonariumXml = io.github.shunshun94.trpg.udonarium[`generateCharacterXmlFromYtSheet2${generateType}`](characterDataJson, location.href, image.hash);
+    const udonariumUrl = await generateUdonariumZipFile((characterDataJson.characterName||characterDataJson.aka), udonariumXml, image);
+    zip.file(name+'_udonarium.zip', await JSZipUtils.getBinaryContent(udonariumUrl));
+  }
+  // ココフォリア
+  if(document.getElementById('downloadlist-ccfolia')){
+    zip.file(name+'_ccfolia.txt', await getCcfoliaJson());
+  }
+
+  // ダウンロード
+  zip.generateAsync({type:"blob"})
+    .then(function(content) {
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      document.body.appendChild(a);
+      a.download = title+'.zip';
+      a.href = url;
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
 }

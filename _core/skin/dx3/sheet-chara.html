@@ -2,89 +2,15 @@
 <html lang="ja">
 
 <head>
-  <meta charset="UTF-8">
-  <title><TMPL_VAR characterNameTitle> - <TMPL_VAR title></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta property="og:title" content="<TMPL_VAR characterNameTitle> - <TMPL_VAR title>">
-  <meta property="og:type" content="artcle">
-  <meta property="og:url" content="<TMPL_VAR ogUrl>">
-  <meta property="og:site_name" content="<TMPL_VAR title>">
-  <meta property="og:description" content="<TMPL_VAR ogDescript>">
-  <TMPL_IF ogImg><meta property="og:image" content="<TMPL_VAR ogImg>"></TMPL_IF>
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:site" content="@yutorize">
-  <TMPL_IF hide><meta name="robots" content="none"></TMPL_IF>
-  <link rel="stylesheet" media="all" href="<TMPL_VAR coreDir>/skin/_common/css/base.css?<TMPL_VAR ver>">
-  <link rel="stylesheet" media="all" href="<TMPL_VAR coreDir>/skin/_common/css/sheet.css?<TMPL_VAR ver>">
-  <link rel="stylesheet" media="all" href="<TMPL_VAR coreDir>/skin/dx3/css/chara.css?<TMPL_VAR ver>">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
-  <script>
-const sheetId = '<TMPL_VAR id>';
-const paletteTool = '<TMPL_VAR paletteTool>';
-const generateType = 'DoubleCross3PC';
-const defaultImage = '<TMPL_VAR coreDir>/skin/dx3/img/default.png';
-
-<TMPL_IF error>
-window.onload = function() {
-  editOn();
-  setTimeout(function(){
-    document.getElementById("error").style.opacity = 0;
-    document.getElementById("error").style.top = '-5rem';
-  },2000);
-};
-</TMPL_IF>
-  </script>
-  <style>
-    :root {
-      --box-head-bg-color-h: <TMPL_VAR colorHeadBgH>;
-      --box-head-bg-color-s: <TMPL_VAR colorHeadBgS>%;
-      --box-head-bg-color-l: <TMPL_VAR colorHeadBgL>%;
-      --box-base-bg-color-h: <TMPL_VAR colorBaseBgH>;
-      --box-base-bg-color-s: <TMPL_VAR colorBaseBgS>%;
-      --box-base-bg-color-l: <TMPL_VAR colorBaseBgL>%;
-      --box-base-bg-color-d: <TMPL_VAR colorBaseBgD>%;
-    }
-  </style>
-  <TMPL_INCLUDE NAME="skin-add/sheet-head.html">
+<TMPL_INCLUDE NAME="../_common/sheet-head.html">
 </head>
 <body>
-  <script src="<TMPL_VAR coreDir>/skin/_common/js/common.js?<TMPL_VAR ver>"></script>
-  <script src="<TMPL_VAR coreDir>/skin/_common/js/sheet.js?<TMPL_VAR ver>"></script>
-  <script src="<TMPL_VAR coreDir>/skin/_common/js/lib/sha256.js"></script>
-  <script src="<TMPL_VAR coreDir>/skin/_common/js/lib/jszip.min.js"></script>
-  <script src="<TMPL_VAR coreDir>/skin/_common/js/lib/ytsheetCommon.js?<TMPL_VAR ver>"></script>
-  <script src="<TMPL_VAR coreDir>/skin/dx3/js/lib/ytsheetToUdonariumDX3.js?<TMPL_VAR ver>"></script>
-  <script src="<TMPL_VAR coreDir>/skin/dx3/js/lib/ytsheetToCcfoliaDX3.js?<TMPL_VAR ver>"></script>
-  <script src="<TMPL_VAR coreDir>/skin/dx3/js/lib/ytsheetConstsDX3.js?<TMPL_VAR ver>"></script>
-  <script src="<TMPL_VAR coreDir>/skin/dx3/js/lib/ytsheetToTextDX3.js?<TMPL_VAR ver>"></script>
   <header>
     <h1><a href="./"><TMPL_VAR title></a></h1>
     <nav>
       <ul>
-        <li class="small"><a href="./">⏎</a></li>
-        <TMPL_IF convertMode>
-          <li><a href="./?mode=convert&url=<TMPL_VAR convertUrl>"><span>コンバート</span></a></li>
-        <TMPL_ELSE>
-          <TMPL_IF logId>
-            <li class="small"><a onclick="loglistOn()"><span>過去ログ</span></a></li>
-            <TMPL_IF reqdPassword>
-              <li class="small"><a onclick="editOn()">復元</a></li>
-            <TMPL_ELSE>
-              <li class="small"><a href="./?mode=edit&id=<TMPL_VAR id>&log=<TMPL_VAR logId>">復元</a></li>
-            </TMPL_IF>
-          <TMPL_ELSE>
-            <TMPL_UNLESS forbiddenMode>
-              <li class="small"><a onclick="chatPaletteOn();"><span>パレット</span></a></li>
-              <li class="small"><a onclick="donwloadListOn();">出力</a></li>
-              <li class="small"><a onclick="loglistOn()"><span>過去ログ</span></a></li>
-            </TMPL_UNLESS>
-            <TMPL_IF reqdPassword>
-              <li class="small"><a onclick="editOn()">編集</a></li>
-            <TMPL_ELSE>
-              <li class="small"><a href="./?mode=edit&id=<TMPL_VAR id>">編集</a></li>
-            </TMPL_IF>
-          </TMPL_IF>
-        </TMPL_IF>
+        <TMPL_LOOP Menu><li class="<TMPL_VAR SIZE>"><a <TMPL_VAR TYPE>="<TMPL_VAR VALUE>"><TMPL_VAR TEXT></a></li>
+        </TMPL_LOOP>
         <li class="small"><a onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード"></a></li>
       </ul>
     </nav>
@@ -98,45 +24,49 @@ window.onload = function() {
   </aside>
   </TMPL_IF>
   
-  <TMPL_UNLESS forbiddenMode>
-    <aside id="loglist" class="float-box">
-      <h2>過去ログ（バックアップ）</h2>
-      <ul>
-        <TMPL_LOOP LogList><li class="<TMPL_VAR SELECTED>"><a href="?id=<TMPL_VAR id><TMPL_VAR URL>"><TMPL_VAR DATE></a></li></TMPL_LOOP>
-      </ul>
-      <TMPL_IF viewLogNaming><details id="log-naming">
-        <summary>閲覧中のログ<TMPL_IF selectedLogName>の名前をつけなおす<TMPL_ELSE>に名前をつける</TMPL_IF></summary>
-        <form id="log-naming-form" method="post" action="./">
-          <input type="hidden" name="mode" value="bu-naming">
-          <input type="hidden" name="id" value="<TMPL_VAR id>">
-          <input type="hidden" name="date" value="<TMPL_VAR logId>">
-          <dl>
-            <dt>名前</dt><dd><input type="text" name="log-name" value="<TMPL_VAR selectedLogName>"></dd>
-            <TMPL_IF reqdPassword><dt>パスワード</dt><dd><input type="password" name="pass"></dd></TMPL_IF>
-            <dd><input type="submit"></dd>
-          </dl>
-        </form>
-      </details></TMPL_IF>
-    </aside>
+  <TMPL_UNLESS modeDownload>
+    <TMPL_UNLESS forbiddenMode>
+      <aside id="loglist" class="float-box">
+        <h2>過去ログ（バックアップ）</h2>
+        <ul>
+          <TMPL_LOOP LogList><li class="<TMPL_VAR SELECTED>"><a href="?id=<TMPL_VAR id><TMPL_VAR URL>"><TMPL_VAR DATE></a></li></TMPL_LOOP>
+        </ul>
+        <TMPL_IF viewLogNaming><details id="log-naming">
+          <summary>閲覧中のログ<TMPL_IF selectedLogName>の名前をつけなおす<TMPL_ELSE>に名前をつける</TMPL_IF></summary>
+          <form id="log-naming-form" method="post" action="./">
+            <input type="hidden" name="mode" value="bu-naming">
+            <input type="hidden" name="id" value="<TMPL_VAR id>">
+            <input type="hidden" name="date" value="<TMPL_VAR logId>">
+            <dl>
+              <dt>名前</dt><dd><input type="text" name="log-name" value="<TMPL_VAR selectedLogName>"></dd>
+              <TMPL_IF reqdPassword><dt>パスワード</dt><dd><input type="password" name="pass"></dd></TMPL_IF>
+              <dd><input type="submit"></dd>
+            </dl>
+          </form>
+        </details></TMPL_IF>
+      </aside>
 
-    <aside id="downloadlist" class="float-box">
-      <h2>出力</h2>
-      <ul>
-        <li id="downloadlist-udonarium"><a onclick="downloadAsUdonarium();">ユドナリウム用コマデータ<small>(zip形式ファイル)</small></a></li>
-        <li id="downloadlist-ccfolia"><a onclick="downloadAsCcfolia();">ココフォリア用コマデータ<small>(クリップボードへコピー)</small></a></li>
-        <li id="downloadlist-text"><a onclick="donloadAsText();">テキスト形式</a></li>
-        <li id="downloadlist-json"><a onclick="donloadAsJson();">JSON 形式</a></li>
-      </ul>
-    </aside>
+      <aside id="downloadlist" class="float-box">
+        <h2>出力</h2>
+        <ul>
+          <li id="downloadlist-udonarium"><a onclick="downloadAsUdonarium();">ユドナリウム用コマデータ<small>(zip形式ファイル)</small></a></li>
+          <li id="downloadlist-ccfolia"><a onclick="downloadAsCcfolia();">ココフォリア用コマデータ<small>(クリップボードへコピー)</small></a></li>
+          <li id="downloadlist-text"><a onclick="downloadAsText();">テキスト形式</a></li>
+          <li id="downloadlist-json"><a onclick="downloadAsJson();">JSON 形式</a></li>
+          <li id="downloadlist-html"><a onclick="downloadAsHtml();">HTML 形式</a></li>
+          <li id="downloadlist-html"><a onclick="downloadAsFullSet();">ZIP 形式（上記全部入り）</a></li>
+        </ul>
+      </aside>
+    </TMPL_UNLESS>
+
+    <form id="login-form" class="float-box" method="post" action="./">
+      <input type="hidden" name="mode" value="edit">
+      <input type="hidden" name="id" value="<TMPL_VAR id>">
+      <input type="password" name="pass" placeholder="password">
+      <input type="hidden" name="log" value="<TMPL_VAR logId>">
+      <input type="submit" value="編集">
+    </form>
   </TMPL_UNLESS>
-
-  <form id="login-form" class="float-box" method="post" action="./">
-    <input type="hidden" name="mode" value="edit">
-    <input type="hidden" name="id" value="<TMPL_VAR id>">
-    <input type="password" name="pass" placeholder="password">
-    <input type="hidden" name="log" value="<TMPL_VAR logId>">
-    <input type="submit" value="編集">
-  </form>
 
   <main id="character">
     <TMPL_IF forbidden><aside class="information attention">
