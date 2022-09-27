@@ -445,6 +445,10 @@ function checkFeats(){
   for (let i = 0; i < array.length; i++) {
     let cL = document.getElementById("combat-feats-lv"+array[i]).classList;
     cL.remove("mark","error");
+    if(array[i].match(/bat/) && lv['Bat'] <= 0){
+      cL.add('hidden');
+      continue;
+    }
     if(level >= Number( array[i].replace(/[^0-9]/g, '') )){
       const f2 = (array[i+1] && level >= Number( array[i+1].replace(/[^0-9]/g, '') )) ? 1 : 0; //次枠の開放状況
       const f3 = (array[i+2] && level >= Number( array[i+2].replace(/[^0-9]/g, '') )) ? 1 : 0; //次々枠の開放状況
@@ -467,14 +471,14 @@ function checkFeats(){
       }
       else if (feat.match(/回避行動/)){
         if(feat.match(/Ⅰ$/)){
-          if (f2 && lv['Fen'] >= 9) { (auto) ? box.value = "回避行動Ⅱ" : cL.add("mark") }
+          if (f2 && (lv['Fen'] >= 9 || lv['Bat'] >= 9)) { (auto) ? box.value = "回避行動Ⅱ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
-          if(!f2 || lv['Fen'] < 9) { (auto) ? box.value = "回避行動Ⅰ" : cL.add("error") }
+          if(!f2 || (lv['Fen'] < 9 && lv['Bat'] < 9)) { (auto) ? box.value = "回避行動Ⅰ" : cL.add("error") }
         }
       }
       else if (feat.match(/^頑強/)){
-        if(lv['Fig'] < 5 && lv['Gra'] < 5 && lv['Fen'] < 5){ cL.add("error"); }
+        if(lv['Fig'] < 5 && lv['Gra'] < 5 && lv['Fen'] < 5 && lv['Bat'] < 5){ cL.add("error"); }
       }
       else if (feat.match(/鼓咆陣率追加/)){
         if(lv['War'] < 1){ cL.add("error"); }
@@ -592,12 +596,12 @@ function checkFeats(){
         if(lv['Gra'] < 5){ cL.add("error"); }
       }
       else if (feat.match(/変幻自在/)){
-        if(lv['Gra'] < 5 && lv['Fen'] < 5){ cL.add("error"); }
+        if(lv['Gra'] < 5 && lv['Fen'] < 5 && lv['Bat'] < 5){ cL.add("error"); }
         if(feat.match(/Ⅰ$/)){
-          if (f2 && (lv['Gra'] >= 13 || lv['Fen'] >= 13)) { (auto) ? box.value = "変幻自在Ⅱ" : cL.add("mark") }
+          if (f2 && (lv['Gra'] >= 13 || lv['Fen'] >= 13 || lv['Bat'] >= 13)) { (auto) ? box.value = "変幻自在Ⅱ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
-          if(!f2 || (lv['Gra'] < 13 && lv['Fen'] < 13)) { (auto) ? box.value = "変幻自在Ⅰ" : cL.add("error") }
+          if(!f2 || (lv['Gra'] < 13 && lv['Fen'] < 13 && lv['Bat'] < 13)) { (auto) ? box.value = "変幻自在Ⅰ" : cL.add("error") }
         }
       }
       else if (feat.match(/防具習熟Ｓ／(.*)/)){
@@ -677,14 +681,14 @@ function checkFeats(){
         if(lv['Sho'] < 9){ cL.add("error"); }
       }
       else if (feat.match(/牙折り/)){
-        if(lv['Gra'] < 9){ cL.add("error"); }
+        if(lv['Gra'] < 9 && lv['Bat'] < 9){ cL.add("error"); }
       }
       else if (feat.match(/斬り返し/)){
         if(feat.match(/Ⅰ$/)){
-          if (f2 && (lv['Fig'] >= 7 || lv['Fen'] >= 7)) { (auto) ? box.value = "斬り返しⅡ" : cL.add("mark") }
+          if (f2 && (lv['Fig'] >= 7 || lv['Fen'] >= 7 || lv['Bat'] >= 7)) { (auto) ? box.value = "斬り返しⅡ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
-          if(!f2 || (lv['Fig'] < 7 && lv['Fen'] < 7)) { (auto) ? box.value = "斬り返しⅠ" : cL.add("error") }
+          if(!f2 || (lv['Fig'] < 7 && lv['Fen'] < 7 && lv['Bat'] < 7)) { (auto) ? box.value = "斬り返しⅠ" : cL.add("error") }
         }
       }
       else if (feat.match(/クリティカルキャスト/)){
@@ -755,14 +759,14 @@ function checkFeats(){
       else if (feat.match(/全力攻撃/)){
         if(feat.match(/Ⅰ$/)){
           if     (f3 && lv['Fig'] >= 15)               { (auto) ? box.value = "全力攻撃Ⅲ" : cL.add("mark") }
-          else if(f2 && (lv['Fig'] >= 9 || lv['Gra'] >= 9)){ (auto) ? box.value = "全力攻撃Ⅱ" : cL.add("mark") }
+          else if(f2 && (lv['Fig'] >= 9 || lv['Gra'] >= 9 || lv['Bat'] >= 9)){ (auto) ? box.value = "全力攻撃Ⅱ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
           if     (f3 && lv['Fig'] >= 15)               { (auto) ? box.value = "全力攻撃Ⅲ" : cL.add("mark") }
-          else if(!f2 || (lv['Fig'] < 9 && lv['Gra'] < 9)) { (auto) ? box.value = "全力攻撃Ⅰ" : cL.add("error") }
+          else if(!f2 || (lv['Fig'] < 9 && lv['Gra'] < 9 && lv['Bat'] < 9)) { (auto) ? box.value = "全力攻撃Ⅰ" : cL.add("error") }
         }
         else if(feat.match(/Ⅲ$/)){
-          if     (!f2 || (lv['Fig'] < 9 && lv['Gra'] < 9)) { (auto) ? box.value = "全力攻撃Ⅰ" : cL.add("error") }
+          if     (!f2 || (lv['Fig'] < 9 && lv['Gra'] < 9 && lv['Bat'] < 9)) { (auto) ? box.value = "全力攻撃Ⅰ" : cL.add("error") }
           else if(!f3 || lv['Fig'] < 15)               { (auto) ? box.value = "全力攻撃Ⅱ" : cL.add("error") }
         }
       }
@@ -771,10 +775,10 @@ function checkFeats(){
       }
       else if (feat.match(/挑発攻撃/)){
         if(feat.match(/Ⅰ$/)){
-          if (f2 && lv['Fen'] >= 7) { (auto) ? box.value = "挑発攻撃Ⅱ" : cL.add("mark") }
+          if (f2 && (lv['Fen'] >= 7 || lv['Bat'] >= 7)) { (auto) ? box.value = "挑発攻撃Ⅱ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
-          if(!f2 ||  lv['Fen'] < 7) { (auto) ? box.value = "挑発攻撃Ⅰ" : cL.add("error") }
+          if(!f2 || (lv['Fen'] <  7 &&  lv['Bat'] < 7)) { (auto) ? box.value = "挑発攻撃Ⅰ" : cL.add("error") }
         }
       }
       else if (feat.match(/テイルスイング/)){
@@ -787,12 +791,12 @@ function checkFeats(){
         }
       }
       else if (feat.match(/薙ぎ払い/)){
-        if(lv['Fig'] < 3){ cL.add("error"); }
+        if(lv['Fig'] < 3 && lv['Bat'] < 3){ cL.add("error"); }
         if(feat.match(/Ⅰ$/)){
-          if (f2 && lv['Fig'] >= 9) { (auto) ? box.value = "薙ぎ払いⅡ" : cL.add("mark") }
+          if (f2 && (lv['Fig'] >= 9 || lv['Bat'] >= 9)) { (auto) ? box.value = "薙ぎ払いⅡ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
-          if(!f2 || lv['Fig'] < 9) { (auto) ? box.value = "薙ぎ払いⅠ" : cL.add("error") }
+          if(!f2 || (lv['Fig'] < 9 && lv['Bat'] < 9)) { (auto) ? box.value = "薙ぎ払いⅠ" : cL.add("error") }
         }
       }
       else if (feat.match(/バイオレントキャスト/)){
@@ -805,16 +809,16 @@ function checkFeats(){
       }
       else if (feat.match(/必殺攻撃/)){
         if(feat.match(/Ⅰ$/)){
-          if     (f3 && lv['Fen'] >= 11) { (auto) ? box.value = "必殺攻撃Ⅲ" : cL.add("mark") }
+          if     (f3 && (lv['Fen'] >= 11 || lv['Bat'] >= 11)) { (auto) ? box.value = "必殺攻撃Ⅲ" : cL.add("mark") }
           else if(f2 && level >=  7) { (auto) ? box.value = "必殺攻撃Ⅱ" : cL.add("mark") }
         }
         else if(feat.match(/Ⅱ$/)){
-          if     (f3 && lv['Fen'] >= 11) { (auto) ? box.value = "必殺攻撃Ⅲ" : cL.add("mark") }
+          if     (f3 && (lv['Fen'] >= 11 || lv['Bat'] >= 11)) { (auto) ? box.value = "必殺攻撃Ⅲ" : cL.add("mark") }
           else if(!f2 || level <  7) { (auto) ? box.value = "必殺攻撃Ⅰ" : cL.add("error") }
         }
         else if(feat.match(/Ⅲ$/)){
           if     (!f2 || level <  7) { (auto) ? box.value = "必殺攻撃Ⅰ" : cL.add("error") }
-          else if(!f3 || lv['Fen'] < 11) { (auto) ? box.value = "必殺攻撃Ⅱ" : cL.add("error") }
+          else if(!f3 || (lv['Fen'] < 11 && lv['Bat'] < 11)) { (auto) ? box.value = "必殺攻撃Ⅱ" : cL.add("error") }
         }
       }
       else if (feat.match(/マルチアクション/)){
@@ -1114,39 +1118,30 @@ function calcFairy() {
 
 // 攻撃計算 ----------------------------------------
 function calcAttack() {
-  document.getElementById("attack-fighter"   ).style.display = lv['Fig'] >   0 ? "" :"none";
-  document.getElementById("attack-grappler"  ).style.display = lv['Gra'] >   0 ? "" :"none";
-  document.getElementById("attack-fencer"    ).style.display = lv['Fen'] >   0 ? "" :"none";
-  document.getElementById("attack-shooter"   ).style.display = lv['Sho'] >   0 ? "" :"none";
+  for(const name of weaponsUsers){
+    const id    = classNameToId[name];
+    const eName = classes[id].eName;
+    document.getElementById(`attack-${eName}`).style.display = lv[id] > 0 ? "" :"none";
+    document.getElementById(`attack-${eName}-str`).innerHTML = id == 'Fen' ? reqdStrHalf : reqdStr;
+    document.getElementById(`attack-${eName}-acc`).innerHTML = lv[id] + bonusDex;
+    document.getElementById(`attack-${eName}-dmg`).innerHTML = lv[id] + bonusStr;
+  }
   document.getElementById("attack-enhancer"  ).style.display = lv['Enh'] >= 10 ? "" :"none";
-  document.getElementById("attack-demonruler").style.display = modeZero && lv['Dem'] >  0 ? "" :"none";
-
-  document.getElementById("attack-fighter-str"   ).innerHTML = reqdStr;
-  document.getElementById("attack-grappler-str"  ).innerHTML = reqdStr;
-  document.getElementById("attack-fencer-str"    ).innerHTML = reqdStrHalf;
-  document.getElementById("attack-shooter-str"   ).innerHTML = reqdStr;
-  document.getElementById("attack-enhancer-str"  ).innerHTML = reqdStr;
-  document.getElementById("attack-demonruler-str").innerHTML = reqdStr;
-
-  document.getElementById("attack-fighter-acc"   ).innerHTML = lv['Fig'] + bonusDex;
-  document.getElementById("attack-grappler-acc"  ).innerHTML = lv['Gra'] + bonusDex;
-  document.getElementById("attack-fencer-acc"    ).innerHTML = lv['Fen'] + bonusDex;
-  document.getElementById("attack-shooter-acc"   ).innerHTML = lv['Sho'] + bonusDex;
+  document.getElementById("attack-enhancer-str").innerHTML   = reqdStr;
   document.getElementById("attack-enhancer-acc"  ).innerHTML = lv['Enh'] + bonusDex;
-  document.getElementById("attack-demonruler-acc").innerHTML = lv['Dem'] + bonusDex;
-
-  document.getElementById("attack-fighter-dmg"   ).innerHTML = lv['Fig'] + bonusStr;
-  document.getElementById("attack-grappler-dmg"  ).innerHTML = lv['Gra'] + bonusStr;
-  document.getElementById("attack-fencer-dmg"    ).innerHTML = lv['Fen'] + bonusStr;
-  document.getElementById("attack-shooter-dmg"   ).innerHTML = lv['Sho'] + bonusStr;
   document.getElementById("attack-enhancer-dmg"  ).innerHTML = lv['Enh'] + bonusStr;
-  if(modeZero){ document.getElementById("attack-enhancer-dmg"  ).innerHTML = lv['Enh'] + bonusStr; }
+
+  document.getElementById("attack-demonruler").style.display = lv['Dem'] >= 10 ? "" : modeZero && lv['Dem'] > 0 ? "" :"none";
+  document.getElementById("attack-demonruler-str").innerHTML = reqdStr;
+  document.getElementById("attack-demonruler-acc").innerHTML = lv['Dem'] + bonusDex;
+  document.getElementById("attack-demonruler-dmg").innerHTML = modeZero ? lv['Dem'] + bonusStr : '―';
 
   calcWeapon();
 }
 function calcWeapon() {
   for (let i = 1; i <= form.weaponNum.value; i++){
-    const classes = form["weapon"+i+"Class"].value;
+    const className = form["weapon"+i+"Class"].value;
+    const classId   = classNameToId[className];
     const category = form["weapon"+i+"Category"].value;
     const ownDex = form["weapon"+i+"Own"].checked ? 2 : 0;
     const note = form["weapon"+i+"Note"].value;
@@ -1157,12 +1152,12 @@ function calcWeapon() {
     let maxReqd = reqdStr;
     accBase += feats['命中強化'] || 0; //命中強化
     // 使用技能
-         if(classes === "ファイター")       { attackClass = lv['Fig']; }
-    else if(classes === "グラップラー")     { attackClass = lv['Gra']; }
-    else if(classes === "フェンサー")       { attackClass = lv['Fen']; maxReqd = reqdStrHalf; }
-    else if(classes === "シューター")       { attackClass = lv['Sho']; }
-    else if(classes === "エンハンサー")     { attackClass = lv['Enh']; }
-    else if(classes === "デーモンルーラー") { attackClass = lv['Dem']; }
+    if(classId && classes[classId].type == 'weapon-user'){
+      attackClass = lv[classId];
+      if(className === "フェンサー"){ maxReqd = reqdStrHalf; }
+    }
+    else if(className === "エンハンサー")     { attackClass = lv['Enh']; }
+    else if(className === "デーモンルーラー") { attackClass = lv['Dem']; }
     // 必筋チェック
     form["weapon"+i+"Reqd"].classList.toggle('error', weaponReqd > maxReqd);
     // 武器カテゴリ
@@ -1173,7 +1168,7 @@ function calcWeapon() {
     // 基礎ダメージ
     if     (category === 'クロスボウ')                  { dmgBase = attackClass; }
     else if(category === 'ガン')                        { dmgBase = magicPowers['Mag']; }
-    else if(!modeZero && classes === "デーモンルーラー"){ dmgBase = magicPowers['Dem']; }
+    else if(!modeZero && className === "デーモンルーラー"){ dmgBase = magicPowers['Dem']; }
     else if(attackClass)                                { dmgBase = attackClass + bonusStr; }
     form["weapon"+i+"Category"].classList.remove('fail');
 
@@ -1184,7 +1179,7 @@ function calcWeapon() {
     if(category === '投擲') { accBase += feats['スローイング'] ? 1 : 0; }
     if(note.match(/〈魔器〉/)){ dmgBase += feats['魔器習熟'] || 0; }
     // 命中追加D出力
-    if(classes === "自動計算しない"){
+    if(className === "自動計算しない"){
       document.getElementById("weapon"+i+"-acc-total").innerHTML = Number(form["weapon"+i+"Acc"].value);
       document.getElementById("weapon"+i+"-dmg-total").innerHTML = Number(form["weapon"+i+"Dmg"].value);
     }
@@ -1208,26 +1203,26 @@ function calcWeapon() {
 
 // 防御計算 ----------------------------------------
 function calcDefense() {
-  const classes = form.evasionClass.options[form.evasionClass.selectedIndex].value;
+  const className = form.evasionClass.options[form.evasionClass.selectedIndex].value;
+  const classId   = classNameToId[className];
   let evaClassLv = 0;
   let evaBase = 0;
   let evaAdd = 0;
   let defBase = 0;
-       if(classes === "ファイター")      { evaClassLv = lv['Fig']; }
-  else if(classes === "グラップラー")    { evaClassLv = lv['Gra']; }
-  else if(classes === "フェンサー")      { evaClassLv = lv['Fen']; }
-  else if(classes === "シューター")      { evaClassLv = lv['Sho']; }
-  else if(classes === "デーモンルーラー"){ evaClassLv = lv['Dem']; }
+  if(classId && classes[classId].type == 'weapon-user'){
+    evaClassLv = lv[classId];
+  }
+  else if(className === "デーモンルーラー"){ evaClassLv = lv['Dem']; }
   else { evaClassLv = 0; }
   evaBase = evaClassLv || 0;
   
-  const maxReqd = (classes === "フェンサー") ? reqdStrHalf : reqdStr;
+  const maxReqd = (className === "フェンサー") ? reqdStrHalf : reqdStr;
   document.getElementById("evasion-str").innerHTML = maxReqd;
   document.getElementById("evasion-eva").innerHTML = evaClassLv ? (evaClassLv + bonusAgi) : 0;
   
   // 技能選択のエラー表示
   let cL = document.getElementById("evasion-classes").classList;
-  if(classes === "シューター" && !feats['射手の体術'] || classes === "デーモンルーラー" && lv['Dem'] < 2){ 
+  if(className === "シューター" && !feats['射手の体術'] || className === "デーモンルーラー" && lv['Dem'] < 2){ 
     cL.add('error');
   }
   else { cL.remove('error'); }
@@ -1375,9 +1370,7 @@ function calcHonor(){
     let point = safeEval(form['honorItem'+i+'Pt'].value) || 0;
     pointTotal -= point;
     
-    let cL = form['honorItem'+i+'Pt'].classList;
-    if(point && point <= free) { cL.add("mark"); }
-    else { cL.remove("mark"); }
+    form['honorItem'+i+'Pt'].classList.toggle('mark', (point && point <= free));
   }
   // 流派
   let mysticArtsPt = 0;
@@ -1385,6 +1378,7 @@ function calcHonor(){
   for (let i = 1; i <= mysticArtsNum; i++){
     let point = safeEval(form['mysticArts'+i+'Pt'].value) || 0;
     mysticArtsPt += point;
+    form['mysticArts'+i+'Pt'].classList.toggle('mark', (point && point <= free));
   }
   pointTotal -= mysticArtsPt;
   //
@@ -1694,7 +1688,7 @@ function addWeapons(copy){
     op.selected = categories[i] === ini.category ? true : false;
     form["weapon"+num+"Category"].appendChild(op);
   }
-  const classes = ['ファイター','グラップラー','フェンサー','シューター','エンハンサー','デーモンルーラー','自動計算しない'];
+  const classes = weaponsUsers.concat('エンハンサー','デーモンルーラー','自動計算しない');
   for(let i = 0; i < classes.length; i++){
     let op = document.createElement("option");
     op.text = classes[i];

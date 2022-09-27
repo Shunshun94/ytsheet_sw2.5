@@ -476,15 +476,17 @@ print <<"HTML";
             <h2>戦闘特技</h2>
             <ul>
 HTML
-foreach my $lv (@set::feats_lv) {
-  print '<li id="combat-feats-lv'.$lv.'" data-lv="'.$lv.'"><select name="combatFeatsLv'.$lv.'" oninput="checkFeats()">';
+foreach my $lv ('1bat',@set::feats_lv) {
+  (my $data_lv = $lv) =~ s/^([0-9]+)[^0-9].*?$/$1/;
+  print '<li id="combat-feats-lv'.$lv.'" data-lv="'.$data_lv.($data_lv eq $lv ? '':'+').'"><select name="combatFeatsLv'.$lv.'" oninput="checkFeats()">';
   print '<option></option>';
   foreach my $type ('常','宣','主') {
     print '<optgroup label="'.($type eq '常' ? '常時' : $type eq '宣' ? '宣言' : $type eq '宣' ? '宣言' : '主動作').'特技">';
     foreach my $feats (@data::combat_feats){
-      next if $lv < @$feats[1];
+      next if $data_lv < @$feats[1];
       next if $type ne @$feats[0];
       next if @$feats[3] =~ /2.0/ && !$set::all_class_on;
+      if($lv =~ /bat/ && @$feats[3] !~ /バトルダンサー/){ next; }
       if(@$feats[3] =~ /ヴァグランツ/){
         print '<option class="vagrants"'.(($pc{"combatFeatsLv$lv"} eq @$feats[2])?' selected':'').' value="'.@$feats[2].'">'.@$feats[2];
         $pc{'featsVagrantsOn'} = 1 if $pc{"combatFeatsLv$lv"} eq @$feats[2];
@@ -515,12 +517,12 @@ print <<"HTML";
             </div>
             <p>置き換え可能な場合<span class="mark">強調</span>されます。</p>
           </div>
-          <div class="box" id="mystic-arts" @{[ display $set::mystic_arts_on ]}>
+          <div class="box" id="mystic-arts">
             <h2>秘伝</h2>
             <div>所持名誉点：<span id="honor-value-MA"></span></div>
             <ul id="mystic-arts-list">
 HTML
-$pc{'mysticArtsNum'} = 0 if !$set::mystic_arts_on;
+$pc{'mysticArtsNum'} ||= 0;
 foreach my $num (1 .. $pc{'mysticArtsNum'}){
   print '<li id="mystic-arts'.$num.'"><span class="handle"></span>'.(input 'mysticArts'.$num).(input 'mysticArts'.$num.'Pt', 'number', 'calcHonor').'</li>';
 }
@@ -807,38 +809,24 @@ print <<"HTML";
               </tr>
             </thead>
             <tbody>
-              <tr id="attack-fighter"@{[ display $pc{'lvFig'} ]}>
-                <td>ファイター技能</td>
-                <td id="attack-fighter-str">0</td>
-                <td id="attack-fighter-acc">0</td>
+HTML
+my @weapon_users;
+foreach my $name (@data::class_names){
+  next if $data::class{$name}{'type'} ne 'weapon-user';
+  push(@weapon_users, $name);
+  my $ename = $data::class{$name}{'eName'};
+  print <<"HTML";
+              <tr id="attack-${ename}"@{[ display $pc{'lv'.$data::class{$name}{'id'}} ]}>
+                <td>${name}技能</td>
+                <td id="attack-${ename}-str">0</td>
+                <td id="attack-${ename}-acc">0</td>
                 <td>―</td>
-                <td>―</td>
-                <td id="attack-fighter-dmg">―</td>
+                <td>@{[ $name eq 'フェンサー' ? '-1' : '―' ]}</td>
+                <td id="attack-${ename}-dmg">―</td>
               </tr>
-              <tr id="attack-grappler"@{[ display $pc{'lvGra'} ]}>
-                <td>グラップラー技能</td>
-                <td id="attack-grappler-str">0</td>
-                <td id="attack-grappler-acc">0</td>
-                <td>―</td>
-                <td>―</td>
-                <td id="attack-grappler-dmg">0</td>
-              </tr>
-              <tr id="attack-fencer"@{[ display $pc{'lvFen'} ]}>
-                <td>フェンサー技能</td>
-                <td id="attack-fencer-str">0</td>
-                <td id="attack-fencer-acc">0</td>
-                <td>―</td>
-                <td>-1</td>
-                <td id="attack-fencer-dmg">0</td>
-              </tr>
-              <tr id="attack-shooter"@{[ display $pc{'lvSho'} ]}>
-                <td>シューター技能</td>
-                <td id="attack-shooter-str">0</td>
-                <td id="attack-shooter-acc">0</td>
-                <td>―</td>
-                <td>―</td>
-                <td id="attack-shooter-dmg">0</td>
-              </tr>
+HTML
+}
+print <<"HTML";
               <tr id="attack-enhancer"@{[ display ($pc{'lvEnh'} >= 10) ]}>
                 <td>エンハンサー技能</td>
                 <td id="attack-enhancer-str">0</td>
@@ -928,7 +916,7 @@ print <<"HTML";
                 <td rowspan="2">+@{[input("weapon${num}Dmg",'number','calcWeapon')]}<b id="weapon${num}-dmg-total">0</b></td>
                 <td>@{[input("weapon${num}Own",'checkbox','calcWeapon')]}</td>
                 <td><select name="weapon${num}Category" oninput="calcWeapon()">@{[option("weapon${num}Category",@data::weapon_names,'ガン（物理）','盾')]}</select></td>
-                <td><select name="weapon${num}Class" oninput="calcWeapon()">@{[option("weapon${num}Class",'ファイター','グラップラー','フェンサー','シューター','エンハンサー','デーモンルーラー','自動計算しない')]}</select></td>
+                <td><select name="weapon${num}Class" oninput="calcWeapon()">@{[option("weapon${num}Class",@weapon_users,'エンハンサー','デーモンルーラー','自動計算しない')]}</select></td>
                 <td rowspan="2"><span class="button" onclick="addWeapons(${num});">複<br>製</span></td>
               </tr>
               <tr><td colspan="3">@{[input("weapon${num}Note",'','calcWeapon','placeholder="備考"')]}</td>
@@ -957,7 +945,7 @@ print <<"HTML";
             </thead>
             <tbody>
               <tr>
-                <td><select id="evasion-class" name="evasionClass" oninput="calcDefense()">@{[option('evasionClass','ファイター','グラップラー','フェンサー','シューター','デーモンルーラー')]}</select></td>
+                <td><select id="evasion-class" name="evasionClass" oninput="calcDefense()">@{[option('evasionClass',@weapon_users,'デーモンルーラー')]}</select></td>
                 <td id="evasion-str">$pc{'EvasionStr'}</td>
                 <td id="evasion-eva">$pc{'EvasionEva'}</td>
                 <td>―</td>
@@ -1203,7 +1191,7 @@ print <<"HTML";
               </thead>
               <tbody>
                 <tr><td class="center" colspan="2">冒険者ランク</td><td id="rank-honor-value">0</td></tr>
-                <tr id="honor-items-mystic-arts" @{[ display $set::mystic_arts_on ]}><td class="center" class="center" colspan="2">秘伝</td><td id="mystic-arts-honor-value">0</td></tr>
+                <tr id="honor-items-mystic-arts"><td class="center" class="center" colspan="2">秘伝</td><td id="mystic-arts-honor-value">0</td></tr>
               </tbody>
               <tbody id="honor-items-table">
 HTML
@@ -1634,7 +1622,7 @@ print <<"HTML";
   const growType = '@{[ $set::growtype ? $set::growtype : 0 ]}';
   const races = @{[ JSON::PP->new->encode(\%data::races) ]};
 HTML
-print 'const featsLv = ["'. join('","', @set::feats_lv) . '"];'."\n";
+print 'const featsLv = ["'. join('","', '1bat',@set::feats_lv) . '"];'."\n";
 print 'let weapons = [';
 foreach (@data::weapons){
   print "'".@$_[0]."',";
@@ -1651,6 +1639,7 @@ foreach my $key (keys %data::class) {
   print <<"HTML";
   '$data::class{$key}{'id'}' : {
     '2.0'       : '$data::class{$key}{'2.0'}',
+    'type'      : '$data::class{$key}{'type'}',
     'expTable'  : '$data::class{$key}{'expTable'}',
     'jName'     : '$key',
     'eName'     : '$data::class{$key}{'eName'}',
@@ -1668,6 +1657,14 @@ foreach my $key (keys %data::class) {
 HTML
 }
 print "};\n";
+print 'let classNameToId = {';
+foreach (keys %data::class){
+  print "'".$_."' : '$data::class{$_}{id}',";
+}
+print '};'."\n";
+print 'let weaponsUsers = [';
+foreach (@weapon_users){ print "'".$_."',"; }
+print '];'."\n";
 ## 言語
 print 'const langOptionT = `'.(option "",@langoptionT)."`;\n";
 print 'const langOptionR = `'.(option "",@langoptionR)."`;\n";
