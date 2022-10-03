@@ -39,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </TMPL_IF>
+const jumpToDiff = (targetVersionQuery) => {
+  const logId = (/log=(\d\d\d\d-\d\d-\d\d-\d\d-\d\d-\d\d)/.exec(location.search) || ['', ''])[1];
+  const diffUrl = `${location.origin}${location.pathname}generate_diff.cgi?id=${sheetId}&before=${targetVersionQuery.replace('&log=', '')}&after=${logId}`;
+  location.href = `${location.origin}${location.pathname}?url=${encodeURIComponent(diffUrl)}`;
+};
   </script>
   <style>
     :root {
