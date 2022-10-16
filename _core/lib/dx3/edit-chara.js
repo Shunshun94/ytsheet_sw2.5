@@ -16,7 +16,7 @@ window.onload = function() {
   calcMagic();
   calcItem();
   calcMemory();
-  calcEncroach();
+  refreshByImpulse();
   for(let i = 1; i <= 7; i++){ changeLoisColor(i); }
   imagePosition();
   changeColor();
@@ -275,6 +275,30 @@ function calcExp(){
   document.getElementById("exp-rest").innerHTML = rest;
 }
 
+// 「衝動」由来の更新
+function refreshByImpulse(){
+  calcEncroach();
+
+  const optionClass = 'restrict-option-for-impulse';
+
+  const oldElement = document.querySelector(`#list-restrict .${optionClass}`);
+  if (oldElement != null) {
+    oldElement.parentNode.removeChild(oldElement);
+  }
+
+  const impulseName = document.querySelector('select[name="lifepathImpulse"]').value;
+
+  if (impulseName == null || impulseName === '') {
+    return;
+  }
+
+  const newElement = document.createElement('option');
+  newElement.classList.add(optionClass);
+  newElement.setAttribute('value', `${impulseName}、120%`);
+
+  document.querySelector('#list-restrict .percent120').after(newElement);
+}
+
 // 侵蝕値 ----------------------------------------
 function calcEncroach(){
   const awaken  = awakens[form.lifepathAwaken.value]   || 0;
@@ -492,7 +516,7 @@ function addEffect(){
     <td><input name="effect${num}Dfclty"   type="text"   placeholder="難易度" list="list-dfclty"></td>
     <td><input name="effect${num}Target"   type="text"   placeholder="対象"   list="list-target"></td>
     <td><input name="effect${num}Range"    type="text"   placeholder="射程"   list="list-range"></td>
-    <td><input name="effect${num}Encroach" type="text"   placeholder="侵蝕値"></td>
+    <td><input name="effect${num}Encroach" type="text"   placeholder="侵蝕値" list="list-encroach"></td>
     <td><input name="effect${num}Restrict" type="text"   placeholder="制限"   list="list-restrict"></td>
   </tr>
   <tr><td colspan="9"><div>
