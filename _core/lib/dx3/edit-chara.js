@@ -1080,7 +1080,7 @@ function delVehicle(){
 }
 // ソート
 let vehicleSortable = Sortable.create(document.querySelector('#vehicle-table tbody'), {
-  group: "armor",
+  group: "vehicle",
   dataIdAttr: 'id',
   animation: 100,
   handle: '.handle',
@@ -1142,7 +1142,7 @@ function delItem(){
 }
 // ソート
 let itemSortable = Sortable.create(document.querySelector('#item-table tbody'), {
-  group: "armor",
+  group: "item",
   dataIdAttr: 'id',
   animation: 100,
   handle: '.handle',
