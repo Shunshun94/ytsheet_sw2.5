@@ -40,6 +40,7 @@ sub getfile_open {
       my ($id, $pass, $file, $type) = (split /<>/, $line)[0,1,2,3];
       my $user;
       if($pass =~ /^\[(.+?)\]$/){ $file = '_'.$1.'/'.$file; $user = $1; }
+      else { $file = 'anonymous/'.$file; }
       return ($file,$type,$user);
     }
   }
@@ -386,7 +387,7 @@ sub tag_unescape_lines {
   my $text = $_[0];
   $text =~ s/&lt;br&gt;/\n/gi;
   
-  $text =~ s|^//(.*?)$||gm; # コメントアウト
+  $text =~ s|^//(.*?)\n?$||gm; # コメントアウト
   
   $text =~ s/\\\\\n/<br>/gi;
   

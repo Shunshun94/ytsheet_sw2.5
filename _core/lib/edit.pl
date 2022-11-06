@@ -17,7 +17,7 @@ our %conv_data = ();
 
 if($mode eq 'edit'){
   (undef, undef, $file, $type, my $user) = getfile($::in{'id'},$::in{'pass'},$LOGIN_ID);
-  $file = $user ? '_'.$user.'/'.$file : $file;
+  $file = ($user ? "_${user}/" : 'anonymous/') . $file;
 }
 elsif($mode eq 'copy'){
   ($file, $type, $author) = (getfile_open($::in{'id'}))[0..2];
@@ -50,7 +50,7 @@ if(!$LOGIN_ID && $mode =~ /^(?:blanksheet|copy|convert)$/){
   elsif($type eq 'i'){ $data_dir = $set::item_dir; }
   elsif($type eq 'a'){ $data_dir = $set::arts_dir; }
   else               { $data_dir = $set::char_dir; }
-  opendir my $dh, $data_dir;
+  opendir my $dh, "${data_dir}anonymous/";
   my $num_files = () = readdir($dh);
   if($num_files-2 >= $max_files){
     error("登録数上限です。($num_files/$max_files)<br>アカウントに紐づけないデータは、これ以上登録できないため、アカウント登録・ログインをしてから作成を行ってください。");
@@ -73,7 +73,7 @@ sub pcDataGet {
   if($mode eq 'edit'){
     my $datatype = ($::in{'log'}) ? 'logs' : 'data';
     my $hit = 0;
-    open my $IN, '<', "${datadir}${file}/${datatype}.cgi" or &login_error;
+    open my $IN, '<', "${datadir}${file}/${datatype}.cgi" or &loginError;
     while (<$IN>){
       if($datatype eq 'logs'){
         if (index($_, "=$::in{'log'}=") == 0){ $hit = 1; next; }
@@ -138,7 +138,7 @@ sub pcDataGet {
   return (\%pc, $mode, $file, $message)
 }
 ## トークン生成
-sub token_make {
+sub tokenMake {
   my $token = random_id(12);
 
   my $mask = umask 0;
@@ -150,14 +150,14 @@ sub token_make {
 }
 
 ## ログインエラー
-sub login_error {
+sub loginError {
   our $login_error = 'パスワードが間違っているか、<br>編集権限がありません。';
   require $set::lib_view;
   exit;
 }
 
 ## 画像欄
-sub image_form {
+sub imageForm {
   my $imgurl = shift;
   my $image_maxsize_view = $set::image_maxsize >= 1048576 ? sprintf("%.3g",$set::image_maxsize/1048576).'MB' : sprintf("%.3g",$set::image_maxsize/1024).'KB';
   return <<"HTML";
