@@ -408,6 +408,26 @@ ruby rt {
   -webkit-text-emphasis: dot filled;
   text-emphasis: dot filled;
 }
+.comment:before {
+  content: '？';
+  font-size:16px;
+}
+.comment {
+  width:20px;
+  height:20px;
+  font-size:0px;
+  display:inline-block;
+  background-color:yellow;
+  vertical-align: middle;
+}
+.comment:hover:before {
+  content: 'コメント';
+  font-size:16px;
+}
+.comment:hover {
+  font-size:16px;
+  width: auto;
+}
 .d-dash {
   display: inline-block;
   font-family: "Meiryo","小塚明朝 Pro","Kozuka Mincho Pro","Kozuka Mincho Std",sans-serif;
