@@ -421,12 +421,13 @@ ruby rt {
   vertical-align: middle;
 }
 .comment:hover:before {
-  content: 'コメント';
+  content: '【コメント】';
   font-size:16px;
 }
 .comment:hover {
   font-size:16px;
   width: auto;
+  height: auto;
 }
 .d-dash {
   display: inline-block;
