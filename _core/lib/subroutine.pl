@@ -48,33 +48,6 @@ sub getfile_open {
   return 0;
 }
 
-### 画像リダイレクト --------------------------------------------------
-sub imageRedirect {
-  my $id   = shift;
-  my $type = shift;
-  my ($file,$type,$user) = getfile_open($id);
-  my $datadir = ($type eq 'm') ? $set::mons_dir
-              : ($type eq 'i') ? $set::item_dir
-              : ($type eq 'a') ? $set::arts_dir
-              : $set::char_dir;
-  my $ext;
-  open(my $DATA, "./${datadir}/${file}/data.cgi") or die;
-  while(<$DATA>){
-    if($_ =~ /^image<>(.*?)\n/){ $ext = $1; last }
-  }
-  close($DATA);
-
-  open(my $IMG, "./${datadir}/${file}/image.${ext}") or die;
-  binmode $IMG;
-  binmode STDOUT;
-  print "Content-type: image/".($ext eq 'jpg' ? 'jpeg' : $ext)."\n";
-  print "Cache-Control: public, max-age=604800\n";
-  print "Content-Disposition: inline; filename=\"ytsheet_$::in{id}.$ext\"\n";
-  print "\n";
-  print while (<$IMG>);
-  close($IMG);
-  exit;
-}
 
 ### プレイヤー名取得 --------------------------------------------------
 sub getplayername {
@@ -651,18 +624,16 @@ sub palettePropertiesUsedOnly {
   foreach (0 .. 100){
     $hit = 0;
     foreach my $line (@propaties_in){
-      if($line =~ "^//(.+?)="){
-        my $var = $1;
-        if   ($palette =~ "^//\Q$var\E="){ ; }
-        elsif($palette =~ /\{\Q$var\E\}/){ $palette .= $line."\n"; $hit = 1 }
+      if($line =~ "^//(\Q.+?\E)="){
+        if   ($palette =~ /^\/\/$1=/m){ ; }
+        elsif($palette =~ /\{($1)\}/){ $palette .= $line."\n"; $hit = 1 }
       }
     }
     last if !$hit;
   }
   foreach (@propaties_in){
-    if($_ =~ "^//(.+?)="){
-      my $var = $1;
-      if($palette =~ /\{\Q$var\E\}/){ push @propaties_out, $_; }
+    if($_ =~ "^//(\Q.+?\E)="){
+      if($palette =~ /\{($1)\}/){ push @propaties_out, $_; }
     }
     else {
       push @propaties_out, $_;

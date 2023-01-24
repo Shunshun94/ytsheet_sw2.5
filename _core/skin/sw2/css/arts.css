@@ -154,8 +154,6 @@ div.data-magic dl.use       { grid-area: USE ; }
 div.data-magic dl.apply     { grid-area: APLY; }
 div.data-magic dl.risk      { grid-area: RISK; }
 
-div.data-magic dl.a-cost    { grid-area: ACST; }
-
 div.data-magic.enhance {
   grid-template-areas:
     "NAME NAME NAME DURA"
@@ -317,24 +315,13 @@ div.data-magic.data-arts dl.equip,
 div.data-magic.data-arts dl.risk {
   grid-template-columns: 4.2em 1fr;
 }
-div.data-magic.data-arts dl.cost,
-div.data-magic dl.a-cost {
+div.data-magic.data-arts dl.cost {
   grid-template-columns: 4.2em 1fr;
 }
-div.data-magic.data-arts dl.cost dt > span,
-div.data-magic dl.a-cost dt > span {
+div.data-magic.data-arts dl.cost dt > span {
   display: inline-block;
   font-size: 75%;
   transform: scaleY(calc(1/0.75));
-}
-#mystic-arts div.data-magic:not(.data-arts) {
-  grid-template-columns: 1.1fr 1.1fr 0.35fr 0.65fr 0.8fr;
-  grid-template-areas:
-    "NAME NAME NAME ACST COST"
-    "TRGT RANG DURA DURA RESI"
-    "SMRY SMRY SMRY SMRY ELEM"
-    "EFCT EFCT EFCT EFCT EFCT"
-  ;
 }
 
 div.data-magic dl {
@@ -427,8 +414,7 @@ div.data-magic dl.name dd small {
   margin-right: -.2em;
   transform: scaleY(1.3);
 }
-div.data-magic dl.name dd .s-icon::before,
-div.data-magic h3 .s-icon::before {
+div.data-magic dl.name dd .s-icon::before {
   color: #fff;
 }
 div.data-magic dl.effect dd p {
@@ -541,8 +527,7 @@ div.data dl.effects table.weapon-table td:not(.left) {
 
 /* // Description
 ---------------------------------------------------------------------------------------------------- */
-.description,
-.description .box {
+.description {
   margin-top: 1.5em;
   border: 0;
   box-shadow: none;
@@ -550,7 +535,8 @@ div.data dl.effects table.weapon-table td:not(.left) {
   background-color: var(--box-base-bg-color);
   box-shadow: none !important;
 }
-.description h2 {
+.description h2,
+.description h2:nth-child(n+2) {
   margin: 0;
   padding: 0 .3em;
   border-width: 2px 0px;
@@ -561,8 +547,8 @@ div.data dl.effects table.weapon-table td:not(.left) {
   background-color: var(--bg-color);
   text-shadow: 0px 0px .3em #fff;
 }
-.description h2:nth-child(n+2) {
-  margin-top: 2em;
+.box.description h2 ~ h2 {
+  margin-top: 1em;
 }
 .night .description h2 {
   text-shadow: 0px 0px .3em #000;
@@ -570,9 +556,6 @@ div.data dl.effects table.weapon-table td:not(.left) {
 .description#magics,
 .description#mystic-arts {
   background-color: transparent;
-}
-.description .box {
-  margin-top: 0;
 }
 
 

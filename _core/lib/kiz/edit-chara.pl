@@ -117,7 +117,7 @@ Content-type: text/html\n
   <style>
     #image,
     .image-custom-view {
-      background-image: url("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}");
+      background-image: url("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}");
     }
   </style>
 </head>
@@ -254,7 +254,7 @@ print <<"HTML";
         </dl>
       </details>
       <div id="area-status">
-        @{[ imageForm("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}") ]}
+        @{[ imageForm("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}") ]}
 
         <div id="classes" class="box">
         <h2>種別／ネガイ／能力値</h2>
