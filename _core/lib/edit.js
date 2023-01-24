@@ -421,13 +421,12 @@ function view(viewId){
 }
 
 // 連番ID生成 ----------------------------------------
-function idNumSet (id,after){
+function idNumSet (id){
   let num = 1;
-  after ||= '';
-  while(document.getElementById(id+num+after)){
+  while(document.getElementById(id+num)){
     num++;
   }
-  return id+num+after;
+  return id+num;
 }
 
 

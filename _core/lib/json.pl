@@ -59,7 +59,7 @@ if($id){
   }
   
   if($pc{'image'}){
-    $pc{'imageURL'} = url()."?id=$id&mode=image&cache=$pc{'imageUpdate'}";
+    $pc{'imageURL'} = url()."${datadir}${file}/image.$pc{'image'}";
   }
 }
 elsif($::in{'url'}){
