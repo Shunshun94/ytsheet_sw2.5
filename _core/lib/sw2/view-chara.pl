@@ -999,7 +999,8 @@ if($pc{'image'}){
     $imgsrc = $pc{'imageURL'};
   }
   else {
-    $imgsrc = "./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}";
+    ### temp fix https://discord.com/channels/791236985116426271/791237812519043073/1068423142705479740
+    $imgsrc = "${set::char_dir}${main::file}/image.$pc{'image'}?$pc{'imageUpdate'}";
   }
   $SHEET->param(imageSrc => $imgsrc);
   $SHEET->param(images    => "'1': \"".($pc{'modeDownload'} ? urlToBase64($imgsrc) : $imgsrc)."\", ");
