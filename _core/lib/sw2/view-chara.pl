@@ -298,7 +298,13 @@ foreach (1..$pc{'mysticArtsNum'}){
   my $type = $pc{'mysticArts'.$_.'PtType'} || 'human';
   $mysticarts_honor{$type} += $pc{'mysticArts'.$_.'Pt'};
   next if !$pc{'mysticArts'.$_};
-  push(@mystic_arts, { "NAME" => $pc{'mysticArts'.$_} });
+  push(@mystic_arts, { "NAME" => '《'.$pc{'mysticArts'.$_}.'》' });
+}
+foreach (1..$pc{'mysticMagicNum'}){
+  my $type = $pc{'mysticMagic'.$_.'PtType'} || 'human';
+  $mysticarts_honor{$type} += $pc{'mysticMagic'.$_.'Pt'};
+  next if !$pc{'mysticMagic'.$_};
+  push(@mystic_arts, { "NAME" => '【'.$pc{'mysticMagic'.$_}.'】' });
 }
 my $mysticarts_honor = $mysticarts_honor{'human'}
                      .($mysticarts_honor{'barbaros'}?"<br><small>蛮</small>$mysticarts_honor{'barbaros'}":'')
@@ -990,10 +996,10 @@ else {
 my $imgsrc;
 if($pc{'image'}){
   if($pc{'convertSource'} eq '別のゆとシートⅡ') {
-    $imgsrc = $pc{'imageURL'}."?$pc{'imageUpdate'}";
+    $imgsrc = $pc{'imageURL'};
   }
   else {
-    $imgsrc = "${set::char_dir}${main::file}/image.$pc{'image'}?$pc{'imageUpdate'}";
+    $imgsrc = "./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}";
   }
   $SHEET->param(imageSrc => $imgsrc);
   $SHEET->param(images    => "'1': \"".($pc{'modeDownload'} ? urlToBase64($imgsrc) : $imgsrc)."\", ");
