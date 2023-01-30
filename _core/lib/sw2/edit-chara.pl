@@ -126,8 +126,7 @@ Content-type: text/html\n
   <style>
     #image,
     .image-custom-view {
-      /* temp fix https://discord.com/channels/791236985116426271/791237812519043073/1068423142705479740 */
-      background-image: url("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}");
+      background-image: url("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}");
     }
   </style>
 </head>
@@ -283,8 +282,7 @@ print <<"HTML";
         <div class="annotate">※経験点は、初期所有技能のぶんを含みます。</div>
       </details>
       <div id="area-status">
-        <!-- temp fix https://discord.com/channels/791236985116426271/791237812519043073/1068423142705479740 -->
-        @{[ imageForm("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}") ]}
+        @{[ imageForm("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}") ]}
 
         <div id="personal">
           <dl class="box" id="race">

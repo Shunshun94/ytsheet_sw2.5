@@ -124,8 +124,7 @@ Content-type: text/html\n
   <style>
     #image,
     .image-custom-view {
-      /* temp fix https://discord.com/channels/791236985116426271/791237812519043073/1068423142705479740 */
-      background-image: url("${set::char_dir}${file}/image.$pc{'image'}?$pc{'imageUpdate'}");
+      background-image: url("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}");
     }
   </style>
 </head>
