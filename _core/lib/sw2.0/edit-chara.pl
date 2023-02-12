@@ -121,6 +121,7 @@ Content-type: text/html\n
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2/edit-chara.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2.0/edit-chara.js?${main::ver}" defer></script>
+  <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/ytsheet/autoComplete/autoComplete.js"></script>
   <style>
     #image,
     .image-custom-view {
