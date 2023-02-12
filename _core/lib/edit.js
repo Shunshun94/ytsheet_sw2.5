@@ -20,9 +20,22 @@ window.addEventListener('beforeunload', function(e) {
 
 // 送信 ----------------------------------------
 let saving = 0;
-function formSubmit() {
+function formSubmit(learningList = false) {
   if(saving){ return; }
   if(!formCheck()){ return false; }
+  if(learningList) {
+    try {
+      io.github.shunshun94.trpg.ytsheet.AutoComplete.Learning.learn(learningList);
+    } catch (e) {
+      console.warn('自動補完の保存に失敗', e);
+    }
+    try {
+      io.github.shunshun94.trpg.ytsheet.AutoComplete.Inserting.updateDataListHtml(learningList);
+    } catch (e) {
+      console.warn('自動補完の更新に失敗', e);
+    }
+    
+  }
   const formData = new FormData(form)
   const action = form.getAttribute("action")
   const options = {
@@ -97,7 +110,7 @@ document.addEventListener('keydown', e => {
     const nowFocus = document.activeElement;
     document.activeElement.blur();
     nowFocus.focus();
-    formSubmit();
+    formSubmit(autoCompleteTargetList || false);
   }
 });
 

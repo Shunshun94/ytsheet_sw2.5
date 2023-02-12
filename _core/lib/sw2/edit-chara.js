@@ -90,6 +90,19 @@ let bonusMnd = 0;
 let level = 0;
 let levelCasters = [];
 
+const autoCompleteTargetList = [{
+  element: document.getElementById('weapons'),
+  columns: ['Usage', 'Reqd', 'Acc', 'Rate', 'Crit', 'Dmg', 'Category']
+},{
+  element: document.getElementById('armours'),
+  columns: ['Reqd', 'Eva', 'Def', 'Note'],
+  key:     'Name',
+  name:    'armours',
+  isPositionStrict: true
+}, {
+  element:document.getElementById('accessories'), columns: ['Note']
+}];
+
 window.onload = function() {
   nameSet();
   race = form.race.value;
@@ -103,6 +116,7 @@ window.onload = function() {
   
   imagePosition();
   changeColor();
+  io.github.shunshun94.trpg.ytsheet.AutoComplete.Inserting.initialize(autoCompleteTargetList);
 };
 
 // 送信前チェック ----------------------------------------
@@ -2120,4 +2134,4 @@ const pointBuyList = {
       12 :  160,
     },
   }
-}
+};
