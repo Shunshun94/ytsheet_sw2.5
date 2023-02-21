@@ -125,7 +125,7 @@ Content-type: text/html\n
   <style>
     #image,
     .image-custom-view {
-      background-image: url("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}");
+      background-image: url("$pc{'imageURL'}");
     }
   </style>
 </head>
@@ -284,7 +284,7 @@ print <<"HTML";
         <div class="annotate">※経験点は、初期所有技能のぶんを含みます。</div>
       </details>
       <div id="area-status">
-        @{[ imageForm("./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}") ]}
+        @{[ imageForm($pc{'imageURL'}) ]}
 
         <div id="personal">
           <dl class="box" id="race">
@@ -545,6 +545,18 @@ print <<"HTML";
             </ul>
             <div class="add-del-button"><a onclick="addMysticArts()">▼</a><a onclick="delMysticArts()">▲</a></div>
             @{[input('mysticArtsNum','hidden')]}
+
+            <h2>秘伝魔法</h2>
+            <ul id="mystic-magic-list">
+HTML
+$pc{'mysticMagicNum'} ||= 0;
+foreach my $num (1 .. $pc{'mysticMagicNum'}){
+  print '<li id="mystic-magic'.$num.'"><span class="handle"></span>'.(input 'mysticMagic'.$num).(input 'mysticMagic'.$num.'Pt', 'number', 'calcHonor').'</li>';
+}
+print <<"HTML";
+            </ul>
+            <div class="add-del-button"><a onclick="addMysticMagic()">▼</a><a onclick="delMysticMagic()">▲</a></div>
+            @{[input('mysticMagicNum','hidden')]}
           </div>
         </div>
         <div id="crafts">
@@ -645,8 +657,9 @@ foreach my $class (@data::class_names){
   foreach my $p_id (sort{$data{$a}{'stt'} cmp $data{$b}{'stt'}} keys %data){
     (my $p_name = $data{$p_id}{'name'}) =~ s/(\(.+?\))/<small>$1<\/small>/;
     print '<tr>';
-    print '<th rowspan="'.$rowspan.'">'.$class.'技能</th>' if !$i;
+    print '<th rowspan="'.$rowspan.'">'.$class.'</th>' if !$i;
     print '<th>'. $p_name .'</th>';
+    print '<td id="package-'.$c_en.'-'.lc($p_id).'-auto" class="small"></td>';
     print '<td>+'. (input "pack${c_id}${p_id}Add", 'number','calcPackage' ) .'=</td>';
     print '<td id="package-'.$c_en.'-'.lc($p_id).'">'. $data{"pack${c_id}${p_id}"} .'</td>';
     print '</tr>';
@@ -1211,7 +1224,7 @@ print <<"HTML";
                 <tr><th></th><th></th><th>種別｜点数</th></tr>
               </thead>
               <tbody>
-                <tr id="honor-items-mystic-arts"><td class="center" class="center" colspan="2">秘伝</td><td id="mystic-arts-honor-value">0</td></tr>
+                <tr id="honor-items-mystic-arts"><td class="center" class="center" colspan="2">秘伝／秘伝魔法</td><td id="mystic-arts-honor-value">0</td></tr>
               </tbody>
               <tbody id="honor-items-table">
 HTML

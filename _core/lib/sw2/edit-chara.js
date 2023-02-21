@@ -1029,10 +1029,11 @@ function calcPackage() {
       document.getElementById(`package-${className}`).style.display = lv[cId] > 0 ? "" :"none";
 
       Object.keys(data).forEach(function(pId) {
+        let autoBonus = 0;
         if(cId === 'War' && pId === 'Int'){
           let hit = 0;
           for(let i = 1; i <= lv['War']+(feats['鼓咆陣率追加']||0); i++){
-            if(form[`craftCommand${i}`].value.match(/軍師の知略$/)){ hit = 1; break; }
+            if(form[`craftCommand${i}`].value.match(/軍師の知略$/)){ hit = 1; autoBonus += form[`craftCommand${i}`].value.match(/^陣率/) ? 1 : 0; break; }
           }
           if(!hit){
             document.getElementById(`package-${className}-${pId.toLowerCase()}`).innerHTML = '―';
@@ -1040,7 +1041,8 @@ function calcPackage() {
           }
         }
         
-        let v = lv[cId] + bonus[data[pId]['stt']] + Number(form[`pack${cId}${pId}Add`].value);
+        let v = lv[cId] + bonus[data[pId]['stt']] + Number(form[`pack${cId}${pId}Add`].value) + autoBonus;
+        document.getElementById(`package-${className}-${pId.toLowerCase()}-auto`).innerHTML = autoBonus ? '+'+autoBonus : '';
         document.getElementById(`package-${className}-${pId.toLowerCase()}`).innerHTML = v;
 
         if(data[pId]['monsterLore']){ lore.push(lv[cId] > 0 ? v : 0); }
@@ -1612,7 +1614,7 @@ let mysticMagicSortable = Sortable.create(document.querySelector('#mystic-magic-
   handle: '.handle',
   ghostClass: 'sortable-ghost',
   onUpdate: function (evt) {
-    const order = mysticArtsSortable.toArray();
+    const order = mysticMagicSortable.toArray();
     let num = 1;
     for(let id of order) {
       if(document.getElementById(id)){
@@ -1854,6 +1856,7 @@ let honorSortable = Sortable.create(document.querySelector('#honor-items-table')
       if(document.getElementById(id)){
         document.querySelector(`#${id} [type="text"]`  ).setAttribute('name',`honorItem${num}`);
         document.querySelector(`#${id} [type="number"]`).setAttribute('name',`honorItem${num}Pt`);
+        if(modeZero){ document.querySelector(`#${id} select`).setAttribute('name',`honorItem${num}PtType`); }
         num++;
       }
     }
@@ -1903,6 +1906,7 @@ let dishonorSortable = Sortable.create(document.querySelector('#dishonor-items-t
       if(document.getElementById(id)){
         document.querySelector(`#${id} [type="text"]`  ).setAttribute('name',`dishonorItem${num}`);
         document.querySelector(`#${id} [type="number"]`).setAttribute('name',`dishonorItem${num}Pt`);
+        if(modeZero){ document.querySelector(`#${id} select`).setAttribute('name',`dishonorItem${num}PtType`); }
         num++;
       }
     }

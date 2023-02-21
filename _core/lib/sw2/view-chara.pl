@@ -435,7 +435,7 @@ foreach my $class (@data::class_names){
     (my $p_name = $data{$p_id}{'name'}) =~ s/(\(.+?\))/<small>$1<\/small>/;
     push(@pack, {
       'name'  => $p_name,
-      'add'   => $pc{'pack'.$c_id.$p_id.'Add'},
+      'add'   => $pc{'pack'.$c_id.$p_id.'Add'}+$pc{'pack'.$c_id.$p_id.'Auto'},
       'total' => $pc{'pack'.$c_id.$p_id},
     });
   }
@@ -1002,7 +1002,7 @@ if($pc{'image'}){
     $imgsrc = "./?id=$::in{'id'}&mode=image&cache=$pc{'imageUpdate'}";
   }
   $SHEET->param(imageSrc => $imgsrc);
-  $SHEET->param(images    => "'1': \"".($pc{'modeDownload'} ? urlToBase64($imgsrc) : $imgsrc)."\", ");
+  $SHEET->param(images    => "'1': \"".($pc{'modeDownload'} ? urlToBase64("${set::char_dir}${main::file}/image.$pc{'image'}") : $imgsrc)."\", ");
 }
 
 if($pc{'imageFit'} eq 'percentY'){
