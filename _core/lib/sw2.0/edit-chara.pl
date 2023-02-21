@@ -158,7 +158,7 @@ print <<"HTML";
             <ul>
               <li @{[ display ($mode eq 'edit') ]} class="view-icon" title="閲覧画面"><a href="./?id=$::in{'id'}"></a></li>
               <li @{[ display ($mode eq 'edit') ]} class="copy" onclick="window.open('./?mode=copy&id=$::in{'id'}@{[  $::in{'log'}?"&log=$::in{'log'}":'' ]}');">複製</li>
-              <li class="submit" onclick="formSubmit()" title="Ctrl+S">保存</li>
+              <li class="submit" onclick="formSubmit(autoCompleteTargetList)" title="Ctrl+S">保存</li>
             </ul>
           </li>
         </ul>
