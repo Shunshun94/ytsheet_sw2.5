@@ -65,11 +65,7 @@ elsif($mode eq 'blanksheet'){
       $pc{'race'} .= "（$data::races{$pc{'race'}}{'variantSort'}[0]）";
     }
     if($::in{'making_num'}){
-      if($::in{'making_trial'}){
-        $pc{'freeHistory'} = "[[こちら>./?mode=making&num=$::in{'making_num'}]]の$::in{'making_trial'}番目のステータスを採用しています";
-      }else{
-        $pc{'freeHistory'} = "[[こちら>./?mode=making&num=$::in{'making_num'}]]のステータスを採用しています";
-      }
+      $pc{'history0Note'} = "[能力値作成履歴#$::in{'making_num'}#making$::in{'making_num'}]";
     }
   }
   
@@ -277,7 +273,7 @@ print <<"HTML";
           <dd>@{[input("history0Honor",'number','changeRegu', ($set::make_fix?' readonly':''))]}</dd>
           <dt>成長</dt>
           <dd>
-            <dl id="regulation-grow">
+            <dl class="regulation-grow">
               <dt>器用度</dt><dd>@{[ input "sttPreGrowA",'number','calcStt' ]}</dd>
               <dt>敏捷度</dt><dd>@{[ input "sttPreGrowB",'number','calcStt' ]}</dd>
               <dt>筋力  </dt><dd>@{[ input "sttPreGrowC",'number','calcStt' ]}</dd>
@@ -288,6 +284,7 @@ print <<"HTML";
           </dd>
         </dl>
         <div class="annotate">※経験点は、初期所有技能のぶんを含みます。</div>
+        <dl class="regulation-note"><dt>備考</dt><dd>@{[ input "history0Note" ]}</dd></dl>
       </details>
       <div id="area-status">
         @{[ imageForm($pc{'imageURL'}) ]}
