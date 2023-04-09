@@ -36,8 +36,17 @@ function formSubmit(learningList = false) {
     }
     
   }
-  const formData = new FormData(form)
-  const action = form.getAttribute("action")
+  const formData = new FormData(form);
+  const action = form.getAttribute("action");
+  if(base64Mode){
+    for(let item of formData){
+      if(item[0] === 'mode'){ continue; }
+      if(typeof item[1] === 'string' || typeof item[1] === 'number'){
+        formData.set(item[0], btoa(unescape(encodeURIComponent(item[1]))) );
+      }
+    }
+    formData.set('base64mode', 1);
+  }
   const options = {
     method: 'POST',
     body: formData,
@@ -129,6 +138,49 @@ function nameSet(id){
 // ルビ置換 ----------------------------------------
 function ruby(text){
   return text.replace(/[|｜](.+?)《(.+?)》/g, "<ruby>$1<rt>$2</rt></ruby>");
+}
+
+// 最新のデータを取得 ----------------------------------------
+let newestData = {};
+async function getNewestData(){
+  const queries = new URLSearchParams(window.location.search);
+  const id = queries.get('id');
+  
+  const action = form.getAttribute("action")
+  const options = {
+    method: 'POST',
+    body: new URLSearchParams({'id':id, 'mode':'json'}),
+  }
+  await fetch(action, options)
+    .then(response => response.json())
+    .then(data => {
+      newestData = data;
+    })
+}
+async function setNewestSingleData(name){
+  await getNewestData();
+  setNewestValue(name)
+}
+async function setNewestHistoryData(){
+  await getNewestData();
+  while(newestData['historyNum'] > Number(form.historyNum.value)){
+    addHistory();
+  }
+  const formData = new FormData(form);
+  for (let name of formData.keys()) {
+    if(name.match(/^history[1-9][0-9]*?/)){
+      setNewestValue(name)
+    }
+  }
+}
+async function setNewestValue(name){
+  form[name].value = newestData[name]
+                   ? newestData[name]
+                      .replace(/&amp;/g,'&')
+                      .replace(/&lt;/g,'<')
+                      .replace(/&gt;/g,'>')
+                      .replace(/<br>/g,'\n')
+                   : '';
 }
 
 // チャットパレット ----------------------------------------
