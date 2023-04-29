@@ -49,7 +49,7 @@ sub tag_unescape {
   $text =~ s/__(.+?)__/<span class="underline">$1<\/span>/gi;  # 下線
   $text =~ s/\{\{COMMENT(.+?)\}\}/<span class="comment">$1<\/span>/gi;  # コメント
   $text =~ s/\{\{(.+?)\}\}/<span style="color:transparent">$1<\/span>/gi;  # 透明
-  $text =~ s/[|｜]([^|｜]+?)《(.+?)》/<ruby>$1<rp>(<\/rp><rt>$2<\/rt><rp>)<\/rp><\/ruby>/gi; # なろう式ルビ
+  $text =~ s/[|｜]([^|｜\n]+?)《(.+?)》/<ruby>$1<rp>(<\/rp><rt>$2<\/rt><rp>)<\/rp><\/ruby>/gi; # なろう式ルビ
   $text =~ s/《《(.+?)》》/<span class="text-em">$1<\/span>/gi; # カクヨム式傍点
   
   $text =~ s/\[\[(.+?)&gt;((?:(?!<br>)[^"])+?)\]\]/&tag_link_url($2,$1)/egi; # リンク
