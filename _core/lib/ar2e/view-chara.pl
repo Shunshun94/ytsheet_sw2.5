@@ -182,9 +182,9 @@ if($pc{'ver'}){
   foreach (keys %pc) {
     next if($_ =~ /^image/);
     if($_ =~ /^(?:items|freeNote|freeHistory|cashbook)$/){
-      $pc{$_} = tag_unescape_lines($pc{$_});
+      $pc{$_} = tagUnescapeLines($pc{$_});
     }
-    $pc{$_} = tag_unescape($pc{$_});
+    $pc{$_} = tagUnescape($pc{$_});
 
     $pc{$_} = noiseTextTag $pc{$_} if $pc{'forbiddenMode'};
   }
@@ -216,10 +216,10 @@ if($::in{'url'}){
 }
 
 ### キャラクター名 --------------------------------------------------
-$SHEET->param(characterName => "<ruby>$pc{'characterName'}<rt>$pc{'characterNameRuby'}</rt></ruby>") if $pc{'characterNameRuby'};
+$SHEET->param(characterName => "<ruby>$pc{'characterName'}<rp>(</rp><rt>$pc{'characterNameRuby'}</rt><rp>)</rp></ruby>") if $pc{'characterNameRuby'};
 
 ### 二つ名 --------------------------------------------------
-$SHEET->param(aka => "<ruby>$pc{'aka'}<rt>$pc{'akaRuby'}</rt></ruby>") if $pc{'akaRuby'};
+$SHEET->param(aka => "<ruby>$pc{'aka'}<rp>(</rp><rt>$pc{'akaRuby'}</rt><rp>)</rp></ruby>") if $pc{'akaRuby'};
 
 ### プレイヤー名 --------------------------------------------------
 if($set::playerlist){
@@ -417,7 +417,7 @@ foreach (1 .. $pc{'skillsNum'}){
   $skillCount++;
 }
 $SHEET->param(Skills => \@skills);
-$SHEET->param(skillNoteOpen => ($skillCount <= 10) ? 1 : 0);
+$SHEET->param(skillFullOpen => 'true') if $skillCount <= 10;
 sub checkType {
   my $text = shift;
   return '' if !$text;
@@ -595,13 +595,13 @@ if($pc{'forbidden'} eq 'all' && $pc{'forbiddenMode'}){
   $SHEET->param(titleName => '非公開データ');
 }
 else {
-  $SHEET->param(titleName => tag_delete name_plain($pc{'characterName'}||"“$pc{'aka'}”"));
+  $SHEET->param(titleName => tagDelete nameToPlain($pc{'characterName'}||"“$pc{'aka'}”"));
 }
 
 ### OGP --------------------------------------------------
 $SHEET->param(ogUrl => url().($::in{'url'} ? "?url=$::in{'url'}" : "?id=$::in{'id'}"));
 if($pc{'image'}) { $SHEET->param(ogImg => $pc{'imageURL'}); }
-$SHEET->param(ogDescript => tag_delete "種族:$pc{'race'}　性別:$pc{'gender'}　年齢:$pc{'age'}　クラス:$pc{'classMain'}／$pc{'classSupport'}".($pc{'classTitle'}?"／$pc{'classTitle'}":''));
+$SHEET->param(ogDescript => tagDelete "種族:$pc{'race'}　性別:$pc{'gender'}　年齢:$pc{'age'}　クラス:$pc{'classMain'}／$pc{'classSupport'}".($pc{'classTitle'}?"／$pc{'classTitle'}":''));
 
 ### バージョン等 --------------------------------------------------
 $SHEET->param(ver => $::ver);

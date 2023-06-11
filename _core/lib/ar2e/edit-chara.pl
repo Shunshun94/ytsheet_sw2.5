@@ -50,7 +50,7 @@ my $mode_make = ($mode =~ /^(blanksheet|copy|convert)$/) ? 1 : 0;
 
 ### 出力準備 #########################################################################################
 if($message){
-  my $name = tag_unescape($pc{'characterName'} || $pc{'aka'} || '無題');
+  my $name = tagUnescape($pc{'characterName'} || $pc{'aka'} || '無題');
   $message =~ s/<!NAME>/$name/;
 }
 ### プレイヤー名 --------------------------------------------------
@@ -143,7 +143,7 @@ foreach my $i (1 .. $pc{'geisesNum'}){
 }
 
 ### フォーム表示 #####################################################################################
-my $titlebarname = tag_delete name_plain tag_unescape ($pc{'characterName'}||"“$pc{'aka'}”");
+my $titlebarname = tagDelete nameToPlain tagUnescape ($pc{'characterName'}||"“$pc{'aka'}”");
 print <<"HTML";
 Content-type: text/html\n
 <!DOCTYPE html>
@@ -607,7 +607,7 @@ print <<"HTML";
       <details class="box" id="levelup" open>
         <summary>レベルアップ</summary>
         <dl>
-          <dt><ruby>ＣＬ<rt>キャラクターレベル</rt></ruby>:</dt><dd>@{[ input 'level','number','changeLv','min="1"' ]}</dd>
+          <dt><ruby>ＣＬ<rp>(</rp><rt>キャラクターレベル</rt><rp>)</rp></ruby>:</dt><dd>@{[ input 'level','number','changeLv','min="1"' ]}</dd>
         </dl>
         <table class="edit-table no-border-cells">
           <thead>
@@ -1264,6 +1264,7 @@ print <<"HTML";
               <td id="history-exp-total"></td>
               <td id="history-payment-total"></td>
               <td id="history-money-total"></td>
+              <td colspan="2"></td>
             </tr>
             <tr>
               <th></th>

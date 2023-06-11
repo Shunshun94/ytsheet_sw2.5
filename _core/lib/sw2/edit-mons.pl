@@ -20,7 +20,7 @@ my $mode_make = ($mode =~ /^(blanksheet|copy|convert)$/) ? 1 : 0;
 
 ### 出力準備 #########################################################################################
 if($message){
-  my $name = tag_unescape($pc{'characterName'} || $pc{'monsterName'} || '無題');
+  my $name = tagUnescape($pc{'characterName'} || $pc{'monsterName'} || '無題');
   $message =~ s/<!NAME>/$name/;
 }
 ### 製作者名 --------------------------------------------------
@@ -200,7 +200,7 @@ print <<"HTML";
           <dd>部位再生@{[ input 'priceRegenerate' ]}G</dd>
         </dl>
         <dl class="mount-only">
-          <dt>適性レベル</dt>
+          <dt>適正レベル</dt>
           <dd>@{[ input 'lvMin','number','checkMountLevel','min="0"' ]} ～ @{[ input 'lvMax','number','checkMountLevel','min="0"' ]}</dd>
         </dl>
         <dl>

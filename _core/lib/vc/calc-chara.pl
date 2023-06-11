@@ -16,6 +16,7 @@ sub data_calc {
 
   ### 戦果点 --------------------------------------------------
   foreach my $num (0 .. $pc{'historyNum'}){ $pc{'resultPoint'} += s_eval($pc{"history${num}Result"}); }
+  $pc{'historyResultTotal'} = $pc{'resultPoint'};
   foreach my $num (0 .. $pc{'goodsNum'  }){ $pc{'resultPoint'} -= $pc{"goods${num}Cost"}; }
   foreach my $num (0 .. $pc{'itemsNum'  }){ $pc{'resultPoint'} -= $pc{"item${num}Cost"}; }
 
@@ -58,7 +59,7 @@ sub data_calc {
   
   ### 最終参加卓 --------------------------------------------------
   foreach my $i (reverse 1 .. $pc{'historyNum'}){
-    if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{"lastSession"} = tag_delete tag_unescape $pc{"history${i}Title"}; last; }
+    if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{"lastSession"} = tagDelete tagUnescape $pc{"history${i}Title"}; last; }
   }
 
   ### newline --------------------------------------------------

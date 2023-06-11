@@ -117,9 +117,9 @@ if($pc{'ver'}){
   foreach (keys %pc) {
     next if($_ =~ /^image/);
     if($_ =~ /^(?:items|freeNote|freeHistory|cashbook)$/){
-      $pc{$_} = tag_unescape_lines($pc{$_});
+      $pc{$_} = tagUnescapeLines($pc{$_});
     }
-    $pc{$_} = tag_unescape($pc{$_});
+    $pc{$_} = tagUnescape($pc{$_});
 
     $pc{$_} = noiseTextTag $pc{$_} if $pc{'forbiddenMode'};
   }
@@ -156,7 +156,7 @@ if($::in{'url'}){
 }
 
 ### 二つ名 --------------------------------------------------
-$SHEET->param(aka => "<ruby>$pc{'aka'}<rt>$pc{'akaRuby'}</rt></ruby>") if $pc{'akaRuby'};
+$SHEET->param(aka => "<ruby>$pc{'aka'}<rp>(</rp><rt>$pc{'akaRuby'}</rt><rp>)</rp></ruby>") if $pc{'akaRuby'};
 
 ### プレイヤー名 --------------------------------------------------
 if($set::playerlist){
@@ -476,20 +476,6 @@ else {
   $fairy_contact .= '<span class="ft-light">光</span>' if $pc{'fairyContractLight'};
   $fairy_contact .= '<span class="ft-dark" >闇</span>' if $pc{'fairyContractDark' };
 }
-sub fairyRank (){
-  my $i = $pc{'fairyContractEarth'}
-        + $pc{'fairyContractWater'}
-        + $pc{'fairyContractFire' }
-        + $pc{'fairyContractWind' }
-        + $pc{'fairyContractLight'}
-        + $pc{'fairyContractDark' };
-  my %rank = (
-    '4' => ['×','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'],
-    '3' => ['×','×','×','4','5','6','8','9','10','12','13','14','15','15','15','15'],
-    '6' => ['×','×','×','2&1','3&1','4&1','4&2','5&2','6&2','6&3','7&3','8&3','8&4','9&4','10&4','10&5'],
-  );
-  return $rank{$i}[$pc{'lvFai'}] || '×';
-}
 ### 魔力 --------------------------------------------------
 my @magic;
 foreach my $class (@data::class_caster){
@@ -510,7 +496,7 @@ foreach my $class (@data::class_caster){
     $magicname = ($fairy_sim_url ? "<a href=\"$fairy_sim_url\" target=\"_blank\">$name</a>" : $name)
                . ($fairy_contact ? "<div id=\"fairycontact\">$fairy_contact</div>" : '');
     if(!$::SW2_0){
-      $title .= '<br><span class="small">使用可能ランク</span>'.fairyRank();
+      $title .= '<br><span class="small">使用可能ランク</span>'.fairyRank($pc{'lvFai'},$pc{'fairyContractEarth'},$pc{'fairyContractWater'},$pc{'fairyContractFire' },$pc{'fairyContractWind' },$pc{'fairyContractLight'},$pc{'fairyContractDark' });
     }
   }
   push(@magic, {
@@ -991,13 +977,13 @@ if($pc{'forbidden'} eq 'all' && $pc{'forbiddenMode'}){
   $SHEET->param(titleName => '非公開データ');
 }
 else {
-  $SHEET->param(titleName => tag_delete name_plain($pc{'characterName'}||"“$pc{'aka'}”"));
+  $SHEET->param(titleName => tagDelete nameToPlain($pc{'characterName'}||"“$pc{'aka'}”"));
 }
 
 ### OGP --------------------------------------------------
 $SHEET->param(ogUrl => url().($::in{'url'} ? "?url=$::in{'url'}" : "?id=$::in{'id'}"));
 if($pc{'image'}) { $SHEET->param(ogImg => $pc{'imageURL'}); }
-$SHEET->param(ogDescript => tag_delete "種族:$pc{'race'}　性別:$pc{'gender'}　年齢:$pc{'age'}　技能:${class_text}");
+$SHEET->param(ogDescript => tagDelete "種族:$pc{'race'}　性別:$pc{'gender'}　年齢:$pc{'age'}　技能:${class_text}");
 
 ### バージョン等 --------------------------------------------------
 $SHEET->param(ver => $::ver);
