@@ -198,7 +198,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #area-status {
   min-height: 56.7rem;
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: var(--box-v-gap) var(--box-h-gap);
   grid-template-columns: 2fr 1.4fr;
   grid-template-rows: auto auto 1fr auto;
   grid-template-areas:
@@ -374,7 +374,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
   align-self: end;
 }
 #area-battle > .box {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #area-battle > .box > table {
   width: 100%;
@@ -396,7 +396,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 }
 #arts table,
 #bloodarts table {
-  margin-top: -1rem;
+  margin-top: calc(-1 * var(--box-v-gap));
 }
 #arts table thead th,
 #bloodarts table thead th {
@@ -452,8 +452,8 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 ---------------------------------------------------------------------------------------------------- */
 .partner {
   display: grid;
-  margin-top: 1rem;
-  grid-gap: .5rem 1rem;
+  margin-top: var(--box-v-gap);
+  grid-gap: calc(var(--box-v-gap) / 2) var(--box-h-gap);
   grid-template-columns: 1fr 4fr;
   grid-template-rows: auto auto 1fr;
   
@@ -655,7 +655,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 @media screen and (min-width:736px){
   .bigamy {
     display: grid;
-    grid-gap: 1rem;
+    grid-gap: var(--box-v-gap) var(--box-h-gap);
     grid-template-columns: 1fr 1fr;
   }
   .bigamy .box {
@@ -727,26 +727,14 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 ---------------------------------------------------------------------------------------------------- */
 #free-note,
 #free-history{
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 
 
 /* // History
 ---------------------------------------------------------------------------------------------------- */
 #history {
-  margin-top: 1rem;
-}
-#history table{
-  width: 100%;
-  border: hidden;
-}
-#history table th {
-  padding: 2px 0;
-  line-height: 1;
-  white-space: nowrap;
-}
-#history table td {
-  font-size: .85em;
+  margin-top: var(--box-v-gap);
 }
 #history table thead th:nth-child(1) { width:   2em; } /* No. */
 #history table thead th:nth-child(2) { width: 5.2em; } /* 日付 */
@@ -754,37 +742,4 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #history table thead th:nth-child(4) { width: 4.6em; } /* 成長 */
 #history table thead th:nth-child(5) { width:  auto; } /* ＧＭ */
 #history table thead th:nth-child(6) { width:  auto; } /* 参加者 */
-
-#history table tbody td.gm span {
-  display: block;
-  min-width: 5em;
-}
-#history table tbody td.member {
-  padding: 1px 0;
-  text-align: left;
-}
-#history table tbody td.member > span {
-  display: inline-block;
-  padding: 0 .5em;
-}
-#history table tbody td.note {
-  padding-left: .5rem;
-  text-align: left;
-}
-#history table tbody td.note:empty {
-  display: none;
-}
-#history table tbody td:nth-child(2) a,
-#history table tbody td a[data-num] {
-  display: block;
-  background: none;
-}
-#history table tbody td a[data-num]:before {
-  content:"#"attr(data-num);
-  float: left;
-  margin: 0 -0.1em;
-  font-size: 90%;
-  transform: scale(0.8, 0.8);
-  opacity: 0.8;
-}
 

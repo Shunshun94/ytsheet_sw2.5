@@ -187,7 +187,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #area-status {
   min-height: 56.7rem;
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: var(--box-v-gap) var(--box-h-gap);
   grid-template-columns: 0.7fr 1.1fr 1.1fr 2.115fr;
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
@@ -285,7 +285,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 }
 #syndrome {
   display: grid;
-  grid-gap: 0 1rem;
+  grid-gap: 0 .8em;
   grid-template-columns: 1fr 1fr 1fr;
 }
 #syndrome dt:last-of-type {
@@ -469,7 +469,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 /* // Status / Skills
 ---------------------------------------------------------------------------------------------------- */
 #status {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #status table {
   width: 100%;
@@ -527,6 +527,9 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
   margin-left: .1em;
   font-size: 70%;
 }
+#status table tbody td.left:empty + td.right:empty::after {
+  content: '';
+}
 @media screen and (max-width:735px){
   #status table thead td {
     width: 2.2em;
@@ -551,7 +554,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #lois,
 #memory,
 #insanity {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #lois table,
 #memory table {
@@ -681,11 +684,11 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 }
 @media screen and (min-width:1400px){
   #area-battle {
-    margin-top: -1rem;
+    margin-top: calc(-1 * var(--box-v-gap));
   }
 }
 #area-battle > .box {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #area-battle > .box > table {
   width: 100%;
@@ -741,6 +744,9 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
   display: none;
 }
 #effect table tbody:hover td.left {
+  display: table-cell;
+}
+#effect[data-full-open="true"] table tbody td.left {
   display: table-cell;
 }
 #effect table tbody td.left span.right {
@@ -825,6 +831,11 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
   font-size: 1em;
   font-style: normal;
   font-weight: bold;
+}
+@media screen and (min-width:736px){
+  #effect:not([data-full-open="true"]) table > tbody:last-child:not(:hover) > tr:last-child {
+    border-top: none;
+  }
 }
 @media screen and (max-width:735px){
   #effect table thead tr,
@@ -1107,7 +1118,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 }
 /* Items */
 #items {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #items table {
   border-width: 0 0 1px;
@@ -1179,7 +1190,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #enc-bonus {
   position: sticky;
   bottom: 0;
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
   background-image: none;
   background-color: var(--bg-color);
   border-radius: 5px;
@@ -1261,26 +1272,14 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 ---------------------------------------------------------------------------------------------------- */
 #free-note,
 #free-history{
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 
 
 /* // History
 ---------------------------------------------------------------------------------------------------- */
 #history {
-  margin-top: 1rem;
-}
-#history table{
-  width: 100%;
-  border: hidden;
-}
-#history table th {
-  padding: 2px 0;
-  line-height: 1;
-  white-space: nowrap;
-}
-#history table td {
-  font-size: .85em;
+  margin-top: var(--box-v-gap);
 }
 #history table thead th:nth-child(1) { width:   2em; } /* No. */
 #history table thead th:nth-child(2) { width: 5.2em; } /* 日付 */
@@ -1292,37 +1291,5 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #history table tbody td:nth-child(4) s {
   opacity: 0.3;
   text-decoration: none;
-}
-#history table tbody td.gm span {
-  display: block;
-  min-width: 5em;
-}
-#history table tbody td.member {
-  padding: 1px 0;
-  text-align: left;
-}
-#history table tbody td.member > span {
-  display: inline-block;
-  padding: 0 .5em;
-}
-#history table tbody td.note {
-  padding-left: .5rem;
-  text-align: left;
-}
-#history table tbody td.note:empty {
-  display: none;
-}
-#history table tbody td:nth-child(2) a,
-#history table tbody td a[data-num] {
-  display: block;
-  background: none;
-}
-#history table tbody td a[data-num]:before {
-  content:"#"attr(data-num);
-  float: left;
-  margin: 0 -0.1em;
-  font-size: 90%;
-  transform: scale(0.8, 0.8);
-  opacity: 0.8;
 }
 

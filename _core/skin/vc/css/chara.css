@@ -203,7 +203,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #area-status {
   min-height: 56.7rem;
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: var(--box-v-gap) var(--box-h-gap);
   grid-template-columns: 1.6fr 1.4fr 2.14fr;
   grid-template-rows: auto auto auto auto 1fr;
   
@@ -261,7 +261,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
   padding-bottom: .2em;
 }
 #style {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #personal .box-union + .box-union {
   margin-top: 10px;
@@ -408,7 +408,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 /* // Area-Goods
 ---------------------------------------------------------------------------------------------------- */
 #items {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 #items table { margin-top: -1em; }
 #items table thead th:nth-child(1) { width: 12em; }
@@ -421,7 +421,7 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 
 /* // Battle
 ---------------------------------------------------------------------------------------------------- */
-#battle { margin-top: 1rem; }
+#battle { margin-top: var(--box-v-gap); }
 #battle table { margin-top: -1em; }
 #battle table colgroup col.head { width:4.5em; }
 #battle table colgroup col.name { width: 14em; }
@@ -462,22 +462,14 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 ---------------------------------------------------------------------------------------------------- */
 #free-note,
 #free-history{
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
 }
 
 
 /* // History
 ---------------------------------------------------------------------------------------------------- */
 #history {
-  margin-top: 1rem;
-}
-#history table{
-}
-#history table th {
-  white-space: nowrap;
-}
-#history table td {
-  font-size: .85em;
+  margin-top: var(--box-v-gap);
 }
 #history table thead th:nth-child(1) { width:   2em; } /* No. */
 #history table thead th:nth-child(2) { width: 5.2em; } /* 日付 */
@@ -486,55 +478,15 @@ table.data-table tbody tr td:nth-child(9) span.thinest.small {
 #history table thead th:nth-child(5) { width:  auto; } /* ＧＭ */
 #history table thead th:nth-child(6) { width:  auto; } /* 参加者 */
 
-#history table tr td:nth-child(5),
-#history table tr td:nth-child(6) {
+#history table tr td:is(.gm, .member) {
   font-size: 1.1rem;
 }
-#history table tr td:nth-child(5) span {
-  display: block;
-  min-width: 5em;
-}
-#history table tr td:nth-child(6) {
-  padding: 1px 0;
-  text-align: left;
-}
-#history table tr td:nth-child(6) > span {
-  display: inline-block;
-  padding: 0 .5em;
-}
-#history table tr td[colspan] {
-  padding-left: .5rem;
-  text-align: left;
-}
-#history table tr td[colspan]:empty {
-  display: none;
-}
-#history table tr td:nth-child(2) a,
-#history table tr td a[data-num] {
-  display: block;
-  background: none;
-}
-#history table tr td a[data-num]:before {
-  content:"#"attr(data-num);
-  float: left;
-  margin: 0 -0.1em;
-  font-size: 90%;
-  transform: scale(0.8, 0.8);
-  opacity: 0.8;
-}
-#history table tfoot tr td {
-  padding-top: .25em;
-  padding-bottom: .2em;
-}
-#history table tfoot tr td:not(:empty) {
-  border-right-width: 1px;
-  border-right-style: dotted;
-}
+
 
 /* // Cashbook
 ---------------------------------------------------------------------------------------------------- */
 #cashbook {
-  margin-top: 1rem;
+  margin-top: var(--box-v-gap);
   height: max-content;
   overflow: hidden;
 }

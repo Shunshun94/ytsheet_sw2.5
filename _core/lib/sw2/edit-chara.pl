@@ -25,7 +25,7 @@ my $mode_make = ($mode =~ /^(blanksheet|copy|convert)$/) ? 1 : 0;
 
 ### 出力準備 #########################################################################################
 if($message){
-  my $name = tag_unescape($pc{'characterName'} || $pc{'aka'} || '無題');
+  my $name = tagUnescape($pc{'characterName'} || $pc{'aka'} || '無題');
   $message =~ s/<!NAME>/$name/;
 }
 ### プレイヤー名 --------------------------------------------------
@@ -107,7 +107,7 @@ $pc{'fellowNote'}    =~ s/&lt;br&gt;/\n/g;
 $pc{'chatPalette'}   =~ s/&lt;br&gt;/\n/g;
 
 ### フォーム表示 #####################################################################################
-my $titlebarname = tag_delete name_plain tag_unescape ($pc{'characterName'}||"“$pc{'aka'}”");
+my $titlebarname = tagDelete nameToPlain tagUnescape ($pc{'characterName'}||"“$pc{'aka'}”");
 print <<"HTML";
 Content-type: text/html\n
 <!DOCTYPE html>
@@ -474,7 +474,7 @@ print <<"HTML";
             </table>
           </div>
         </div>
-        <p class="right">@{[ input "failView", "checkbox", "checkFeats()" ]} 習得レベルの足りない項目（特技／練技・呪歌など）も表示する</p>
+        <p class="left">@{[ input "failView", "checkbox", "checkFeats()" ]} 習得レベルの足りない項目（特技／練技・呪歌など）も表示する</p>
         <div>
           <div class="box" id="combat-feats">
             <h2>戦闘特技</h2>
@@ -1329,6 +1329,7 @@ print <<"HTML";
               <td id="history-money-total"></td>
               <td id="history-honor-total"></td>
               <td id="history-grow-total"><span id="history-grow-total-value"></span><span id="history-grow-max-value"></span></td>
+              <td colspan="2"></td>
             </tr>
             <tr>
               <th></th>
@@ -1363,13 +1364,13 @@ print <<"HTML";
           <tr>
             <td>-</td>
             <td><input type="text" value="2015-05-01" disabled></td>
-            <td><input type="text" value="第一話「記入例」" disabled></td>
-            <td><input type="text" value="1100+50" disabled></td>
-            <td><input type="text" value="1800" disabled></td>
-            <td><input type="text" value="17" disabled></td>
+            <td><input type="text" value="第三話「記入例」" disabled></td>
+            <td><input type="text" value="3000+50*3" disabled></td>
+            <td><input type="text" value="100000" disabled></td>
+            <td><input type="text" value="300" disabled></td>
             <td><input type="text" value="筋力" disabled></td>
             <td><input type="text" value="サンプルさん" disabled></td>
-            <td><input type="text" value="ブラッド　マリー　ガス" disabled></td>
+            <td><input type="text" value="ウィル　メネル　ルゥ　レイストフ　ゲルレイズ" disabled></td>
           </tr>
           </tbody>
         </table>

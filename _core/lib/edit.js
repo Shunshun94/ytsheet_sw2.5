@@ -126,8 +126,8 @@ document.addEventListener('keydown', e => {
 // 名前 ----------------------------------------
 function nameSet(id){
   id = id ? id : 'characterName';
-  let name = vCheck(id+'Ruby') ? `<ruby>${form[id].value}<rt>${vCheck(id+'Ruby')}</rt></ruby>` : ruby(form[id].value);
-  let aka = (form.aka && form.aka.value) ? '<span class="aka">“'+(vCheck('akaRuby') ? `<ruby>${form.aka.value}<rt>${vCheck('akaRuby')}</rt></ruby>` : `${ruby(form.aka.value)}`)+'”</span>' : '';
+  let name = vCheck(id+'Ruby') ? `<ruby>${form[id].value}<rp>(</rp><rt>${vCheck(id+'Ruby')}</rt><rp>)</rp></ruby>` : ruby(form[id].value);
+  let aka = (form.aka && form.aka.value) ? '<span class="aka">“'+(vCheck('akaRuby') ? `<ruby>${form.aka.value}<rp>(</rp><rt>${vCheck('akaRuby')}</rt><rp>)</rp></ruby>` : `${ruby(form.aka.value)}`)+'”</span>' : '';
   document.querySelector('#header-menu > h2 > span').innerHTML = (aka + name) || '(名称未入力)';
 
   function vCheck(id){
@@ -137,7 +137,7 @@ function nameSet(id){
 }
 // ルビ置換 ----------------------------------------
 function ruby(text){
-  return text.replace(/[|｜](.+?)《(.+?)》/g, "<ruby>$1<rt>$2</rt></ruby>");
+  return text.replace(/[|｜](.+?)《(.+?)》/g, "<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>");
 }
 
 // 最新のデータを取得 ----------------------------------------
@@ -409,8 +409,8 @@ function imageDragPointSet(){
 // セリフプレビュー
 function wordsPreView(){
   let words = form.words.value;
-  words = words.replace(/[|｜](.+?)《(.+?)》/, '<ruby>$1<rt>$2</rt></ruby>')
-               .replace(/《《(.+?)》》/, '<span class="text-em">$1</span>')
+  words = words.replace(/[|｜](.+?)《(.+?)》/g, '<ruby><rp>｜</rp>$1<rp>《</rp><rt>$2</rt><rp>》</rp></ruby>')
+               .replace(/《《(.+?)》》/g, '<span class="text-em">$1</span>')
                .replace(/^([「『（])/gm, '<span class="brackets">$1</span>')
                .replace(/(.+?(?:[，、。？」]|$))/g, '<span>$1</span>')
                .replace(/\n<span>　/g, '\n<span>')
