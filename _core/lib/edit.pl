@@ -439,9 +439,27 @@ sub checkbox {
   ' value="1"'.
   ($::pc{$name}?" checked":"").
   ($oninput?' oninput="'.$oninput.'"':"").
-  '><span>'.$text.'</span></label>';
+  '>'.
+  ($text?'<span>'.$text.'</span>':'').
+  '</label>';
 }
 sub radio {
+  my $name = shift;
+  my $oninput = shift;
+  my $value = shift;
+  my $text = shift;
+  if($oninput && $oninput !~ /\(.*?\)$/){ $oninput .= '()'; }
+  '<label class="radio-button">'.
+  '<input type="radio"'.
+  ' name="'.$name.'"'.
+  ' value="'.$value.'"'.
+  ($::pc{$name} eq $value?" checked":"").
+  ($oninput?' oninput="'.$oninput.'"':"").
+  '>'.
+  ($text?'<span>'.$text.'</span>':'').
+  '</label>';
+}
+sub radios {
   my $name = shift;
   my $oninput = shift;
   if($oninput && $oninput !~ /\(.*?\)$/){ $oninput .= '()'; }
@@ -451,7 +469,7 @@ sub radio {
     '<input type="radio"'.
     ' name="'.$name.'"'.
     ' value="'.$value.'"'.
-    ($::pc{$name}?" checked":"").
+    ($::pc{$name} eq $value?" checked":"").
     ($oninput?' oninput="'.$oninput.'"':"").
     '><span>'.$value.'</span></label>';
   }

@@ -73,6 +73,14 @@ input[type=checkbox] {
 input::placeholder {
   opacity: 0.5;
 }
+input[list]::-webkit-calendar-picker-indicator {
+  width: .5em !important;
+  padding-inline-start: 2px !important;
+  padding-inline-end: 2px !important;
+}
+input[list]:is(:not(:hover),:focus)::-webkit-calendar-picker-indicator {
+  display: none !important;
+}
 
 h2[onclick],
 h4[onclick] {
@@ -159,6 +167,13 @@ label:is(.radio-button, .check-button) input {
   margin: 0 .1em 0 0 !important;
   transform: none !important;
   vertical-align: text-top;
+}
+label:is(.radio-button, .check-button):not(:has(span)) {
+  padding-right: 2px;
+}
+label:is(.radio-button, .check-button):not(:has(span)) input {
+  margin-right: 0 !important;
+  transform: scale(1.2) !important;
 }
 label:is(.radio-button, .check-button) span {
   opacity: 0.6;
@@ -323,6 +338,7 @@ input.auto {
   content: '::';
   font-family: Arial;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 /* // メニュー
@@ -618,7 +634,6 @@ input[type="submit"]:hover {
 .add-del-button a {
   display: inline-block;
   margin: 0px 2em;
-  cursor: pointer;
   transform: scale(3.5, 1);
 }
 .add-del-button a:hover {
