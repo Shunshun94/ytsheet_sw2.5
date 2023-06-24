@@ -99,7 +99,7 @@ main article a:hover   { color: #000; background: hsla(var(--box-head-bg-color-h
 .night main article a:visited { color: hsl(var(--box-base-bg-color-h,270), 40%,75%); }
 .night main article a:hover   { color: #fff; background: hsla(var(--box-head-bg-color-h,230),100%,20%,0.7); }
 
-main article a[onclick] { background: none; cursor: pointer;}
+main article a[onclick] { background: none; }
 
 code {
   margin: 0 1px;
@@ -419,7 +419,6 @@ details:not([open]).box > summary:hover {
   border-width: 0 0 0 .1rem;
   border-style: solid;
   text-align: center;
-  cursor: pointer;
 }
 .box.chat-palette .chat-palette-menu > a::before {
   content: "";
@@ -953,8 +952,7 @@ p.words span.brackets {
 
 /* // LogList
 ---------------------------------------------------------------------------------------------------- */
-aside#loglist,
-aside#downloadlist {
+aside:is(#loglist,#downloadlist) {
   position: fixed;
   min-width: 15em;
   height: calc(100vh - 10rem);
@@ -974,16 +972,14 @@ aside#downloadlist {
   z-index: 300;
 }
 
-aside#loglist:not(.show),
-aside#downloadlist:not(.show) {
+aside:is(#loglist,#downloadlist):not(.show) {
   right: 0;
   animation-name: bulist-hide;
   animation-duration: 0.5s;
   animation-fill-mode: forwards;
 }
 
-aside#loglist.show,
-aside#downloadlist.show {
+aside:is(#loglist,#downloadlist).show {
   animation-name: bulist-in;
   animation-duration: 0.2s;
   animation-fill-mode: forwards;
@@ -997,45 +993,33 @@ aside#downloadlist.show {
   100% { right: -100vw; display: none; }
 }
 
-.night aside#loglist,
-.night aside#downloadlist {
+.night aside:is(#loglist,#downloadlist) {
   background: rgba(0,0,0,0.9);
 }
-aside#loglist h2,
-aside#downloadlist h2 {
+aside:is(#loglist,#downloadlist) h2 {
   font-size: 1em;
   padding-left: .2em;
 }
-aside#loglist ul,
-aside#downloadlist ul {
+aside:is(#loglist,#downloadlist) ul {
   white-space: nowrap;
   overflow-y: auto;
 }
-aside#loglist ul li,
-aside#downloadlist ul li {
+aside:is(#loglist,#downloadlist) ul li {
   border-width: 1px 0 0;
   border-style: dotted;
 }
-aside#loglist ul li:last-child ,
-aside#downloadlist ul li:last-child {
+aside:is(#loglist,#downloadlist) ul li:last-child {
   border-bottom-width: 1px;
 }
 aside#loglist ul li.selected {
   background-color: rgba(255,140,0,0.4);
 }
-aside#loglist ul li a,
-aside#downloadlist ul li a {
+aside:is(#loglist,#downloadlist) ul li > :is(a, span) {
   display: block;
   padding: .3rem 1.5rem .3rem 1.5rem;
-  color: #000;
-  cursor: pointer;
+  color: inherit;
 }
-.night aside#loglist ul li a,
-.night aside#downloadlist ul li a {
-  color: #fff;
-}
-aside#loglist ul li a:hover,
-aside#downloadlist ul li a:hover {
+aside:is(#loglist,#downloadlist) ul li a:hover {
   background: linear-gradient(to top, rgba(100,200,255,0.2) 20%, transparent 20%);
 }
 aside#loglist ul li a {
@@ -1054,16 +1038,21 @@ aside#loglist ul li a b::before {
 aside#loglist ul li a b::after {
   content: "】";
 }
-aside#loglist ul li a small,
-aside#downloadlist ul li a small {
+aside:is(#loglist,#downloadlist) ul li a small {
   display: block;
   opacity: 0.6;
   font-size: 80%;
   text-align: right;
 }
+aside:is(#loglist,#downloadlist) ul li.link-tag {
+  border-top-style: solid;
+  border-bottom: hidden;
+}
+aside:is(#loglist,#downloadlist) ul li.link-tag input {
+  padding: .2em;
+}
 @media screen and (max-width:735px){
-  aside#loglist,
-  aside#downloadlist {
+  aside:is(#loglist,#downloadlist) {
     top: 10rem;
     height: calc(100vh - 12rem);
   }
@@ -1123,6 +1112,9 @@ aside#loglist #log-naming form input[type="password"] { width: 12em; }
 
 /* // History
 ---------------------------------------------------------------------------------------------------- */
+#history {
+  align-self: start;
+}
 #history table th {
   white-space: nowrap;
 }
