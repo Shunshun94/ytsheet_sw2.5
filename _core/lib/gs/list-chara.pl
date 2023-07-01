@@ -97,7 +97,7 @@ elsif (
   && !($mode eq 'mylist')
   && !$::in{'tag'}
 ){
-  @list = grep { $_ !~ /^(?:[^<]*?<>){17}[^<0]/ } @list;
+  @list = grep { $_ !~ /^(?:[^<]*?<>){9}[^<0]/ } @list;
 }
 
 ## グループ検索
@@ -114,7 +114,7 @@ $INDEX->param(group => $groups{$group_query}{'name'});
 
 ## タグ検索
 my $tag_query = pcTagsEscape(decode('utf8', $::in{'tag'}));
-if($tag_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){16}[^<]*? \Q$tag_query\E / } @list; }
+if($tag_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){8}[^<]*? \Q$tag_query\E / } @list; }
 $INDEX->param(tag => $tag_query);
 
 ## 名前検索
