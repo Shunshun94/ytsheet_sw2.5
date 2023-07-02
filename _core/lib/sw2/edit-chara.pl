@@ -1591,6 +1591,7 @@ print <<"HTML";
     <option value="翼人語">
     <option value="魔神語">
   </datalist>
+  <script src="${main::core_dir}/skin/sw2/js/lib/quickInsertionForSW25.js?${main::ver}" defer></script>
 </body>
 
 </html>
