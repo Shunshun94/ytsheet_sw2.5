@@ -380,9 +380,9 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.applyInitialValue = (e) => {
         return ! d.includes('アビスシャード');
     }).join('\n');
     if(regulation.abyssShard) {
-        document.getElementsByName('items')[0].value = `${currentTexts}\n|アビスシャード|${regulation.abyssShard}個|`;
+        document.getElementsByName('items')[0].value = `${currentTexts}\n|アビスシャード|${regulation.abyssShard}個|`.trim();
     } else {
-        document.getElementsByName('items')[0].value = currentTexts;
+        document.getElementsByName('items')[0].value = currentTexts.trim();
     }
 };
 
