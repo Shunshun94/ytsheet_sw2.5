@@ -212,23 +212,16 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         content: '',
         cost: ''
     }, {
+        name: 'アウェイクポーションと保存食と冒険者セット',
+        content: '背負い袋\n水袋\n毛布\n火口箱\nナイフ\n\n|ロープ|10m|\n|たいまつ|6本|\n|保存食|21食分|\n|アウェイクポーション|1本|',
+        cost: '250'
+    }, {
+        name: '【冒険でしばしば使うアイテム】',
+        cost: ''
+    }, {
         name: '冒険者セット',
         content: '背負い袋\n水袋\n毛布\n火口箱\nナイフ\n\n|ロープ|10m|\n|たいまつ|6本|',
         cost: '100'
-    }, {
-        name: 'ランタンと油',
-        content: 'ランタン\n油',
-        cost: '60'
-    }, {
-        name: 'ロープ10m',
-        content: 'ロープ10m',
-        note: '1m毎に +1 / 100mなら100G',
-        cost: '10'
-    }, {
-        name: 'テント(4人用)',
-        content: 'テント(4人用)',
-        note: '1人分サイズを大きくする毎に+50',
-        cost: '250'
     }, {
         name: '着替えセット',
         content: '|着替え|7日分|',
@@ -238,8 +231,75 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         content: '|保存食|21食分|',
         cost: '50'
     }, {
+        name: 'ランタンと油',
+        content: 'ランタン\n油',
+        cost: '60'
+    }, {
+        name: 'ロープ10m',
+        note: '1m毎に +1 / 100mなら100G',
+        cost: '10'
+    }, {
+        name: 'テント(4人用)',
+        note: '1人分サイズを大きくする毎に+50',
+        cost: '250'
+    }, {
+        name: '【初期作成でよく買う技能用アイテム】',
+        cost: ''
+    }, {
+        name: '救命草3本',
+        content: '|救命草|3本|',
+        cost: '30*3'
+    }, {
+        name: '魔香草1本',
+        content: '|魔香草|1本|',
+        cost: '100*1'
+    }, {
+        name: 'アウェイクポーション1本',
+        content: '|アウェイクポーション|1本|',
+        cost: '100*1'
+    }, {
+        name: '3点魔晶石1つ',
+        content: '|魔晶石（3点）|1つ|',
+        cost: '300*1'
+    }, {
+        name: '5点魔晶石1つ',
+        content: '|魔晶石（5点）|1つ|',
+        cost: '500*1'
+    }, {
+        name: 'マギスフィア（小）',
+        cost: '200'
+    }, {
+        name: 'ガンベルト',
+        cost: '20'
+    }, {
+        name: '銃弾（12発）',
+        content: '|銃弾|12発|',
+        cost: '50'
+    }, {
+        name: '活性弾（12発）',
+        content: '|活性弾|12発|',
+        cost: '160'
+    }, {
+        name: '聖印',
+        cost: '100'
+    }, {
+        name: '6種類の宝石（レベル1～2）と宝石ケース',
+        cost: '100*50*6'
+    }, {
+        name: 'アルケミーキット',
+        cost: '200'
+    }, {
+        name: 'スカウト用ツール',
+        cost: '100'
+    }, {
+        name: '【フレーバーアイテム】',
+        content: '',
+        cost: ''
+    }, {
+        name: '調理道具セット',
+        cost: '50'
+    }, {
         name: 'ワイン',
-        content: 'ワイン',
         note: '市場の最低価格',
         cost: '20'
     }, {
@@ -257,9 +317,9 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.appendCommonItem = (e) => {
     e.preventDefault();
     const id = 'io-github-shunshun94-trpg-ytsheet-quickInsertion-CommonItemSelector';
     const itemNumber = Number(document.getElementById(`${id}-select`).value);
-    if(itemNumber === 0) {return;}
     const item = io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems[itemNumber];
-    document.getElementsByName('items')[0].value += `\n${item.content}`;
+    if(item.cost === '') {return;}
+    document.getElementsByName('items')[0].value += `\n${item.content || item.name}`;
     document.getElementsByName('items')[0].value = document.getElementsByName('items')[0].value.trim();
     document.getElementsByName('cashbook')[0].value += `\n${item.name}::-${item.cost}`;
     document.getElementsByName('cashbook')[0].value = document.getElementsByName('cashbook')[0].value.trim();
@@ -317,10 +377,10 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.applyInitialValue = (e) => {
         io.github.shunshun94.trpg.ytsheet.QuickInsertion.inputData(d, regulation.grow[i]);
      });
     const currentTexts = document.getElementsByName('items')[0].value.split('\n').filter((d)=>{
-        return ! d.startsWith('アビスシャード');
+        return ! d.includes('アビスシャード');
     }).join('\n');
     if(regulation.abyssShard) {
-        document.getElementsByName('items')[0].value = `アビスシャード${regulation.abyssShard}個\n${currentTexts}`;
+        document.getElementsByName('items')[0].value = `${currentTexts}\n|アビスシャード|${regulation.abyssShard}個|`;
     } else {
         document.getElementsByName('items')[0].value = currentTexts;
     }
