@@ -61,7 +61,10 @@ elsif($mode eq 'blanksheet'){
   if($::in{'stt'}){
     ($pc{'sttBaseTec'}, $pc{'sttBasePhy'}, $pc{'sttBaseSpi'}, $pc{'sttBaseA'}, $pc{'sttBaseB'}, $pc{'sttBaseC'}, $pc{'sttBaseD'}, $pc{'sttBaseE'}, $pc{'sttBaseF'}) = split(/_/, $::in{'stt'});
     $pc{'race'} = Encode::decode('utf8', $::in{'race'});
-    if($data::races{$pc{'race'}}{'variant'} && ! ($data::races{$pc{'race'}}{'ability'})){
+    if($data::races{$pc{'race'}}{'variant'} &&
+       # 通常種・希少種がいる場合は race 直下に ability がある
+       # そうでない場合（ナイトメアなど）は variant の各データ直下にしか ability はない
+       ! ($data::races{$pc{'race'}}{'ability'})){
       $pc{'race'} .= "（$data::races{$pc{'race'}}{'variantSort'}[0]）";
     }
     if($::in{'making_num'}){
