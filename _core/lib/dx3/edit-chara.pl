@@ -548,7 +548,8 @@ print <<"HTML";
               <th>名前
               <th colspan="3">感情<span class="small">(Positive／Negative)</span>
               <th>属性
-              <th colspan="2" class="right">状態
+              <th colspan="2" class="right small">Sロイス
+              <th class="right">状態
             </tr>
           <tbody>
 HTML
@@ -563,15 +564,16 @@ print <<"HTML";
               <td class="emo">@{[input "lois${num}EmoNegaCheck",'checkbox',"emoN($num)"]}@{[input "lois${num}EmoNega",'','','list="list-emotionN"']}
               <td>@{[input "lois${num}Color",'',"changeLoisColor($num)",'list="list-lois-color"']}
               <td>@{[input "lois${num}Note"]}
+              <td>@{[input "lois${num}S",'checkbox',"sLois($num)"]}
               <td onclick="changeLoisState(this.parentNode.id)"><span id="lois${num}-state" data-state="$pc{"lois${num}State"}"></span>@{[input "lois${num}State",'hidden']}
 HTML
 }
 print <<"HTML";
           </tbody>
         </table>
-        <div class="right" style="position: absolute; top: 0; right: 0;">
-          <a class="button small" onclick="resetLoisAll()">全ロイスをリセット</a>
-          <a class="button small" onclick="resetLoisAdd()">4番目以降をリセット</a>
+        <div class="right lois-reset-buttons">
+          <button type="button" class="small" onclick="resetLoisAll()">全ロイスをリセット</button>
+          <button type="button" class="small" onclick="resetLoisAdd()">4番目以降をリセット</button>
         </div>
       </details>
       <details class="box" id="memory" $open{'memory'}>
@@ -579,7 +581,7 @@ print <<"HTML";
         <table class="edit-table no-border-cells" id="memory-table">
           <thead>
             <tr>
-              <th>取得
+              <th>
               <th>関係
               <th>名前
               <th>感情
@@ -590,9 +592,9 @@ HTML
 foreach my $num (1 .. 3) {
 print <<"HTML";
             <tr id="memory${num}">
-              <td><span class="handle"></span>@{[input "memory${num}Gain",'checkbox','calcMemory']}
-              <td>@{[input "memory${num}Relation"]}
-              <td>@{[input "memory${num}Name"]}
+              <td><span class="handle"></span>
+              <td>@{[input "memory${num}Relation",'','calcMemory']}
+              <td>@{[input "memory${num}Name",'','calcMemory']}
               <td>@{[input "memory${num}Emo"]}
               <td>@{[input "memory${num}Note"]}
 HTML
@@ -600,6 +602,7 @@ HTML
 print <<"HTML";
           </tbody>
         </table>
+        <div class="annotate">※「関係」か「名前」を入力すると経験点が計算されます。</div>
       </details>
       <details class="box cc-only" id="insanity" $open{'insanity'}>
         <summary>永続的狂気</summary>

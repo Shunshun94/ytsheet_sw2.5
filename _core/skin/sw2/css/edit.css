@@ -650,16 +650,41 @@ option.zero-data::before {
   #weapons thead th:nth-child(10){ width:  10em; } /* 技能 */
 }
 
-#armours .defense-total th label {
-  display: inline-block;
+#evasion-classes {
+  width: calc(25% + 18.5em + 1px);
 }
-#armours .defense-total th label input + span {
-  opacity: 0.5;
-  font-size: 90%;
+#evasion-class-row .flex {
+  display: flex;
+  align-items: center;
+  padding-left: .2em;
 }
-#armours .defense-total th label input:checked + span {
-  opacity: 1;
+#armours thead th.type { width:   2em; }
+#armours thead th.cate { width:   6em; }
+#armours thead th.name { width:   25%; }
+#armours thead th.reqd { width: 3.5em; }
+#armours thead th.eva  { width: 3.5em; }
+#armours thead th.def  { width: 3.5em; }
+#armours thead th.own  { width: 1.5em; }
+#armours thead th.calc { width: 1.5em; }
+#armours thead th.note { width:  auto; }
+
+#armours tbody th.type::before {
+  content: '';
 }
+
+#armours tfoot tr:first-child {
+  border-bottom-width: 1px !important;
+  border-bottom-style: solid !important;
+}
+#armours .defense-total td:first-child {
+  padding: .2em 0;
+  text-align: right;
+  text-wrap: balance;
+}
+#armours .defense-total td label input + span {
+  font-size: 85%;
+}
+
 @media screen and (max-width:735px){
   #evasion-classes {
     width: auto;
@@ -1278,16 +1303,16 @@ form#item div.input-data dl dd input[name="shape"] {
 form#item div.input-data dl dd input[name="summary"] {
   max-width: 100%;
 }
-form#item .input-weapon-data,
-form#item .input-armour-data {
+form#item .input-arms-data {
   width: 100%;
 }
-form#item .input-weapon-data td,
-form#item .input-armour-data td {
+form#item .input-arms-data td:first-child {
+  width: 1.5em;
+}
+form#item .input-arms-data td {
   width: 5em;
 }
-form#item .input-weapon-data td:last-child,
-form#item .input-armour-data td:last-child {
+form#item .input-arms-data td:last-child {
   width: auto;
 }
 

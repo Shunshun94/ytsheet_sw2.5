@@ -238,7 +238,7 @@ function calcItem(){
 function calcMemory() {
   exps['memory'] = 0;
   for (let num = 1; num <= 3; num++){
-    if(form['memory'+num+'Gain'].checked){ exps['memory'] += 15; }
+    if ( form['memory'+num+'Relation'].value || form['memory'+num+'Name'].value){ exps['memory'] += 15; }
   }
   document.getElementById('exp-memory').textContent = exps['memory'];
   calcExp();
@@ -361,6 +361,13 @@ function encroachBonusSet(enc){
 // ロイス ----------------------------------------
 function emoP(num){ form["lois"+num+"EmoNegaCheck"].checked = false; }
 function emoN(num){ form["lois"+num+"EmoPosiCheck"].checked = false; }
+function sLois(num){
+  for(let i = 1; i <= 7; i++){
+    if(i == num) continue;
+    console.log(i)
+    form["lois"+i+"S"].checked = false;
+  }
+}
 function changeLoisColor(num){
   const obj = form["lois"+num+"Color"];
   const color = obj.value;
