@@ -75,7 +75,7 @@ sub isDiscordServerIncluded {
       if( $serverInfo->{'id'} eq $serverId ) {
         return 1;
       }
-    }  
+    }
   }
   return 0;
 }
