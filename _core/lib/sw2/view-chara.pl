@@ -206,7 +206,13 @@ $SHEET->param(wordsY => ($pc{'wordsY'} eq '下' ? 'bottom:0;' : 'top:0;'));
 ### 種族名 --------------------------------------------------
 $pc{'race'} =~ s/［.*］//g;
 {
-  (my $race = $pc{'race'}) =~ s|（.+?）|<span class="variant">$&</span>|g;
+  my $race = $pc{race};
+  if($race =~ /^(.+?)[（(](.+?)[)）]/){
+    my $base    = $1;
+    my $variant = $2;
+    if($variant =~ /$base/){ $race = $variant }
+    else { $race =~ s|[（(].+?[)）]|<span class="variant">$&</span>|g; }
+  }
   $SHEET->param(race => $race);
 }
 ### 種族特徴 --------------------------------------------------
@@ -675,21 +681,9 @@ if(!$pc{'forbiddenMode'}){
       "EVA"  => 0,
     } );
   }
-  if($pc{'race'} eq 'リルドラケン') {
+  if($pc{raceAbility} =~ /［(鱗の皮膚|晶石の身体|奈落の身体／アビストランク|トロールの体躯)］/) {
     push(@evasion, {
-      "NAME" => "［鱗の皮膚］",
-      "DEF"  => $pc{'raceAbilityDef'},
-    } );
-  }
-  elsif($pc{'race'} eq 'フロウライト') {
-    push(@evasion, {
-      "NAME" => "［晶石の身体］",
-      "DEF"  => $pc{'raceAbilityDef'},
-    } );
-  }
-  elsif($pc{'race'} eq 'ダークトロール') {
-    push(@evasion, {
-      "NAME" => "［トロールの体躯］",
+      "NAME" => $&,
       "DEF"  => $pc{'raceAbilityDef'},
     } );
   }

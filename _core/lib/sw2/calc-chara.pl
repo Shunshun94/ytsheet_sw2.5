@@ -189,58 +189,44 @@ sub data_calc {
     }
   }
   ### 種族特徴 --------------------------------------------------
-  $pc{'raceAbility'} = $data::races{$pc{'race'}}{'ability'};
-  if($pc{'level'} >= 6){
-    if(ref($data::races{$pc{'race'}}{'abilityLv6'}) eq 'ARRAY'){
-      $pc{'raceAbility'} .= $pc{'raceAbilityLv6'};
-    }
-    else { $pc{'raceAbility'} .= $data::races{$pc{'race'}}{'abilityLv6'}; }
+  if($pc{'race'} && !exists $data::races{$pc{'race'}}){
+    $pc{raceAbility} = $pc{raceAbilityFree};
   }
-  if($pc{'level'} >= 11){
-    if(ref($data::races{$pc{'race'}}{'abilityLv11'}) eq 'ARRAY'){
-      if($pc{'raceAbility'} =~ /$pc{'raceAbilityLv11'}/){
-        (my $text = $pc{'raceAbilityLv11'}) =~ s/］/＋］/;
-        $pc{'raceAbility'} =~ s/$pc{'raceAbilityLv11'}/$text/;
-      } else {
-        $pc{'raceAbility'} .= $pc{'raceAbilityLv11'};
+  else {
+    my $i = 1;
+    sub abilitySet {
+      my $lv = shift;
+      my @output;
+      foreach (@{ $data::races{$pc{'race'}}{'ability'.$lv} }){
+        if(ref($_) eq 'ARRAY'){
+          push(@output, $pc{'raceAbilitySelect'.$i});
+          $i++;
+        }
+        else {
+          push(@output, $_);
+        }
       }
+      return @output;
     }
-    else { $pc{'raceAbility'} .= $data::races{$pc{'race'}}{'abilityLv11'}; }
+    my @abilities = abilitySet('');
+    if($pc{level} >=  6){ push @abilities, abilitySet('Lv6'); }
+    if($pc{level} >= 11){ push @abilities, abilitySet('Lv11'); }
+    if($pc{level} >= 16){ push @abilities, abilitySet('Lv16'); unshift @abilities, '剣の託宣／運命凌駕' }
+    elsif($pc{seekerAbilityRaceA}){ push @abilities, abilitySet('Lv16'); }
+    my %unique;
+    @abilities = grep { ! $unique{$_}++ } @abilities;
+    $_ .= ($unique{$_} >= 2 ? '＋' : '') foreach(@abilities);
+    $pc{raceAbility} = '［'. join('］［', @abilities) . '］';
   }
-  if($pc{'level'} >= 16){
-    $pc{'raceAbility'} = '［剣の託宣／運命凌駕］' . $pc{'raceAbility'};
-    if(ref($data::races{$pc{'race'}}{'abilityLv16'}) eq 'ARRAY'){
-      if($pc{'raceAbility'} =~ /$pc{'raceAbilityLv16'}/){
-        (my $text = $pc{'raceAbilityLv16'}) =~ s/］/＋］/;
-        $pc{'raceAbility'} =~ s/$pc{'raceAbilityLv16'}/$text/;
-      } else {
-        $pc{'raceAbility'} .= $pc{'raceAbilityLv16'};
-      }
-    }
-    else {  $pc{'raceAbility'} .= $data::races{$pc{'race'}}{'abilityLv16'}; }
-  }
-  elsif($pc{'seekerAbilityRaceA'}){
-    if(ref($data::races{$pc{'race'}}{'abilityLv16'}) eq 'ARRAY'){
-      if($pc{'raceAbility'} =~ /$pc{'raceAbilityLv16'}/){
-        (my $text = $pc{'raceAbilityLv16'}) =~ s/］/＋］/;
-        $pc{'raceAbility'} =~ s/$pc{'raceAbilityLv16'}/$text/;
-      } else {
-        $pc{'raceAbility'} .= $pc{'raceAbilityLv16'};
-      }
-    }
-    else { $pc{'raceAbility'} .= $data::races{$pc{'race'}}{'abilityLv16'}; }
-  }
-  ### 種族チェック --------------------------------------------------
-  if($pc{'race'} eq 'リルドラケン'){
+  ### 種族特徴チェック --------------------------------------------------
+  if($pc{raceAbility} =~ /［鱗の皮膚］/){
     $pc{'raceAbilityDef'} = 1;
   }
-  elsif($pc{'race'} eq 'シャドウ'){
+  if($pc{raceAbility} =~ /［月光の守り］/){
     $pc{'raceAbilityMndResist'} = 4;
-    if($pc{'level'} >= 11){
-      $pc{'raceAbilityMndResist'} += 2;
-    }
+    if($pc{'level'} >= 11){ $pc{'raceAbilityMndResist'} += 2; }
   }
-  elsif($pc{'race'} eq 'フロウライト'){
+  if($pc{raceAbility} =~ /［晶石の身体］/){
     $pc{'raceAbilityDef'} = 2;
     $pc{'raceAbilityMp'} = 15;
     if($pc{'level'} >= 6){
@@ -256,18 +242,21 @@ sub data_calc {
       $pc{'raceAbilityMp'} += 30;
     }
   }
-  elsif($pc{'race'} eq 'ダークトロール'){
+  if($pc{raceAbility} =~ /［奈落の身体／アビストランク］/){
     $pc{'raceAbilityDef'} = 1;
-    if($pc{'level'} >= 16){
-      $pc{'raceAbilityDef'} += 2;
-    }
+    if($pc{'level'} >=  6){ $pc{'raceAbilityDef'} += 1; }
+    if($pc{'level'} >= 11){ $pc{'raceAbilityDef'} += 1; }
   }
-  elsif($pc{'race'} eq 'ドレイク（ナイト）'){
+  if($pc{raceAbility} =~ /［トロールの体躯］/){
+    $pc{'raceAbilityDef'} = 1;
+    if($pc{'level'} >= 16){ $pc{'raceAbilityDef'} += 2; }
+  }
+  if($pc{'race'} eq 'ドレイク（ナイト）'){
     if($pc{'level'} >= 16){
       $pc{'raceAbility'} =~ s/［竜化］/［剣の託宣／復活竜化］/;
     }
   }
-  elsif($pc{'race'} eq 'バジリスク'){
+  if($pc{'race'} eq 'バジリスク'){
     if($pc{'level'} >= 16){
       $pc{'raceAbility'} =~ s/［魔物化］/［剣の託宣／復活魔物化］/;
     }
@@ -291,63 +280,41 @@ sub data_calc {
     $pc{'sttHistGrowE'} += ($grow =~ s/知/知/g);
     $pc{'sttHistGrowF'} += ($grow =~ s/精/精/g);
   }
-  $pc{'historyGrowTotal'} = $pc{'sttPreGrowA'}  + $pc{'sttPreGrowB'}  + $pc{'sttPreGrowC'}  + $pc{'sttPreGrowD'}  + $pc{'sttPreGrowE'}  + $pc{'sttPreGrowF'}
-                          + $pc{'sttHistGrowA'} + $pc{'sttHistGrowB'} + $pc{'sttHistGrowC'} + $pc{'sttHistGrowD'} + $pc{'sttHistGrowE'} + $pc{'sttHistGrowF'};
-
-  $pc{'sttGrowA'} = $pc{'sttPreGrowA'} + $pc{'sttHistGrowA'} + $pc{'sttSeekerGrow'};
-  $pc{'sttGrowB'} = $pc{'sttPreGrowB'} + $pc{'sttHistGrowB'} + $pc{'sttSeekerGrow'};
-  $pc{'sttGrowC'} = $pc{'sttPreGrowC'} + $pc{'sttHistGrowC'} + $pc{'sttSeekerGrow'};
-  $pc{'sttGrowD'} = $pc{'sttPreGrowD'} + $pc{'sttHistGrowD'} + $pc{'sttSeekerGrow'};
-  $pc{'sttGrowE'} = $pc{'sttPreGrowE'} + $pc{'sttHistGrowE'} + $pc{'sttSeekerGrow'};
-  $pc{'sttGrowF'} = $pc{'sttPreGrowF'} + $pc{'sttHistGrowF'} + $pc{'sttSeekerGrow'};
-
-
+  
   ## 能力値算出
-  $pc{'sttDex'} = $pc{'sttBaseTec'} + $pc{'sttBaseA'} + $pc{'sttGrowA'};
-  $pc{'sttAgi'} = $pc{'sttBaseTec'} + $pc{'sttBaseB'} + $pc{'sttGrowB'};
-  $pc{'sttStr'} = $pc{'sttBasePhy'} + $pc{'sttBaseC'} + $pc{'sttGrowC'};
-  $pc{'sttVit'} = $pc{'sttBasePhy'} + $pc{'sttBaseD'} + $pc{'sttGrowD'};
-  $pc{'sttInt'} = $pc{'sttBaseSpi'} + $pc{'sttBaseE'} + $pc{'sttGrowE'};
-  $pc{'sttMnd'} = $pc{'sttBaseSpi'} + $pc{'sttBaseF'} + $pc{'sttGrowF'};
-    # ウィークリング補正
-    $pc{'sttAgi'} += 3 if $pc{'race'} eq 'ウィークリング（ガルーダ）';
-    $pc{'sttMnd'} += 3 if $pc{'race'} eq 'ウィークリング（タンノズ）';
-    $pc{'sttStr'} += 3 if $pc{'race'} eq 'ウィークリング（ミノタウロス）';
-    $pc{'sttInt'} += 3 if $pc{'race'} eq 'ウィークリング（バジリスク）';
-    $pc{'sttMnd'} += 3 if $pc{'race'} eq 'ウィークリング（マーマン）';
+  $pc{'historyGrowTotal'} = 0;
+  foreach (
+    ['A','Dex'],
+    ['B','Agi'],
+    ['C','Str'],
+    ['D','Vit'],
+    ['E','Int'],
+    ['F','Mnd']
+  ){
+    my $i = @$_[0];
+    my $name = @$_[1];
+    # 成長
+    $pc{'historyGrowTotal'} += $pc{'sttPreGrow'.$i} + $pc{'sttHistGrow'.$i};
+    $pc{'sttGrow'.$i} = $pc{'sttPreGrow'.$i} + $pc{'sttHistGrow'.$i} + $pc{'sttSeekerGrow'};
 
-  ## ボーナス算出
-  $pc{'bonusDex'} = int(($pc{'sttDex'} + $pc{'sttAddA'}) / 6);
-  $pc{'bonusAgi'} = int(($pc{'sttAgi'} + $pc{'sttAddB'}) / 6);
-  $pc{'bonusStr'} = int(($pc{'sttStr'} + $pc{'sttAddC'}) / 6);
-  $pc{'bonusVit'} = int(($pc{'sttVit'} + $pc{'sttAddD'}) / 6);
-  $pc{'bonusInt'} = int(($pc{'sttInt'} + $pc{'sttAddE'}) / 6);
-  $pc{'bonusMnd'} = int(($pc{'sttMnd'} + $pc{'sttAddF'}) / 6);
-  ## 冒険者レベル＋各ボーナス算出
-  $st{'LvA'} = $pc{'level'}+$pc{'bonusDex'};
-  $st{'LvB'} = $pc{'level'}+$pc{'bonusAgi'};
-  $st{'LvC'} = $pc{'level'}+$pc{'bonusStr'};
-  $st{'LvD'} = $pc{'level'}+$pc{'bonusVit'};
-  $st{'LvE'} = $pc{'level'}+$pc{'bonusInt'};
-  $st{'LvF'} = $pc{'level'}+$pc{'bonusMnd'};
-  ## 各技能レベル＋各ボーナス算出
-  foreach my $class (@data::class_names){
-    my $id = $data::class{$class}{'id'};
-    if($pc{'lv'.$id} > 0) {
-      $st{$id.'A'} = $pc{'lv'.$id}+$pc{'bonusDex'};
-      $st{$id.'B'} = $pc{'lv'.$id}+$pc{'bonusAgi'};
-      $st{$id.'C'} = $pc{'lv'.$id}+$pc{'bonusStr'};
-      $st{$id.'D'} = $pc{'lv'.$id}+$pc{'bonusVit'};
-      $st{$id.'E'} = $pc{'lv'.$id}+$pc{'bonusInt'};
-      $st{$id.'F'} = $pc{'lv'.$id}+$pc{'bonusMnd'};
-    }
-    else {
-      $st{$id.'A'} = 0;
-      $st{$id.'B'} = 0;
-      $st{$id.'C'} = 0;
-      $st{$id.'D'} = 0;
-      $st{$id.'E'} = 0;
-      $st{$id.'F'} = 0;
+    # 心技体
+    my $base
+      = ($i =~ /A|B/) ? $pc{sttBaseTec}
+      : ($i =~ /C|D/) ? $pc{sttBasePhy}
+      : ($i =~ /E|F/) ? $pc{sttBaseSpi}
+      : 0;
+    # 合計
+    $pc{'stt'.$name} = $base + $pc{'sttBase'.$i} + $pc{'sttGrow'.$i};
+    # 種族特徴補正
+    $pc{'stt'.$name} += exists $data::races{$pc{race}} ? $data::races{$pc{race}}{statusMod}{$name} : 0;
+    ## ボーナス算出
+    $pc{'bonus'.$name} = int(($pc{'stt'.$name} + $pc{'sttAdd'.$i}) / 6);
+    ## 冒険者レベル＋各ボーナス算出
+    $st{'Lv'.$i} = $pc{'level'}+$pc{'bonus'.$name};
+    ## 各技能レベル＋各ボーナス算出
+    foreach my $class (@data::class_names){
+      my $id = $data::class{$class}{'id'};
+      $st{$id.$i} = ($pc{'lv'.$id} > 0) ? $pc{'lv'.$id}+$pc{'bonus'.$name} : 0;
     }
   }
 
@@ -445,10 +412,10 @@ sub data_calc {
   $pc{'hpTotal'}  = $pc{'hpBase'} + $pc{'hpAddTotal'};
   ## ＭＰ
   $pc{'mpBase'} = $lv_caster_total * 3 + $pc{'sttMnd'} + $pc{'sttAddF'};
-  $pc{'mpBase'} = $pc{'level'} * 3 + $pc{'sttMnd'} + $pc{'sttAddF'} if ($pc{'race'} eq 'マナフレア');
+  $pc{'mpBase'} = $pc{'level'} * 3 + $pc{'sttMnd'} + $pc{'sttAddF'} if ($pc{raceAbility} =~ /［溢れるマナ］/);
   $pc{'mpAddTotal'} = s_eval($pc{'mpAdd'}) + $pc{'capacity'} + $pc{'raceAbilityMp'} + $pc{'mpAccessory'} + $pc{'seekerAbilityHpMp'};
   $pc{'mpTotal'}  = $pc{'mpBase'} + $pc{'mpAddTotal'};
-  $pc{'mpTotal'}  = 0  if ($pc{'race'} eq 'グラスランナー');
+  $pc{'mpTotal'}  = 0  if ($pc{raceAbility} =~ /［マナ不干渉］/);
 
   ## 移動力
   my $own_mobility = 0;
@@ -459,7 +426,7 @@ sub data_calc {
     }
   }
   $pc{'mobilityBase'} = $pc{'sttAgi'} + $pc{'sttAddB'} + $own_mobility;
-  $pc{'mobilityBase'} = $pc{'mobilityBase'} * 2 + $own_mobility  if ($pc{'race'} eq 'ケンタウロス');
+  $pc{'mobilityBase'} = $pc{'mobilityBase'} * 2 + $own_mobility  if ($pc{raceAbility} =~ /［半馬半人］/);
   $pc{'mobilityTotal'} = $pc{'mobilityBase'} + s_eval($pc{'mobilityAdd'});
   $pc{'mobilityFull'} = $pc{'mobilityTotal'} * 3;
   $pc{'mobilityLimited'} = $pc{'footwork'} ? 10 : 3;
@@ -503,10 +470,10 @@ sub data_calc {
     my $id = $data::class{$name}{'id'};
     $pc{'magicPower'.$id} = $pc{'lv'.$id} ? ( $pc{'lv'.$id} + int(($pc{'sttInt'} + $pc{'sttAddE'} + ($pc{'magicPowerOwn'.$id} ? 2 : 0)) / 6) + $pc{'magicPowerAdd'.$id} + $pc{'magicPowerAdd'} + $pc{'magicPowerEnhance'} ) : 0;
     
-    if($pc{'race'} eq 'ハイマン'){
+    if($pc{raceAbility} =~ /魔法の申し子/){
       $pc{'magicPower'.$id} += $pc{'level'} >= 11 ? 2 : 1;
     }
-    elsif($pc{'race'} =~ /^センティアン/ && $name eq 'プリースト'){
+    elsif($name eq 'プリースト' && $pc{raceAbility} =~ /［(神の御名と共に|神への礼賛|神への祈り)］/){
       $pc{'magicPower'.$id} += $pc{'level'} >= 11 ? 2 : $pc{'level'} >= 6 ? 1 : 0;
     }
     $pc{'magicPower'.$id} += $pc{'seekerAbilityMagic'} if $pc{'lv'.$id} >= 15; #求道者
@@ -655,10 +622,13 @@ sub data_calc {
   foreach my $class (@data::class_list){
     $classlv .= $pc{'lv'.$data::class{$class}{'id'}}.'/';
   }
+  my $race = (exists $data::races{$pc{race}}) ? $pc{race}
+           : $pc{race} ? "その他:$pc{race}"
+           : '';
   my $faith = $pc{'faith'} eq 'その他の信仰' ? ($pc{'faithOther'} || $pc{'faith'}) : $pc{'faith'}; 
   $::newline = "$pc{'id'}<>$::file<>".
                "$pc{'birthTime'}<>$::now<>$charactername<>$pc{'playerName'}<>$pc{'group'}<>".
-               "$pc{'expTotal'}<>$pc{'rank'}<>$pc{'race'}<>$pc{'gender'}<>$pc{'age'}<>$pc{'faith'}<>".
+               "$pc{'expTotal'}<>$pc{'rank'}<>$race<>$pc{'gender'}<>$pc{'age'}<>$pc{'faith'}<>".
                "$classlv<>".
                "$pc{'lastSession'}<>$pc{'image'}<> $pc{'tags'} <>$pc{'hide'}<>$pc{'fellowPublic'}<>";
 

@@ -488,7 +488,6 @@ sub option {
       $text = '<option value="">'.$view;
     }
     elsif($value =~ s/^label=//){
-      $text .= '</optgroup>' if $label;
       $text .= '<optgroup label="'.$value.'">';
       $label = 1;
     }
@@ -503,7 +502,7 @@ sub selectInput {
   my $name = shift;
   my $func = shift;
   if($func && $func !~ /\(.*?\)$/){ $func .= '()'; }
-  my $text = '<div class="select-input"><select name="'.$name.'" oninput="selectInputCheck(\''.$name.'\',this);'.$func.'"">'.option($name, @_);
+  my $text = '<div class="select-input"><select name="'.$name.'" oninput="selectInputCheck(\''.$name.'\',this);'.$func.'">'.option($name, @_);
   $text .= '<option value="free">その他（自由記入）'; 
   my $hit = 0;
   foreach my $value (@_) { if($::pc{$name} eq $value){ $hit = 1; last; } }

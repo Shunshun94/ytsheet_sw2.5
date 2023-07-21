@@ -80,8 +80,14 @@
 #personal dl#birth        { flex-basis: 30%; order: 6; }
 #personal dl#faith        { flex-basis: 69%; order: 7; }
 #personal dl#sin          { flex-basis: 14%; order: 5; }
-#personal dl#race-ability select {
+#personal #race-ability-select:empty {
+  display: none;
+}
+#personal #race-ability-select select {
   width: auto;
+}
+#personal #race-ability-value:has(input) {
+  display: block !important;
 }
 
 #status dl[id^="stt-add"]::before {
@@ -89,6 +95,12 @@
 }
 #status dl#stt-pointbuy-type {
   grid-column: span 2;
+}
+#status dl:nth-child(n+16):nth-child(-n+21) dd {
+  font-size: 120%;
+}
+#status dl:nth-child(n+16):nth-child(-n+21) dd .small {
+  font-size: 80%;
 }
 @media screen and (max-width:735px){
   #status {
@@ -1003,7 +1015,10 @@ form#monster .box h2 {
   font-size: 100%;
 }
 form#monster #group dl {
-  grid-template-columns: 4em 1fr 4em 2.5em 3fr;
+  grid-template-columns: 3em 8em 4em 3em 3fr;
+}
+form#monster #group dl .select-input {
+  width: 100%;
 }
 form#monster.mount .monster-only {
   display: none;
