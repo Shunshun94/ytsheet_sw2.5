@@ -53,6 +53,10 @@ foreach my $name (@data::race_names){
   if($name eq '人間'){
     push(@race_makelist, {"NAME" => "人間（冒険者）"});
   }
+
+  if($name =~ /^label=(.+)$/){
+    push(@race_makelist, {"LABEL" => $1});
+  }
 }
 $INDEX->param(MakeList => \@race_makelist);
 
@@ -162,7 +166,11 @@ foreach my $data (@lines) {
 }
 $INDEX->param(Posts => \@posts);
 
-$INDEX->param(pageId => '&id='.$::in{'id'}) if $::in{'id'};
+my $paginationUrl;
+$paginationUrl .= '&id='.$::in{'id'} if $::in{'id'};
+$paginationUrl .= '&tag='.uri_escape_utf8(decode('utf8', $::in{'tag'})) if $::in{'tag'};
+$paginationUrl .= '&mylist=1' if $::in{'mylist'};
+$INDEX->param(paginationUrl => $paginationUrl);
 $INDEX->param(pagePrev => ($page - $page_items) / $page_items);
 $INDEX->param(pageNext => ($page + $page_items) / $page_items);
 if(!$in_num) {
