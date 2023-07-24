@@ -154,7 +154,7 @@ print <<"HTML";
         <ul>
           <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
           <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
-          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム"></span>
+          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
           <li class="buttons">
@@ -287,7 +287,7 @@ print <<"HTML";
 
         <div id="personal">
           <dl class="box" id="race">
-            <dt>種族<dd><select name="race" oninput="changeRace()">@{[ option 'race', @data::race_list ]}</select>
+            <dt>種族<dd>@{[ selectInput 'race', 'changeRace(this.value)', @data::race_list,'label=その他' ]}
           </dl>
           <dl class="box" id="age">
             <dt>年齢<dd>@{[input('age')]}
@@ -298,16 +298,22 @@ print <<"HTML";
           <dl class="box" id="race-ability">
             <dt>種族特徴
             <dd>
-              <span id="race-ability-value">$data::races{$pc{'race'}}{'ability'}</span>
-              <select name="raceAbilityLv6" class="hidden">
-                @{[ option('raceAbilityLv6' , (ref($data::races{$pc{'race'}}{'abilityLv6'})  eq 'ARRAY' ? @{$data::races{$pc{'race'}}{'abilityLv6'}} : '')) ]}
-              </select>
-              <select name="raceAbilityLv11" class="hidden">
-                @{[ option('raceAbilityLv11', (ref($data::races{$pc{'race'}}{'abilityLv11'}) eq 'ARRAY' ? @{$data::races{$pc{'race'}}{'abilityLv11'}} : '')) ]}
-              </select>
-              <select name="raceAbilityLv16" class="hidden">
-                @{[ option('raceAbilityLv16', (ref($data::races{$pc{'race'}}{'abilityLv16'}) eq 'ARRAY' ? @{$data::races{$pc{'race'}}{'abilityLv16'}} : '')) ]}
-              </select>
+              <span id="race-ability-value">@{[ !$pc{race} ? '' : exists $data::races{$pc{race}} ? $pc{raceAbility} : input("raceAbilityFree",'','changeRaceAbility') ]}</span>
+HTML
+{
+  print '<span id="race-ability-select">';
+  my $i = 1;
+  foreach (@{$data::races{$pc{'race'}}{'ability'}},@{$data::races{$pc{'race'}}{'abilityLv6'}},@{$data::races{$pc{'race'}}{'abilityLv11'}},@{$data::races{$pc{'race'}}{'abilityLv16'}}){
+    if(ref($_) eq 'ARRAY'){
+      print '<select name="raceAbilitySelect'.$i.'" oninput="changeRaceAbility()" class="hidden">';
+      print option('raceAbilitySelect'.$i, @{$_});
+      print '</select>';
+      $i++;
+    }
+  }
+  print '</span>';
+}
+print <<"HTML";
           </dl>
           <dl class="box" id="sin">
             <dt>穢れ<dd>@{[input('sin','number','','min="0"')]}
@@ -1359,45 +1365,7 @@ print <<"HTML";
       </div>
       </section>
       
-      <section id="section-palette" style="display:none;">
-      <div class="box">
-        <h2>チャットパレット</h2>
-        <p>
-          手動パレットの配置:<select name="paletteInsertType" style="width: auto;">
-            <option value="exchange" @{[ $pc{'paletteInsertType'} eq 'exchange'?'selected':'' ]}>プリセットと入れ替える</option>
-            <option value="begin"    @{[ $pc{'paletteInsertType'} eq 'begin'   ?'selected':'' ]}>プリセットの手前に挿入</option>
-            <option value="end"      @{[ $pc{'paletteInsertType'} eq 'end'     ?'selected':'' ]}>プリセットの直後に挿入</option>
-          </select>
-        </p>
-        <textarea name="chatPalette" style="height:20em" placeholder="例）&#13;&#10;2d6+{冒険者}+{器用}&#13;&#10;&#13;&#10;※入力がない場合、プリセットが自動的に反映されます。">$pc{'chatPalette'}</textarea>
-        
-        <div class="palette-column">
-        <h2>デフォルト変数 （自動的に末尾に出力されます）</h2>
-        <textarea id="paletteDefaultProperties" readonly style="height:20em">
-HTML
-  say $_ foreach(paletteProperties());
-print <<"HTML";
-</textarea>
-          <label>@{[ input 'chatPalettePropertiesAll', 'checkbox']} 全ての変数を出力する</label><br>
-          （デフォルトだと、未使用の変数は出力されません）
-        </div>
-        <div class="palette-column">
-        <h2>プリセット （コピーペースト用）</h2>
-        <textarea id="palettePreset" readonly style="height:20em"></textarea>
-        <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
-          ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
-          <br>
-          使用ツール: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
-          <option value="">ゆとチャadv.
-          <option value="tekey" @{[ $pc{'paletteTool'} eq 'tekey' ? 'selected' : '']}>Tekey
-          <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
-          </select>
-        </p>
-        </div>
-      </div>
-      </section>
+      @{[ chatPaletteForm ]}
       
       @{[ colorCostomForm ]}
       

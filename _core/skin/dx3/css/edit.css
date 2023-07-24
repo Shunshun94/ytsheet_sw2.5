@@ -43,6 +43,10 @@
   }
 }
 
+body:not(.mode-crc) .crc-only {
+  display: none;
+}
+
 #syndrome-status table {
   width: 100%;
 }
@@ -62,13 +66,27 @@
   outline-offset: -1px;
   background-color: rgba(255,0,0,0.1);
 }
+#syndrome-status tbody.syndrome-rows tr.auto input {
+  display: none;
+}
+#syndrome-status tbody.syndrome-rows tr:not(.auto) span {
+  display: none;
+}
+#syndrome-status tr.pure + tr td:nth-child(n+3) input {
+  display: none;
+}
+#syndrome-status tr.pure + tr td:nth-child(n+3)::after {
+  content: "×2";
+}
 .night #syndrome-status tbody td.error {
   color: #ea0;
   outline: 1px dotted #f70;
   background-color: rgba(255,0,0,0.1);
 }
 @media screen and (max-width:735px){
-#syndrome-status thead th:nth-last-child(-n+4) { width:   4em; }
+  #syndrome-status thead th:nth-child(1)   { width: 0em; }
+  #syndrome-status thead th:nth-last-child(-n+4) { width: 3.5em; }
+  #syndrome-status .syndrome-rows th { font-size: 0; line-height: 1; }
 }
 
 #sub-status input {

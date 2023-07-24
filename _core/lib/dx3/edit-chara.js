@@ -6,6 +6,7 @@ let status = {};
 let syndromes = [];
 // ----------------------------------------
 window.onload = function() {
+  console.log('=====START=====');
   syndromes = [form.syndrome1.value, form.syndrome2.value, form.syndrome3.value];
   
   nameSet();
@@ -20,6 +21,7 @@ window.onload = function() {
   for(let i = 1; i <= 7; i++){ changeLoisColor(i); }
   imagePosition();
   changeColor();
+  console.log('=====LOADED=====');
 };
 
 // 送信前チェック ----------------------------------------
@@ -46,14 +48,11 @@ function changeRegu(){
 // ステージチェック ----------------------------------------
 let ccOn = 0;
 function checkStage(){
-  ccOn = (form.stage.value.match('クロウリングケイオス')) ? 1 : 0;
-  document.querySelectorAll('.cc-only').forEach(obj =>{
-    obj.style.display = ccOn ? '' : 'none';
-  });
+  document.body.classList.toggle('mode-crc', form.stage.value.match('クロウリングケイオス'));
   calcMagic();
 }
 // シンドローム変更 ----------------------------------------
-function changeSyndrome(num, syn){
+function changeSyndrome(num,syn){
   syndromes[num-1] = syn;
   checkSyndrome();
   calcStt();
@@ -62,8 +61,10 @@ function checkSyndrome(){
   const syn1 = syndromes[0];
   const syn2 = syndromes[1];
   const syn3 = syndromes[2];
-  form.syndrome1.classList.toggle('error', !syn1 && (syn2 || syn3));
-  form.syndrome2.classList.toggle('error', !syn2 && syn3);
+  console.log(syndromes)
+  form.syndrome1.parentNode.classList.toggle('error', !syn1 && (syn2 || syn3));
+  form.syndrome2.parentNode.classList.toggle('error', !syn2 && syn3);
+  form.syndrome1.closest('tr').classList.toggle('pure', syn1 && !syn2);
 }
 
 // ステータス計算 ----------------------------------------
@@ -72,19 +73,27 @@ function calcStt() {
   const syn2 = syndromes[1];
   
   exps['status'] = 0;
+
+  const isAuto1 = synStats[syn1] ? true : syn1 ? false : true;
+  const isAuto2 = synStats[syn2] ? true : syn2 ? false : true;
+  document.querySelector('.syndrome-rows tr:nth-child(1)').classList.toggle('auto', isAuto1);
+  document.querySelector('.syndrome-rows tr:nth-child(2)').classList.toggle('auto', isAuto2);
   
   for (let stt of ['body','sense','mind','social']){
     const Stt = stt.slice(0,1).toUpperCase()+stt.slice(1);
+
+    let base1; let base2;
+    document.getElementById("stt-syn1-"+stt).innerHTML = base1 = isAuto1 ? synStats[syn1]?.[stt] ?? '' : Number(form['sttSyn1'+Stt].value);
+    document.getElementById("stt-syn2-"+stt).innerHTML = base2 = isAuto2 ? synStats[syn2]?.[stt] ?? '' : Number(form['sttSyn2'+Stt].value);
+
     let base = 0;
-    base += syn1 ? synStats[syn1][stt] : 0;
-    base += syn2 ? synStats[syn2][stt] : syn1 ? synStats[syn1][stt] : 0;
+    base += syn1 ? base1 : 0;
+    base += syn2 ? base2 : syn1 ? base1 : 0;
     if(stt == form.sttWorks.value) { base += 1; }
     const grow = Number(form["sttGrow"+Stt].value);
     const add  = Number(form["sttAdd" +Stt].value);
     status[stt] = base + grow + add;
     
-    document.getElementById('stt-syn1-'+stt).textContent = syn1 ? synStats[syn1][stt] + (syn2 ? '' : '×2') : '';
-    document.getElementById('stt-syn2-'+stt).textContent = syn2 ? synStats[syn2][stt] : '';
     document.getElementById('stt-total-'+stt).textContent = status[stt];
     document.getElementById('skill-'+stt).textContent = status[stt];
     

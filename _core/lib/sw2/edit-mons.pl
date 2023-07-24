@@ -92,7 +92,7 @@ print <<"HTML";
         <ul>
           <li onclick="sectionSelect('common');"><span>魔物</span><span>データ</span>
           <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
-          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム"></span>
+          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
           <li class="buttons">
@@ -159,15 +159,24 @@ HTML
       </dl>
       <div class="box" id="group">
         <dl>
-          <dt>分類</dt><dd><select name="taxa">
+          <dt>分類</dt>
+          <dd>
+            <div class="select-input">
+              <select name="taxa" oninput="selectInputCheck('taxa',this,'その他')">
 HTML
 foreach (@data::taxa){
-  print '<option '.($pc{'taxa'} eq @$_[0] ? ' selected': '').'>'.@$_[0].'</option>';
+  print '<option '.($pc{taxa} eq @$_[0] ? ' selected': '').'>'.@$_[0].'</option>';
+}
+if($pc{taxa} && !grep { @$_[0] eq $pc{taxa} } @data::taxa){
+  print '<option selected>'.$pc{taxa}.'</option>'."\n";
 }
 print <<"HTML";
-          </select>
+              </select>
+              <input type="text" name="taxaFree">
+            </div>
           <dd>@{[ checkbox 'mount','騎獣','checkMount' ]}
-          <dt>タグ<dd>@{[ input 'tags' ]}
+          <dt>タグ
+          <dd>@{[ input 'tags' ]}
         </dl>
       </div>
 
@@ -379,45 +388,7 @@ print <<"HTML";
       </div>
       </section>
       
-      <section id="section-palette" style="display:none;">
-      <div class="box">
-        <h2>チャットパレット</h2>
-        <p>
-          手動パレットの配置:<select name="paletteInsertType" style="width: auto;">
-            <option value="exchange" @{[ $pc{'paletteInsertType'} eq 'exchange'?'selected':'' ]}>プリセットと入れ替える</option>
-            <option value="begin"    @{[ $pc{'paletteInsertType'} eq 'begin'   ?'selected':'' ]}>プリセットの手前に挿入</option>
-            <option value="end"      @{[ $pc{'paletteInsertType'} eq 'end'     ?'selected':'' ]}>プリセットの直後に挿入</option>
-          </select>
-        </p>
-        <textarea name="chatPalette" style="height:20em" placeholder="例）&#13;&#10;2d6+{冒険者}+{器用}&#13;&#10;&#13;&#10;※入力がない場合、プリセットが自動的に反映されます。">$pc{'chatPalette'}</textarea>
-        
-        <div class="palette-column">
-        <h2>デフォルト変数 （自動的に末尾に出力されます）</h2>
-        <textarea id="paletteDefaultProperties" readonly style="height:20em">
-HTML
-  say $_ foreach(paletteProperties('','m'));
-print <<"HTML";
-</textarea>
-          <label>@{[ input 'chatPalettePropertiesAll', 'checkbox']} 全ての変数を出力する</label><br>
-          （デフォルトだと、未使用の変数は出力されません）
-        </div>
-        <div class="palette-column">
-        <h2>プリセット （コピーペースト用）</h2>
-        <textarea id="palettePreset" readonly style="height:20em"></textarea>
-        <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
-          ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
-          <br>
-          使用ツール: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
-          <option value="">ゆとチャadv.
-          <option value="tekey" @{[ $pc{'paletteTool'} eq 'tekey' ? 'selected' : '']}>Tekey
-          <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
-          </select>
-        </p>
-        </div>
-      </div>
-      </section>
+      @{[ chatPaletteForm ]}
       
       @{[ colorCostomForm ]}
     

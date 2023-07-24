@@ -118,6 +118,12 @@ foreach (1..$pc{'armorNum'})   { if($pc{"armor${_}Name"})   { $open{'item'} = 'o
 foreach (1..$pc{'vehiclesNum'}){ if($pc{"vehicles${_}Name"}){ $open{'item'} = 'open'; last; } }
 foreach (1..$pc{'itemNum'})    { if($pc{"item${_}Name"})    { $open{'item'} = 'open'; last; } }
 
+if(exists $data::syndrome_status{$pc{syndrome1}}){
+  $pc{sttSyn1Body} = $pc{sttSyn1Sense}  = $pc{sttSyn1Mind} = $pc{sttSyn1Social} = '';
+}
+if(exists $data::syndrome_status{$pc{syndrome2}}){
+  $pc{sttSyn2Body} = $pc{sttSyn2Sense}  = $pc{sttSyn2Mind} = $pc{sttSyn2Social} = '';
+}
 
 ### 改行処理 --------------------------------------------------
 $pc{'words'}         =~ s/&lt;br&gt;/\n/g;
@@ -179,7 +185,7 @@ print <<"HTML";
         <ul>
           <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
           <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
-          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム"></span>
+          <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
           <li class="buttons">
@@ -316,27 +322,28 @@ print <<"HTML";
           <h2>シンドローム／能力値 [<span id="exp-status">0</span>]</h2>
           <table>
             <thead>
-              <tr><th colspan="2">シンドローム<th>肉体<th>感覚<th>精神<th>社会
+              <tr><th><th>シンドローム<th>肉体<th>感覚<th>精神<th>社会
             </thead>
-            <tbody>
+            <tbody class="syndrome-rows">
               <tr>
                 <th>ピュア
-                <td><select name="syndrome1" oninput="changeSyndrome(1,this.value);">@{[ option 'syndrome1',@data::syndromes ]}</select>
-                <td id="stt-syn1-body"  >
-                <td id="stt-syn1-sense" >
-                <td id="stt-syn1-mind"  >
-                <td id="stt-syn1-social">
+                <td>@{[ selectInput 'syndrome1','changeSyndrome(1,this.value)',@data::syndromes ]}
+                <td><span id="stt-syn1-body"  ></span>@{[ input "sttSyn1Body"  ,'number','calcStt' ]}
+                <td><span id="stt-syn1-sense" ></span>@{[ input "sttSyn1Sense" ,'number','calcStt' ]}
+                <td><span id="stt-syn1-mind"  ></span>@{[ input "sttSyn1Mind"  ,'number','calcStt' ]}
+                <td><span id="stt-syn1-social"></span>@{[ input "sttSyn1Social",'number','calcStt' ]}
               <tr>
                 <th>クロス
-                <td><select name="syndrome2" oninput="changeSyndrome(2,this.value);">@{[ option 'syndrome2',@data::syndromes ]}</select>
-                <td id="stt-syn2-body"  >
-                <td id="stt-syn2-sense" >
-                <td id="stt-syn2-mind"  >
-                <td id="stt-syn2-social">
+                <td>@{[ selectInput 'syndrome2','changeSyndrome(2,this.value)',@data::syndromes ]}
+                <td><span id="stt-syn2-body"  ></span>@{[ input "sttSyn2Body"  ,'number','calcStt' ]}
+                <td><span id="stt-syn2-sense" ></span>@{[ input "sttSyn2Sense" ,'number','calcStt' ]}
+                <td><span id="stt-syn2-mind"  ></span>@{[ input "sttSyn2Mind"  ,'number','calcStt' ]}
+                <td><span id="stt-syn2-social"></span>@{[ input "sttSyn2Social",'number','calcStt' ]}
               <tr>
                 <th>トライ
-                <td><select name="syndrome3" oninput="changeSyndrome(3,this.value);">@{[ option 'syndrome3',@data::syndromes ]}</select>
+                <td>@{[ selectInput 'syndrome3','changeSyndrome(3,this.value)',@data::syndromes ]}
                 <td colspan="4">
+            <tbody>
               <tr>
                 <th colspan="2" class="right">ワークスによる修正
                 <td>@{[ radio 'sttWorks', 'calcStt', 'body'   ]}
@@ -391,7 +398,7 @@ print <<"HTML";
             <dt>全力移動
             <dd><b id="dash-total"></b>
           </dl>
-          <dl class="box cc-only" id="magic-dice">
+          <dl class="box crc-only" id="magic-dice">
             <dt>魔術ダイス
             <dd>+@{[input "magicAdd",'number','calcMagicDice']}=<b id="magic-total"></b>
           </dl>
@@ -605,7 +612,7 @@ print <<"HTML";
         </table>
         <div class="annotate">※「関係」か「名前」を入力すると経験点が計算されます。</div>
       </details>
-      <details class="box cc-only" id="insanity" $open{'insanity'}>
+      <details class="box crc-only" id="insanity" $open{'insanity'}>
         <summary>永続的狂気</summary>
         <dl class="edit-table " id="insanity-table">
           <dt>@{[input "insanity",'','','placeholder="名称"']}
@@ -660,7 +667,7 @@ print <<"HTML";
         <i class="material-symbols-outlined close-button" onclick="document.getElementById('effect-trash').style.display = 'none';">close</i>
       </div>
 
-      <details class="box cc-only" id="magic" $open{'magic'}>
+      <details class="box crc-only" id="magic" $open{'magic'}>
         <summary>術式 [<span id="exp-magic">0</span>]</summary>
         @{[input 'magicNum','hidden']}
         <table class="edit-table line-tbody no-border-cells" id="magic-table">
@@ -1010,55 +1017,15 @@ print <<"HTML";
         ( 能力値[<b id="exp-used-status"></b>]
         + 技能[<b id="exp-used-skill"></b>]
         + エフェクト[<b id="exp-used-effect"></b>]
-        <span class="cc-only">+ 術式[<b id="exp-used-magic"></b>]</span>
+        <span class="crc-only">+ 術式[<b id="exp-used-magic"></b>]</span>
         + アイテム[<b id="exp-used-item"></b>]
         + メモリー[<b id="exp-used-memory"></b>]
         ) = 残り[<b id="exp-rest"></b>]点
         </p>
       </div>
       </section>
-      
-      <section id="section-palette" style="display:none;">
-      <div class="box">
-        <h2>チャットパレット</h2>
-        <p>
-          手動パレットの配置:<select name="paletteInsertType" style="width: auto;">
-            <option value="exchange" @{[ $pc{'paletteInsertType'} eq 'exchange'?'selected':'' ]}>プリセットと入れ替える</option>
-            <option value="begin"    @{[ $pc{'paletteInsertType'} eq 'begin'   ?'selected':'' ]}>プリセットの手前に挿入</option>
-            <option value="end"      @{[ $pc{'paletteInsertType'} eq 'end'     ?'selected':'' ]}>プリセットの直後に挿入</option>
-          </select>
-        </p>
-        <textarea name="chatPalette" style="height:20em" placeholder="例）&#13;&#10;2d6+{冒険者}+{器用}&#13;&#10;&#13;&#10;※入力がない場合、プリセットが自動的に反映されます。">$pc{'chatPalette'}</textarea>
-        
-        <div class="palette-column">
-        <h2>デフォルト変数 （自動的に末尾に出力されます）</h2>
-        <textarea id="paletteDefaultProperties" readonly style="height:20em">
-HTML
-  say $_ foreach(paletteProperties());
-print <<"HTML";
-</textarea>
-        <p>
-          <label>@{[ input 'chatPalettePropertiesAll', 'checkbox']} 全ての変数を出力する</label><br>
-          （デフォルトだと、未使用の変数は出力されません）
-        </p>
-        </div>
-        <div class="palette-column">
-        <h2>プリセット （コピーペースト用）</h2>
-        <textarea id="palettePreset" readonly style="height:20em"></textarea>
-        <p>
-          <label>@{[ input 'paletteUseVar', 'checkbox','setChatPalette']}デフォルト変数を使う</label>
-          ／
-          <label>@{[ input 'paletteUseBuff', 'checkbox','setChatPalette']}バフデバフ用変数を使う</label>
-          <br>
-          使用ツール: <select name="paletteTool" onchange="setChatPalette();" style="width:auto;">
-          <option value="">ゆとチャadv.
-          <option value="tekey" @{[ $pc{'paletteTool'} eq 'tekey' ? 'selected' : '']}>Tekey
-          <option value="bcdice" @{[ $pc{'paletteTool'} eq 'bcdice' ? 'selected' : '']}>BCDice
-          </select>
-        </p>
-        </div>
-      </div>
-      </section>
+
+      @{[ chatPaletteForm ]}
       
       @{[ colorCostomForm ]}
       

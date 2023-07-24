@@ -9,6 +9,15 @@ my $LOGIN_ID = check;
 
 require $set::data_races;
 
+my %curseList = (
+  '1-1' => '自傷の', '2-1' => '重い'  , '3-1' => 'たどたどしい'  , '4-1' => '鈍重な'    , '5-1' => '醜悪な'  , '6-1' => '正直者の',
+  '1-2' => '嘆きの', '2-2' => '難しい', '3-2' => '代弁する'      , '4-2' => '定まらない', '5-2' => '唸る'    , '6-2' => '乗り物酔いの',
+  '1-3' => '優しき', '2-3' => '軟弱な', '3-3' => '施しは受けない', '4-3' => '錯乱の'    , '5-3' => 'ふやけた', '6-3' => '碧を厭う',
+  '1-4' => '差別の', '2-4' => '病弱な', '3-4' => '死に近い'      , '4-4' => '足絡みの'  , '5-4' => '古傷の'  , '6-4' => '我慢できない',
+  '1-5' => '脆弱な', '2-5' => '過敏な', '3-5' => 'おしゃれな'    , '4-5' => '滑り落ちる', '5-5' => 'まばゆい', '6-5' => 'つきまとう',
+  '1-6' => '無謀な', '2-6' => '陽気な', '3-6' => 'マナを吸う'    , '4-6' => '悪臭放つ'  , '5-6' => '栄光なき', '6-6' => 'のろまな',
+);
+
 my $page_items = 10;
 my $page = $::in{"page"} * $page_items;
 
@@ -44,6 +53,10 @@ foreach my $name (@data::race_names){
   if($name eq '人間'){
     push(@race_makelist, {"NAME" => "人間（冒険者）"});
   }
+
+  if($name =~ /^label=(.+)$/){
+    push(@race_makelist, {"LABEL" => $1});
+  }
 }
 $INDEX->param(MakeList => \@race_makelist);
 
@@ -52,7 +65,19 @@ open (my $FH,"<", $set::makelist);
 my @lines = <$FH>;
 close($FH);
 
-@lines = grep { (split /<>/)[2]  eq $::in{'id'} } @lines if $::in{'id'};
+## 検索
+if($::in{"mylist"}){
+  @lines = grep { $_ =~ /^(?:[^<]*?<>){2}\Q$LOGIN_ID\E</ } @lines;
+  $INDEX->param(modeMylist => 1);
+}
+elsif($::in{'id'}){
+  @lines = grep { $_ =~ /^(?:[^<]*?<>){2}\Q$::in{'id'}\E</ } @lines;
+}
+if($::in{'tag'}){
+  my $tag_query = decode('utf8', $::in{'tag'}) =~ s/[#＃]//r;
+  @lines = grep { $_ =~ /^(?:[^<]*?<>){4}[^<]*?[#＃]\Q$tag_query\E(\s|[#＃]|<)/ } @lines if $::in{'tag'};
+  $INDEX->param(tag => $tag_query);
+}
 
 my ($in_num, $in_trial) = split('-', $::in{"num"});
 
@@ -63,7 +88,7 @@ foreach my $data (@lines) {
   
   next if $in_num && $data !~ /^$in_num</;
   next if !$in_num && (($i <= $page) || ($i > $page+$page_items));
-  my ($num, $date, $id, $name, $comment, $race, $stt) = split(/<>/, $data);
+  my ($num, $date, $id, $name, $comment, $race, $stt, $curse) = split(/<>/, $data);
   
   my $adventurer = ($race =~ s/（冒険者）//) ? 1 : 0;
   my @datalist;
@@ -123,6 +148,12 @@ foreach my $data (@lines) {
       "SELECTED" => ($in_trial eq $trial ? 'selected' : ''),
     });
   }
+
+  my @curses = split('/', $curse);
+  $_ = $_.':'.$curseList{$_} foreach (@curses);
+
+  $comment =~ s/([#＃])(.+?)(?=\s|[#＃]|$)/<a href=".\/?mode=making&tag=$2">$1$2<\/a>/g;
+
   my ($sec, $min, $hour, $day, $mon, $year) = localtime($date);
   push(@posts, {
     "NUM" => $num,
@@ -130,11 +161,16 @@ foreach my $data (@lines) {
     "NAME" => $name,
     "COMMENT" => $comment,
     "Data" => \@datalist,
+    "CURSE" => join('／', @curses),
   });
 }
 $INDEX->param(Posts => \@posts);
 
-$INDEX->param(pageId => '&id='.$::in{'id'}) if $::in{'id'};
+my $paginationUrl;
+$paginationUrl .= '&id='.$::in{'id'} if $::in{'id'};
+$paginationUrl .= '&tag='.uri_escape_utf8(decode('utf8', $::in{'tag'})) if $::in{'tag'};
+$paginationUrl .= '&mylist=1' if $::in{'mylist'};
+$INDEX->param(paginationUrl => $paginationUrl);
 $INDEX->param(pagePrev => ($page - $page_items) / $page_items);
 $INDEX->param(pageNext => ($page + $page_items) / $page_items);
 if(!$in_num) {
