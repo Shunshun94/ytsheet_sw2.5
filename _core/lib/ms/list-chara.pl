@@ -13,7 +13,7 @@ my $sort = $::in{sort};
 ### テンプレート読み込み #############################################################################
 my $INDEX;
 $INDEX = HTML::Template->new( filename  => $set::skin_tmpl , utf8 => 1,
-  path => ['./', $::core_dir."/skin/dx3", $::core_dir."/skin/_common", $::core_dir],
+  path => ['./', $::core_dir."/skin/ms", $::core_dir."/skin/_common", $::core_dir],
   search_path_on_include => 1,
   die_on_bad_params => 0, die_on_missing_include => 0, case_sensitive => 1, global_vars => 1);
 
@@ -34,7 +34,7 @@ foreach (keys %::in) {
   $::in{$_} =~ s/</&lt;/g;
   $::in{$_} =~ s/>/&gt;/g;
 }
-if(!($mode eq 'mylist' || $::in{tag} || $::in{group} || $::in{name} || $::in{player} || $::in{'exp-min'} || $::in{'exp-max'} || $::in{syndrome} || $::in{breed} || $::in{works} || $::in{dlois} || $::in{sign} || $::in{image})){
+if(!($mode eq 'mylist' || $::in{tag} || $::in{group} || $::in{name} || $::in{player} || $::in{lvmin} || $::in{lvmax} || $::in{taxa} || $::in{home} || $::in{origin} || $::in{clan} || $::in{address} || $::in{image})){
   $index_mode = 1;
   $INDEX->param(modeIndex => 1);
   $INDEX->param(simpleList => 1) if $set::simplelist;
@@ -46,15 +46,14 @@ foreach(
   #'group',
   'name',
   'player',
-  'exp-min',
-  'exp-max',
-  'syndrome',
-  'breed',
-  'works',
-  'dlois',
-  'sign',
+  'lvmin',
+  'lvmax',
+  'taxa',
+  'home',
+  'origin',
+  'clan',
+  'address',
   'image',
-  'fellow',
   ){
   push( @q_links, $_.'='.uri_escape_utf8(decode('utf8', param($_))) ) if param($_);
 }
@@ -94,7 +93,7 @@ elsif (
   && !($mode eq 'mylist')
   && !$::in{tag}
 ){
-  @list = grep { !(split(/<>/))[18] } @list;
+  @list = grep { !(split(/<>/))[9] } @list;
 }
 
 ## グループ検索
@@ -111,11 +110,11 @@ $INDEX->param(group => $groups{$group_query}{name});
 
 ## タグ検索
 my $tag_query = pcTagsEscape(decode('utf8', $::in{tag}));
-if($tag_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){17}[^<]*? \Q$tag_query\E / } @list; }
+if($tag_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){8}[^<]*? \Q$tag_query\E / } @list; }
 $INDEX->param(tag => $tag_query);
 
 ## 名前検索
-my $name_query = decode('utf8', $::in{name});
+my $name_query = lc decode('utf8', $::in{name});
 if($name_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){4}[^<]*?\Q$name_query\E/i } @list; }
 $INDEX->param(name => $name_query);
 
@@ -124,78 +123,41 @@ my $pl_query = decode('utf8', $::in{player});
 if($pl_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){5}[^<]*?\Q$pl_query\E/i } @list; }
 $INDEX->param(player => $pl_query);
 
-## 経験点検索
-my $exp_min_query = $::in{'exp-min'};
-my $exp_max_query = $::in{'exp-max'};
-if($exp_min_query) { @list = grep { (split(/<>/))[7] >= $exp_min_query+130 } @list; }
-if($exp_max_query) { @list = grep { (split(/<>/))[7] <= $exp_max_query+130 } @list; }
-$INDEX->param(expMin => $exp_min_query);
-$INDEX->param(expMax => $exp_max_query);
-my $exp_query;
-if   ($exp_min_query eq $exp_max_query){ $exp_query = $exp_min_query; }
-elsif($exp_min_query || $exp_max_query){ $exp_query = $exp_min_query.'～'.$exp_max_query; }
-$INDEX->param(exp => $exp_query);
+## 強度検索
+my $lv_min_query = $::in{'lv-min'};
+my $lv_max_query = $::in{'lv-max'};
+if($lv_min_query) { @list = grep { (split(/<>/))[11] >= $lv_min_query } @list; }
+if($lv_max_query) { @list = grep { (split(/<>/))[11] <= $lv_max_query } @list; }
+$INDEX->param(lvMin => $lv_min_query);
+$INDEX->param(lvMax => $lv_max_query);
+my $lv_query;
+if   ($lv_min_query eq $lv_max_query){ $lv_query = $lv_min_query; }
+elsif($lv_min_query || $lv_max_query){ $lv_query = $lv_min_query.'～'.$lv_max_query; }
+$INDEX->param(lv => $lv_query);
 
-## ワークス検索
-my $works_query = decode('utf8', $::in{works});
-if($works_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){12}[^<]*?\Q$works_query\E/ } @list; }
-$INDEX->param(works => $works_query);
+## 分類検索
+my $taxa_query = decode('utf8', $::in{taxa});
+if($taxa_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){13}[^<]*?\Q$taxa_query\E/ } @list; }
+$INDEX->param(taxa => $taxa_query);
 
-## ブリード検索
-my $breed_text;
-if($::in{breed}){
-  if   ($::in{breed} == 1){ @list = grep { $_ =~ "^(?:[^<]*?<>){13}[^/]+?//<"             } @list; $INDEX->param(breedSelected1 => 'selected'); $breed_text = 'ピュア'; }
-  elsif($::in{breed} == 2){ @list = grep { $_ =~ "^(?:[^<]*?<>){13}[^/]+?/[^/]+?/<"       } @list; $INDEX->param(breedSelected2 => 'selected'); $breed_text = 'クロス'; }
-  elsif($::in{breed} == 3){ @list = grep { $_ =~ "^(?:[^<]*?<>){13}[^/]+?/[^/]+?/[^<]+?<" } @list; $INDEX->param(breedSelected3 => 'selected'); $breed_text = 'トライ'; }
-}
-$INDEX->param(breedText => $breed_text);
-
-## シンドローム検索
-my @syndrome_query = split('\s', decode('utf8', $::in{syndrome}));
-foreach my $q (@syndrome_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){13}[^<]*?\Q$q\E/ } @list; }
-$INDEX->param(syndrome => "@syndrome_query");
-
-## Dロイス検索
-my @dlois_query = split('\s', decode('utf8', $::in{dlois}));
-foreach my $q (@dlois_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){14}[^<]*?\Q$q\E/ } @list; }
-$INDEX->param(dlois => "@dlois_query");
-
-## 星座検索
-my $sign_query = decode('utf8', $::in{sign});
-if($sign_query) {
-  if   ($sign_query =~ /山羊|磨羯|やぎ/       ){ $sign_query = "山羊|磨羯|やぎ";        $INDEX->param(sign => "山羊座（磨羯宮）"); }
-  elsif($sign_query =~ /水瓶|宝瓶|みずがめ/   ){ $sign_query = "水瓶|宝瓶|みずがめ";    $INDEX->param(sign => "水瓶座（宝瓶宮）"); }
-  elsif($sign_query =~ /双?魚|うお/           ){ $sign_query = "双?魚|うお";            $INDEX->param(sign => "魚座（双魚宮）"); }
-  elsif($sign_query =~ /[牡雄お]羊|おひつじ/  ){ $sign_query = "[牡雄お]羊|おひつじ";   $INDEX->param(sign => "牡羊座（白羊宮）"); }
-  elsif($sign_query =~ /[牡雄お]牛|おうし/    ){ $sign_query = "[牡雄お]牛|おうし";     $INDEX->param(sign => "牡牛座（金牛宮）"); }
-  elsif($sign_query =~ /双[子児]|ふたご/      ){ $sign_query = "双[子児]|ふたご";       $INDEX->param(sign => "双子座（双児宮）"); }
-  elsif($sign_query =~ /蟹|かに/              ){ $sign_query = "蟹|かに";               $INDEX->param(sign => "蟹座（巨蟹宮）"); }
-  elsif($sign_query =~ /獅子|しし/            ){ $sign_query = "獅子|しし";             $INDEX->param(sign => "獅子座（獅子宮）"); }
-  elsif($sign_query =~ /[乙処]女|おとめ/      ){ $sign_query = "[乙処]女|おとめ";       $INDEX->param(sign => "乙女座（処女宮）"); }
-  elsif($sign_query =~ /天秤|てんびん/        ){ $sign_query = "天秤|てんびん";         $INDEX->param(sign => "天秤座（天秤宮）"); }
-  elsif($sign_query =~ /蠍|天蝎|さそり|サソリ/){ $sign_query = "蠍|天蝎|さそり|サソリ"; $INDEX->param(sign => "蠍座（天蝎宮）"); }
-  elsif($sign_query =~ /人馬|射手|いて/       ){ $sign_query = "人馬|射手|いて";        $INDEX->param(sign => "射手座（人馬宮）"); }
-  elsif($sign_query =~ /(蛇|へび)(使|遣|つか)/){ $sign_query = "(蛇|へび)(使|遣|つか)"; $INDEX->param(sign => "蛇遣座"); }
-  else { $INDEX->param(sign => $sign_query); }
-  
-  @list = grep { $_ =~ /^(?:[^<]*?<>){10}[^<]*?(?:\Q$sign_query\E)/ } @list;
-}
+## 所属検索
+my $clan_query = decode('utf8', $::in{clan});
+if($clan_query) { @list = grep { $_ =~ /^(?:[^<]*?<>){17}[^<]*?\Q$clan_query\E/ } @list; }
+$INDEX->param(clan => $clan_query);
 
 ## 画像フィルタ
 if($::in{image} == 1) {
-  @list = grep { $_ =~ /^(?:[^<]*?<>){16}[^<0]/ } @list;
+  @list = grep { $_ =~ /^(?:[^<]*?<>){7}[^<0]/ } @list;
   $INDEX->param(image => 1);
 }
 elsif($::in{image} eq 'N') {
-  @list = grep { $_ !~ /^(?:[^<]*?<>){16}[^<0]/ } @list;
+  @list = grep { $_ !~ /^(?:[^<]*?<>){7}[^<0]/ } @list;
   $INDEX->param(image => 1);
 }
 ### ソート --------------------------------------------------
-if   ($sort eq 'name')  { my @tmp = map { sortName((split /<>/)[4]) } @list; @list = @list[sort {$tmp[$a] cmp $tmp[$b]} 0 .. $#tmp]; }
-elsif($sort eq 'pl')    { my @tmp = map { (split /<>/)[5]           } @list; @list = @list[sort {$tmp[$a] cmp $tmp[$b]} 0 .. $#tmp]; }
-elsif($sort eq 'date')  { my @tmp = map { (split /<>/)[3]           } @list; @list = @list[sort {$tmp[$b] <=> $tmp[$a]} 0 .. $#tmp]; }
-elsif($sort eq 'exp')   { my @tmp = map { (split /<>/)[7]           } @list; @list = @list[sort {$tmp[$b] <=> $tmp[$a]} 0 .. $#tmp]; }
-elsif($sort eq 'age')   { my @tmp = map { (split /<>/)[9]           } @list; @list = @list[sort {$tmp[$a] cmp $tmp[$b]} 0 .. $#tmp]; }
+if   ($sort eq 'name')    { my @tmp = map { sortName((split /<>/)[4]) } @list; @list = @list[sort {$tmp[$a] cmp $tmp[$b]} 0 .. $#tmp]; }
+elsif($sort eq 'pl')      { my @tmp = map { (split /<>/)[5]           } @list; @list = @list[sort {$tmp[$a] cmp $tmp[$b]} 0 .. $#tmp]; }
+elsif($sort eq 'date')    { my @tmp = map { (split /<>/)[3]           } @list; @list = @list[sort {$tmp[$b] <=> $tmp[$a]} 0 .. $#tmp]; }
 
 sub sortName { $_[0] =~ s/^“.*”//; return $_[0]; }
 
@@ -208,9 +170,10 @@ my $pageend   = $page * $set::pagemax;
 foreach (@list) {
   my (
     $id, undef, undef, $updatetime, $name, $player, $group, #0-6
-    $exp, $gender, $age, $sign, $blood, $works, #7-12
-    $syndrome, $dlois, #13-14
-    $session, $image, $tags, $hide, $stage #15-19
+    $image, $tags, $hide, $session, #7-10
+    $level, $endurance, #11-12
+    $taxa, $home, $origin, $background, #13-16
+    $clan, $clanEmotion, $address, #17-19
   ) = (split /<>/, $_)[0..19];
   
   #グループ
@@ -231,35 +194,24 @@ foreach (@list) {
   }
   
   #名前
-  $name =~ s/^“(.*)”(.*)$/<span>“$1”<\/span><span>$2<\/span>/;
+  $name =~ s/^“(.*)”(.*)/<span>“$1”<\/span><span>$2<\/span>/;
   
   ## シンプルリスト
   if($index_mode && $set::simplelist){
     #出力用配列へ
     my @characters;
     push(@characters, {
-      "ID" => $id,
-      "NAME" => $name,
-      "PLAYER" => $player,
-      "GROUP" => $group,
-      "HIDE" => $hide,
+      ID => $id,
+      NAME => $name,
+      PLAYER => $player,
+      GROUP => $group,
+      LEVEL => $level,
+      HIDE => $hide,
     });
     push(@{$grouplist{$group}}, @characters);
   }
   ## 通常リスト
   else {
-    #性別
-    $gender = genderConvert($gender);
-    
-    #年齢
-    $age = ageConvert($age);
-    
-    #シンドローム
-    my @syndromes;
-    $syndrome =~ s#(^|/)その他:#$1#g;
-    push(@syndromes, "<span>$_</span>") foreach (split '/', $syndrome);
-    my @dloises;
-    push(@dloises, "<span>$_</span>") foreach (split '/', $dlois);
 
     #タグ
     my $tags_links;
@@ -276,21 +228,19 @@ foreach (@list) {
     #出力用配列へ
     my @characters;
     push(@characters, {
-      "ID" => $id,
-      "NAME" => $name,
-      "PLAYER" => $player,
-      "GROUP" => $group,
-      "EXP" => $exp - 130,
-      "AGE" => $age,
-      "GENDER" => $gender,
-      "SIGN" => $sign,
-      "BLOOD" => $blood,
-      "WORKS" => $works,
-      "SYNDROME" => join('',@syndromes),
-      "DLOIS" => join(' ',@dloises),
-      "TAGS" => $tags_links,
-      "DATE" => $updatetime,
-      "HIDE" => $hide,
+      ID => $id,
+      NAME => $name,
+      PLAYER => $player,
+      GROUP => $group,
+      LEVEL => $level,
+      TAXA => $taxa,
+      HOME => $home,
+      ORIGIN => $origin,
+      CLAN => $clan,
+      ADDRESS => $address,
+      TAGS => $tags_links,
+      DATE => $updatetime,
+      HIDE => $hide,
     });
     push(@{$grouplist{$group}}, @characters);
   }
@@ -343,12 +293,7 @@ $INDEX->param(ogUrl => self_url());
 $INDEX->param(ogDescript => 
   ($name_query ? "名前「${name_query}」を含む " : '') .
   ($pl_query   ? "ＰＬ名「${pl_query}」を含む " : '') .
-  ($tag_query  ? "タグ「${tag_query}」 " : '') .
-  ($exp_query      ? "経験点「${exp_query}」 " : '') .
-  ($breed_text     ? "ブリード「${breed_text}}」" : '') . 
-  (@syndrome_query ? "シンドローム「@{syndrome_query}}」" : '') . 
-  (@dlois_query    ? "Ｄロイス「@{dlois_query}}」" : '') . 
-  ($works_query    ? "ワークス「${works_query}}」" : '') 
+  ($tag_query  ? "タグ「${tag_query}」 " : '')
 );
 
 $INDEX->param(title => $set::title);

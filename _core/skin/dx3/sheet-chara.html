@@ -170,10 +170,10 @@
         <section class="box" id="exp">
         <h2>経験点</h2>
         <dl>
-          <dt>使<span class="shorten">用</span><dd><TMPL_VAR expUsed>
-          <dt>残<span class="shorten">り</span><dd><TMPL_VAR expRest>
-          <dt>総<span class="shorten">計</span><dd><TMPL_VAR expTotal>
+          <dt>消費<dd>+<TMPL_VAR expSpent>
+          <dt>未使用<dd><TMPL_VAR expRest>
         </dl>
+        <div class="create-type"><TMPL_VAR createTypeName><span class="nowrap shorten">作成</span></div>
         </section>
         
         <section class="box" id="lifepath">
@@ -413,7 +413,7 @@
               <dt class="combo-cond">条件
               <dt class="combo-dice">ダイス
               <dt class="combo-crit">Ｃ値
-              <dt class="combo-fixed">判定固定値
+              <dt class="combo-fixed">達成値修正
               <dt class="combo-atk">攻撃力
               
               <dd class="combo-cond"><b><TMPL_VAR CONDITION1></b><dd class="combo-dice" data-edb="0"><TMPL_VAR DICE1><dd class="combo-crit"><TMPL_VAR CRIT1><dd class="combo-fixed"><TMPL_VAR FIXED1><dd class="combo-atk"><TMPL_VAR ATK1>
@@ -517,6 +517,24 @@
         </div>
         
         <section class="box" id="exps">
+          <TMPL_IF isConstruction>
+          <h2>コンストラクション作成</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>能力値フリーポイント
+                <th>技能フリーポイント
+                <th>作成時任意エフェクト
+                <th>エフェクトLvフリーポイント
+            <tbody>
+              <tr>
+                <td><TMPL_VAR fpUsedStatus>/3
+                <td><TMPL_VAR fpUsedSkill>/5
+                <td><TMPL_VAR fpUsedEffect>/4個
+                <td><TMPL_VAR fpUsedEffectLv>/2
+            </tbody>
+          </table>
+          </TMPL_IF>
           <h2>経験点計算</h2>
           <table>
             <thead>
@@ -528,8 +546,7 @@
                 <th>アイテム
                 <th>メモリー
                 <th>使用総計
-                <th>残／合計
-            </thead>
+                <th>未使用／合計
             <tbody>
               <tr>
                 <td><TMPL_VAR expUsedStatus>
