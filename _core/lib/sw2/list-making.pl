@@ -141,7 +141,7 @@ foreach my $data (@lines) {
   }
 
   my @curses = split('/', $curse);
-  $_ = $_.':'.$set::curseList{$_} foreach (@curses);
+  $_ = $_.':'.($set::curseList{$_} || '＃選択不可＃') foreach (@curses);
 
   $comment =~ s/([#＃])(.+?)(?=\s|[#＃]|$)/<a href=".\/?mode=making&tag=$2">$1$2<\/a>/g;
 
