@@ -1,5 +1,6 @@
 "use strict";
 const form = document.sheet;
+var autoCompleteTarget = autoCompleteTarget || {};
 
 const delConfirmText = '項目に値が入っています。本当に削除しますか？';
 
@@ -20,7 +21,8 @@ window.addEventListener('beforeunload', function(e) {
 
 // 送信 ----------------------------------------
 let saving = 0;
-function formSubmit(learningList = false) {
+function formSubmit(learningList = (autoCompleteTarget.LIST || false)) {
+  console.log('=====SAVE=====', learningList);
   if(saving){ return; }
   if(!formCheck()){ return false; }
   if(learningList) {
@@ -119,7 +121,7 @@ document.addEventListener('keydown', e => {
     const nowFocus = document.activeElement;
     document.activeElement.blur();
     nowFocus.focus();
-    formSubmit(autoCompleteTargetList || false);
+    formSubmit();
   }
 });
 
