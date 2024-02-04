@@ -72,7 +72,8 @@ let race = '';
 let level = 0;
 let levelCasters = [];
 
-const autoCompleteTargetList = [{
+var autoCompleteTarget = autoCompleteTarget || {};
+autoCompleteTarget.LIST = [{
   element: document.getElementById('weapons'),
   columns: ['Usage', 'Reqd', 'Acc', 'Rate', 'Crit', 'Dmg', 'Category']
 },{
@@ -100,7 +101,7 @@ window.onload = function() {
   
   imagePosition();
   changeColor();
-  io.github.shunshun94.trpg.ytsheet.AutoComplete.Inserting.initialize(autoCompleteTargetList);
+  io.github.shunshun94.trpg.ytsheet.AutoComplete.Inserting.initialize(autoCompleteTarget.LIST);
 };
 
 // 送信前チェック ----------------------------------------
