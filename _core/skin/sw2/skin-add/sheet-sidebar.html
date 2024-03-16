@@ -1,0 +1,27 @@
+<script src="https://shunshun94.github.io/shared/jquery/com/hiyoko/util/v2/utils.js"></script>
+<script>
+var io;
+io.github = io.github || {};
+io.github.shunshun94 = io.github.shunshun94 || {};
+io.github.shunshun94.ytsheet = io.github.shunshun94.ytsheet || {};
+io.github.shunshun94.ytsheet.addSkin = io.github.shunshun94.ytsheet.addSkin || {};
+
+io.github.shunshun94.ytsheet.addSkin.param = com.hiyoko.util.getQueries();
+
+if(io.github.shunshun94.ytsheet.addSkin.param.appendTextRightTop) {
+	const item = document.createElement('span');
+	item.id = 'image-append-right-top';
+	item.style = `padding:0.8em;top:8px;right:8px;position:absolute;width:3em;writing-mode: vertical-rl;background-color:white;border:black solid 2px;`;
+	item.textContent = decodeURI(io.github.shunshun94.ytsheet.addSkin.param.appendTextRightTop);
+	document.getElementById('image').append(item);
+}
+
+if(io.github.shunshun94.ytsheet.addSkin.param.appendTextLeftBottom) {
+	const item = document.createElement('span');
+	item.id = 'image-append-left-bottom';
+	item.style = `padding:0.8em;bottom:8px;left:8px;position:absolute;width:3em;writing-mode: vertical-rl;background-color:white;border:black solid 2px;`;
+	item.textContent = decodeURI(io.github.shunshun94.ytsheet.addSkin.param.appendTextLeftBottom);
+	document.getElementById('image').append(item);
+}
+
+</script>
