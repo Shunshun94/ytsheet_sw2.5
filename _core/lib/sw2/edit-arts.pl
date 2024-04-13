@@ -107,13 +107,14 @@ Content-type: text/html\n
 
 <head>
   <meta charset="UTF-8">
-  <title>@{[$mode eq 'edit'?"編集：$pc{itemName}":'新規作成']} - $set::title</title>
+  <title>@{[$mode eq 'edit'?"編集：$pc{artsName}":'新規作成']} - $set::title</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/base.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/sheet.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/sw2/css/arts.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/edit.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/sw2/css/edit.css?${main::ver}">
+  <script src="${main::core_dir}/skin/_common/js/lib/Sortable.min.js"></script>
   <script src="${main::core_dir}/skin/_common/js/lib/compressor.min.js"></script>
   <script src="${main::core_dir}/lib/edit.js?${main::ver}" defer></script>
   <script src="${main::core_dir}/lib/sw2/edit-arts.js?${main::ver}" defer></script>
@@ -148,6 +149,7 @@ print <<"HTML";
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
+          <li onclick="exportAsJson()" class="download-icon" title="JSON出力">
           <li class="buttons">
             <ul>
               <li @{[ display ($mode eq 'edit') ]} class="view-icon" title="閲覧画面"><a href="./?id=$::in{id}"></a>
@@ -177,7 +179,7 @@ else {
   print <<"HTML";
       <details class="box" id="edit-protect" @{[$mode eq 'edit' ? '':'open']}>
       <summary>編集保護設定</summary>
-      <p id="edit-protect-view"><input type="hidden" name="protectOld" value="$pc{protect}">
+      <fieldset id="edit-protect-view"><input type="hidden" name="protectOld" value="$pc{protect}">
 HTML
   if($LOGIN_ID){
     print '<input type="radio" name="protect" value="account"'.($pc{protect} eq 'account'?' checked':'').'> アカウントに紐付ける（ログイン中のみ編集可能になります）<br>';
@@ -190,7 +192,7 @@ HTML
   }
   print <<"HTML";
 <input type="radio" name="protect" value="none"@{[ $pc{protect} eq 'none'?' checked':'' ]}> 保護しない（誰でも編集できるようになります）
-      </p>
+      </fieldset>
       </details>
 HTML
 }
@@ -216,7 +218,7 @@ HTML
         </dl>
       </div>
 
-      <div class="box" id="name-form">
+      <div class="box in-toc" id="name-form" data-content-title="カテゴリ・プレイヤー名">
         <div>
           <dl id="category">
             <dt>カテゴリ
@@ -232,7 +234,7 @@ HTML
         <p>カテゴリを選択してください。</p>
       </div>
       <!-- 魔法 -->
-      <div class="data-area" id="data-magic">
+      <div class="data-area in-toc" id="data-magic" data-content-title="データ">
         <div class="box input-data">
           <dl class="name     "><dt>名称        <dd>【@{[ input 'magicName','',"nameSet" ]}】<br>
                                                           @{[ checkbox 'magicActionTypePassive','常時' ]}@{[ checkbox 'magicActionTypeMajor','主動作' ]}@{[ checkbox 'magicActionTypeMinor','補助動作' ]}@{[ checkbox 'magicActionTypeSetup','戦闘準備' ]}</dl>
@@ -261,12 +263,12 @@ HTML
           
         </div>
         <div class="box">
-          <h2>由来・逸話など</h2>
+          <h2 class="in-toc">由来・逸話など</h2>
           <textarea name="magicDescription">$pc{magicDescription}</textarea>
         </div>
       </div>
       <!-- 神格 -->
-      <div class="data-area" id="data-god">
+      <div class="data-area in-toc" id="data-god" data-content-title="神格の詳細">
         <div class="box input-data">
           <div id="image" style="">
             <h2>聖印の画像</h2>
@@ -300,7 +302,7 @@ HTML
 HTML
 foreach my $lv (2,4,7,10,13){
 print <<"HTML";
-          <h2>特殊神聖魔法 ${lv}レベル</h2>
+          <h2 class="in-toc">特殊神聖魔法 ${lv}レベル</h2>
           <dl class="name    "><dt>名称      <dd>【@{[ input "godMagic${lv}Name",'' ]}】<br>@{[ checkbox "godMagic${lv}ActionTypeMinor",'補助動作' ]}@{[ checkbox "godMagic${lv}ActionTypeSetup",'戦闘準備' ]}</dl>
           <dl class="cost    "><dt>消費      <dd>@{[ input "godMagic${lv}Cost" ]}</dl>
           <dl class="target  "><dt>対象      <dd>@{[ input "godMagic${lv}Target",'','','list="list-target"' ]}</dl>
@@ -316,7 +318,7 @@ print <<"HTML";
         </div>
       </div>
       <!-- 流派 -->
-      <div class="data-area" id="data-school">
+      <div class="data-area in-toc" id="data-school" data-content-title="流派の詳細">
         <div class="box input-data">
           <dl class="name  "><dt>名称      <dd>【@{[ input 'schoolName','',"nameSet" ]}】</dl>
           <dl class="area  "><dt>地域      <dd>@{[ input 'schoolArea','','','placeholder="大陸・地方など"' ]}</dl>
@@ -340,7 +342,7 @@ print <<"HTML";
         </div>
         @{[ input 'schoolArtsNum','hidden' ]}
         <details class="box" $open{schoolArts}>
-          <summary>流派秘伝</summary>
+          <summary class="in-toc">流派秘伝</summary>
           <textarea name="schoolArtsNote" placeholder="流派秘伝全体の注釈（あれば）">$pc{schoolArtsNote}</textarea>
           <div id="arts-list">
 HTML
@@ -348,6 +350,7 @@ foreach my $num ('TMPL',1..$pc{schoolArtsNum}){
   if($num eq 'TMPL'){ print '<template id="arts-template">' }
 print <<"HTML";
           <div class="input-data" id="arts${num}">
+            <div class="handle"></div>
             <dl class="name    "><dt>名称      <dd>《@{[ input "schoolArts${num}Name",'' ]}》<br>@{[ checkbox "schoolArts${num}ActionTypeSetup",'戦闘準備' ]}</dl>
             <dl class="cost    "><dt>必要名誉点<dd>@{[ input "schoolArts${num}Cost" ]}</dl>
             <dl class="type    "><dt>タイプ    <dd>@{[ input "schoolArts${num}Type",'','','list="list-arts-type"' ]}</dl>
@@ -355,7 +358,7 @@ print <<"HTML";
             <dl class="equip   "><dt>限定条件  <dd>@{[ input "schoolArts${num}Equip" ]}</dl>
             <dl class="use     "><dt>使用      <dd>@{[ input "schoolArts${num}Use" ]}</dl>
             <dl class="apply   "><dt>適用      <dd>@{[ input "schoolArts${num}Apply",'','','list="list-arts-apply"' ]}</dl>
-            <dl class="risk    "><dt>リスク    <dd>@{[ input "schoolArts${num}Risk" ]}</dl>
+            <dl class="risk    "><dt>リスク    <dd>@{[ input "schoolArts${num}Risk",'','','list="list-arts-risk"' ]}</dl>
             <dl class="summary "><dt>概要      <dd>@{[ input "schoolArts${num}Summary" ]}</dl>
             <dl class="effect  "><dt>効果      <dd><textarea name="schoolArts${num}Effect">$pc{"schoolArts${num}Effect"}</textarea></dl>
           </div>
@@ -368,7 +371,7 @@ print <<"HTML";
         </details>
         @{[ input 'schoolMagicNum','hidden' ]}
         <details class="box" $open{schoolMagic}>
-          <summary>流派秘伝魔法</summary>
+          <summary class="in-toc">流派秘伝魔法</summary>
           <textarea name="schoolMagicNote" placeholder="流派秘伝魔法全体の注釈（あれば）">$pc{schoolMagicNote}</textarea>
           <div id="school-magic-list">
 HTML
@@ -376,6 +379,7 @@ foreach my $num ('TMPL',1..$pc{schoolMagicNum}){
   if($num eq 'TMPL'){ print '<template id="school-magic-template">' }
 print <<"HTML";
           <div class="input-data" id="school-magic${num}">
+            <div class="handle"></div>
             <dl class="name    "><dt>名称      <dd>【@{[ input "schoolMagic${num}Name",'' ]}】<br>@{[ checkbox "schoolMagic${num}ActionTypeMinor",'補助動作' ]}@{[ checkbox "schoolMagic${num}ActionTypeSetup",'戦闘準備' ]}</dl>
             <dl class="cost    "><dt>必要名誉点<dd>@{[ input "schoolMagic${num}AcquireCost" ]}</dl>
             <dl class="level    "><dt>習得レベル<dd>@{[ input "schoolMagic${num}Lv" ]}</dl>
@@ -584,6 +588,14 @@ print <<"HTML";
     <option value="1回の射撃攻撃">
     <option value="1回の魔法行使">
     <option value="10秒（1ラウンド）持続">
+  </datalist>
+  <datalist id="list-arts-risk">
+    <option value="なし">
+    <option value="回避力判定-1">
+    <option value="回避力判定-2">
+    <option value="生命・精神抵抗力判定-2">
+    <option value="ほとんどの行為判定-4">
+    <option value="〈盾〉の防護点、回避力の有利な修正無効">
   </datalist>
   <script>
 @{[ &commonJSVariable ]}

@@ -95,6 +95,8 @@ function checkSyndrome(){
   const syn1 = syndromes[0];
   const syn2 = syndromes[1];
   const syn3 = syndromes[2];
+
+  document.getElementById('breed-value').textContent = syn3 ? 'トライ' : syn2 ? 'クロス' : syn1 ? 'ピュア' : '';
   
   form.syndrome1.parentNode.classList.toggle('error', !syn1 && (syn2 || syn3));
   form.syndrome2.parentNode.classList.toggle('error', !syn2 && syn3);
@@ -247,7 +249,7 @@ function calcEffect() {
         //自動かDロイスは新規取得ぶん減らす
         if(type.match(/^(auto|dlois)$/i)){
           exps['effect'] += -15;
-          //コンストラクションのコンセントレイトは2Lvのぶんも減らす
+          //コンストラクションのコンセントレイトは2LVのぶんも減らす
           if(createType === 'C' && form['effect'+num+'Name'].value.match(/^コンセントレイト/) && lv >= 2){
             exps['effect'] += -5;
           }
@@ -270,7 +272,7 @@ function calcEffect() {
   const freelv = (exps['effect'] - free*15) / 5;
   if(createType === 'C'){
     if(exps['effect'] <= 60+10) { exps['effect'] = 0 } else { exps['effect'] -= 70 }
-    //任意エフェクト1Lv×4(60)、任意1Lvアップ×2(10)
+    //任意エフェクト1LV×4(60)、任意1Lvアップ×2(10)
   }
   document.getElementById('freepoint-effect').textContent = (free > 4) ? 4 : free;
   document.getElementById('freepoint-effectlv').textContent = (freelv > 2) ? 2 : (freelv < 0) ? 0 : freelv;
@@ -555,7 +557,7 @@ function addSkill(type){
   let dt = document.createElement('dt');
   let dd = document.createElement('dd');
   dt.innerHTML = `<input name="skill${type}${num}Name" type="text" list="list-${type.toLowerCase()}">`;
-  dd.innerHTML = `<input name="skill${type}${num}" type="number" oninput="calcSkill()">+<input name="skillAdd${type}${num}" type="number" oninput="calcSkill()">`;
+  dd.innerHTML = `<input name="skill${type}${num}" type="number" oninput="calcSkill()" min="0">+<input name="skillAdd${type}${num}" type="number" oninput="calcSkill()">`;
   const status = (
     type === 'Ride' ? 'body'   :
     type === 'Art'  ? 'sense'  :

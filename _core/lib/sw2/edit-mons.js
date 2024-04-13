@@ -4,7 +4,7 @@ const gameSystem = 'sw2';
 window.onload = function() {
   nameSet();
   rewriteMountLevel();
-  selectInputCheck('taxa',form.taxa,'その他')
+  selectInputCheck(form.taxa,'その他')
   checkMount();
 
   changeColor();
@@ -147,8 +147,8 @@ function addStatusInsert(target, num, copy){
     "defense"    : copy        ? form[`status${copy}${lv}Defense`     ].value : '',
     "hp"         : copy        ? form[`status${copy}${lv}Hp`          ].value : '',
     "mp"         : copy        ? form[`status${copy}${lv}Mp`          ].value : '',
-    "vit"        : copy        ? form[`status${copy}${lv}Vit`         ].value : '',
-    "mnd"        : copy        ? form[`status${copy}${lv}Mnd`         ].value : '',
+    "vit"        : copy        ? form[`status${copy}${lv}Vit`         ].value : (num == 1 ? '' : '―'),
+    "mnd"        : copy        ? form[`status${copy}${lv}Mnd`         ].value : (num == 1 ? '' : '―'),
   };
   let tr = document.createElement('tr');
   tr.setAttribute('id',idNumSet('status-row',lv));
@@ -157,20 +157,20 @@ function addStatusInsert(target, num, copy){
     <td ${ lv ? '' : `class="handle"`}></td>
     <td ${ lv ? 'class="name"' : ``} data-style="${num}">${ lv ? form[`status${num}Style`].value : `<input name="status${num}${lv}Style" type="text" value="${ini.style}" oninput="checkStyle(${num}${lv})">` }</td>
     <td>
-      <input name="status${num}${lv}Accuracy" type="text" oninput="calcAcc(${num}${lv})" value="${ini.accuracy}"><span class="monster-only calc-only"><br>
-      (<input name="status${num}${lv}AccuracyFix" type="text" oninput="calcAccF(${num}${lv})" value="${ini.accuracyFix}">)</span>
+      <input name="status${num}${lv}Accuracy" type="text" oninput="calcAcc('${num}${lv}')" value="${ini.accuracy}"><span class="monster-only calc-only"><br>
+      (<input name="status${num}${lv}AccuracyFix" type="text" oninput="calcAccF('${num}${lv}')" value="${ini.accuracyFix}">)</span>
     </td>
     <td><input name="status${num}${lv}Damage" type="text" value="${ini.damage}"></td>
     <td>
-      <input name="status${num}${lv}Evasion" type="text" oninput="calcEva(${num}${lv})" value="${ini.evasion}"><span class="monster-only calc-only"><br>
-      (<input name="status${num}${lv}EvasionFix" type="text" oninput="calcEvaF(${num}${lv})" value="${ini.evasionFix}">)</span>
+      <input name="status${num}${lv}Evasion" type="text" oninput="calcEva('${num}${lv}')" value="${ini.evasion}"><span class="monster-only calc-only"><br>
+      (<input name="status${num}${lv}EvasionFix" type="text" oninput="calcEvaF('${num}${lv}')" value="${ini.evasionFix}">)</span>
     </td>
     <td><input name="status${num}${lv}Defense" type="text" value="${ini.defense}"></td>
     <td><input name="status${num}${lv}Hp" type="text" value="${ini.hp}"></td>
     <td><input name="status${num}${lv}Mp" type="text" value="${ini.mp}"></td>
     <td class="mount-only"><input name="status${num}${lv}Vit" type="text" value="${ini.vit}"></td>
     <td class="mount-only"><input name="status${num}${lv}Mnd" type="text" value="${ini.mnd}"></td>
-    <td>${ lv ? '' : `<span class="button" onclick="addStatus(${num}${lv});">複<br>製</span>` }</td>
+    <td>${ lv ? '' : `<span class="button" onclick="addStatus('${num}${lv}');">複<br>製</span>` }</td>
   `;
   target.appendChild(tr, target);
 }
