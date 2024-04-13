@@ -229,8 +229,11 @@ $pc{faith} =~ s/“(.*)”//;
 ### 経験点 --------------------------------------------------
 $pc{expUsed} = $pc{expTotal} - $pc{expRest};
 foreach('expUsed','expTotal','expRest'){
-  $pc{$_} = commify $pc{$_};
-  $SHEET->param($_ => $pc{$_});
+  $SHEET->param($_ => commify $pc{$_});
+}
+### HPなど --------------------------------------------------
+foreach('vitResistAddTotal','mndResistAddTotal','hpAddTotal','mpAddTotal','mobilityAdd','monsterLoreAdd','initiativeAdd'){
+  $SHEET->param($_ => addNum $pc{$_});
 }
 
 ### 技能 --------------------------------------------------
@@ -427,12 +430,22 @@ else {
 $SHEET->param(Language => \@language);
 
 ### パッケージ --------------------------------------------------
-## ウォーリーダー：軍師の知略
-my $war_int_initiative;
-foreach(1 .. $pc{lvWar}+$pc{commandAddition}){
-  if($pc{'craftCommand'.$_} =~ /軍師の知略$/){ $war_int_initiative = 1; last; }
+## ウォーリーダー【軍師の知略】
+{
+  my $disabled = 1;
+  foreach(1 .. $pc{lvWar}+$pc{commandAddition}){
+    if($pc{'craftCommand'.$_} =~ /軍師の知略$/){ $disabled = 0; last; }
+  }
+  if($disabled){ delete $data::class{'ウォーリーダー'}{package}{Int} }
 }
-if(!$war_int_initiative){ delete $data::class{'ウォーリーダー'}{package}{Int} }
+## ライダー【探索指令】
+{
+  my $disabled = 1;
+  foreach(1 .. $pc{lvRid}){
+    if($pc{'craftRiding'.$_} =~ /探索指令$/){ $disabled = 0; last; }
+  }
+  if($disabled){ delete $data::class{'ライダー'}{package}{Obs} }
+}
 ## 共通処理
 my @packages;
 foreach my $class (@data::class_names){
@@ -446,7 +459,7 @@ foreach my $class (@data::class_names){
     (my $p_name = $data{$p_id}{name}) =~ s/(\(.+?\))/<small>$1<\/small>/;
     push(@pack, {
       name  => $p_name,
-      add   => $pc{'pack'.$c_id.$p_id.'Add'}+$pc{'pack'.$c_id.$p_id.'Auto'},
+      add   => addNum($pc{'pack'.$c_id.$p_id.'Add'}+$pc{'pack'.$c_id.$p_id.'Auto'}),
       total => $pc{'pack'.$c_id.$p_id},
     });
   }
@@ -514,9 +527,9 @@ foreach my $class (@data::class_caster){
     NAME => $title,
     OWN  => ($pc{'magicPowerOwn'.$id} ? '✔<span class="small">知力+2</span>' : ''),
     MAGIC  => $magicname,
-    POWER  => ($power ? '<span class="small">+'.$power.'=</span>' : '').$pc{'magicPower'.$id},
-    CAST   => ($cast ? '<span class="small">+'.$cast.'=</span>' : '').($pc{'magicPower'.$id}+$cast),
-    DAMAGE => "+$damage",
+    POWER  => ($power ? '<span class="small">'.addNum($power).'=</span>' : '').$pc{'magicPower'.$id},
+    CAST   => ($cast ? '<span class="small">'.addNum($cast).'=</span>' : '').($pc{'magicPower'.$id}+$cast),
+    DAMAGE => addNum($damage)||'+0',
   } );
 }
 
@@ -536,9 +549,9 @@ foreach my $class (@data::class_names){
     NAME => $class."<span class=\"small\">技能レベル</span>".$pc{'lv'.$id},
     OWN  => ($pc{'magicPowerOwn'.$id} ? '✔<span class="small">'.$stt.'+2</span>' : ''),
     MAGIC  => $name,
-    POWER  => ($pname) ? ($power ? '<span class="small">+'.$power.'=</span>' : '').$pc{'magicPower'.$id} : '―',
-    CAST   => ($cast ? '<span class="small">+'.$cast.'=</span>' : '').($pc{'magicPower'.$id}+$cast),
-    DAMAGE => ($pname) ? "+$damage" : '―',
+    POWER  => ($pname) ? ($power ? '<span class="small">'.addNum($power).'=</span>' : '').$pc{'magicPower'.$id} : '―',
+    CAST   => ($cast ? '<span class="small">'.addNum($cast).'=</span>' : '').($pc{'magicPower'.$id}+$cast),
+    DAMAGE => ($pname) ? addNum($damage)||'+0' : '―',
   } );
 }
 $SHEET->param(MagicPowers => \@magic);
@@ -646,11 +659,11 @@ else {
       NAMEOFF  => $pc{'weapon'.$_.'NameOff'},
       USAGE    => $pc{'weapon'.$_.'Usage'},
       REQD     => $pc{'weapon'.$_.'Reqd'},
-      ACC      => $pc{'weapon'.$_.'Acc'},
+      ACC      => addNum($pc{'weapon'.$_.'Acc'}),
       ACCTOTAL => $pc{'weapon'.$_.'AccTotal'},
       RATE     => $pc{'weapon'.$_.'Rate'},
       CRIT     => $pc{'weapon'.$_.'Crit'},
-      DMG      => $pc{'weapon'.$_.'Dmg'},
+      DMG      => addNum($pc{'weapon'.$_.'Dmg'}),
       DMGTOTAL => $pc{'weapon'.$_.'DmgTotal'},
       OWN      => $pc{'weapon'.$_.'Own'},
       NOTE     => $pc{'weapon'.$_.'Note'},

@@ -91,6 +91,7 @@ window.onload = function() {
 
   nameSet();
   race = form.race.value;
+  checkLvCap()
   calcExp();
   calcLv();
   checkRace();
@@ -98,6 +99,7 @@ window.onload = function() {
   calcCash();
   calcHonor();
   calcDishonor();
+  calcCommonClass();
   
   imagePosition();
   changeColor();
@@ -134,6 +136,23 @@ function changeRegu(){
 // 信仰チェック ----------------------------------------
 function changeFaith(obj) {
   obj.parentNode.classList.toggle('free', obj.value === 'その他の信仰');
+}
+
+// 16レベル以上の解禁 ----------------------------------------
+function checkLvCap() {
+  const checkbox = form.unlockAbove16;
+  const unlockedAbove16 = checkbox?.checked ?? true;
+
+  document.querySelectorAll('#classes input[type="number"][name^="lv"][max]').forEach(
+      input => {
+        input.setAttribute('max', unlockedAbove16 ? '17' : '15');
+
+        if (!unlockedAbove16 && input.value.match(/^1[67]$/)) {
+          input.value = '15';
+          input.dispatchEvent(new Event('input'));
+        }
+      }
+  );
 }
 
 // レベル変更 ----------------------------------------
@@ -1085,20 +1104,24 @@ function calcPackage() {
       
       for(const pId in pData){
         let autoBonus = 0;
+        let disabled = false;
         if(cId === 'War' && pId === 'Int'){
-          let hit = 0;
+          disabled = true;
           for(let i = 1; i <= lv.War+(feats['鼓咆陣率追加']||0); i++){
-            if(form[`craftCommand${i}`].value.match(/軍師の知略$/)){ hit = 1; autoBonus += form[`craftCommand${i}`].value.match(/^陣率/) ? 1 : 0; break; }
+            if(form[`craftCommand${i}`].value.match(/軍師の知略$/)){ disabled = false; autoBonus += form[`craftCommand${i}`].value.match(/^陣率/) ? 1 : 0; break; }
           }
-          if(!hit){
-            document.getElementById(`package-${eName}-${pId.toLowerCase()}`).textContent = '―';
-            break;
+        }
+        else if(cId === 'Rid' && pId === 'Obs'){
+          disabled = true;
+          for(let i = 1; i <= lv.Rid; i++){
+            if(form[`craftRiding${i}`].value.match(/探索指令$/)){ disabled = false; break; }
           }
         }
         
-        let value = cLv + bonus[alphabetToStt[pData[pId].stt]] + Number(form[`pack${cId}${pId}Add`].value) + autoBonus;
+        let value = disabled ? 0 : (cLv + bonus[alphabetToStt[pData[pId].stt]] + Number(form[`pack${cId}${pId}Add`].value) + autoBonus);
         document.getElementById(`package-${eName}-${pId.toLowerCase()}-auto`).textContent = autoBonus ? '+'+autoBonus : '';
         document.getElementById(`package-${eName}-${pId.toLowerCase()}`).textContent = value;
+        document.getElementById(`package-${eName}-${pId.toLowerCase()}-row`).style.display = disabled ? 'none' : '';
 
         if(pData[pId].monsterLore){ lore.push(cLv > 0 ? value : 0); }
         if(pData[pId].initiative ){ init.push(cLv > 0 ? value : 0); }
@@ -2038,9 +2061,39 @@ let dishonorSortable = Sortable.create(document.querySelector('#dishonor-items-t
 });
 
 // 一般技能 ----------------------------------------
+function calcCommonClass(){
+  let totalLv = 0;
+  for(let num = 1; num <= Number(form.commonClassNum.value); num++){
+    totalLv += Number(form['lvCommon'+num].value||0);
+  }
+  document.getElementById('cc-total-lv').textContent = totalLv;
+}
+// 追加
+function addCommonClass(){
+  let num = Number(form.commonClassNum.value) + 1;
+
+  let row = document.querySelector('#common-class-template').content.firstElementChild.cloneNode(true);
+  row.id = idNumSet('common-class');
+  row.innerHTML = row.innerHTML.replaceAll('TMPL', num);
+  document.querySelector("#common-classes-table tbody").append(row);
+
+  form.commonClassNum.value = num;
+}
+// 削除
+function delCommonClass(){
+  let num = Number(form.commonClassNum.value);
+  if(num > 1){
+    if(form[`commonClass${num}`].value || form[`lvCommon${num}`].value){
+      if (!confirm(delConfirmText)) return false;
+    }
+    document.querySelector("#common-classes-table tbody tr:last-of-type").remove();
+    num--;
+    form.commonClassNum.value = num;
+  }
+}
 // ソート
 let commonClassSortable = Sortable.create(document.querySelector('#common-classes-table tbody'), {
-  group: "honor",
+  group: "common-class",
   dataIdAttr: 'id',
   animation: 150,
   handle: '.handle',
@@ -2050,7 +2103,7 @@ let commonClassSortable = Sortable.create(document.querySelector('#common-classe
     const order = commonClassSortable.toArray();
     let num = 1;
     for(let id of order) {
-      if(document.getElementById(id)){
+      if(document.querySelector(`tr#${id}`)){
         document.querySelector(`#${id} [type="text"]`  ).setAttribute('name',`commonClass${num}`);
         document.querySelector(`#${id} [type="number"]`).setAttribute('name',`lvCommon${num}`);
         num++;

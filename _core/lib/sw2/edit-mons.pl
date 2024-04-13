@@ -49,8 +49,21 @@ $pc{skills}      =~ s/&lt;br&gt;/\n/g;
 $pc{description} =~ s/&lt;br&gt;/\n/g;
 $pc{chatPalette} =~ s/&lt;br&gt;/\n/g;
 
-
 ### フォーム表示 #####################################################################################
+my $title;
+if ($mode eq 'edit') {
+  $title = '編集：';
+  if ($pc{characterName}) {
+    $title .= $pc{characterName};
+    $title .= "（$pc{monsterName}）" if $pc{monsterName};
+  }
+  else {
+    $title .= $pc{monsterName};
+  }
+}
+else {
+  $title = '新規作成';
+}
 print <<"HTML";
 Content-type: text/html\n
 <!DOCTYPE html>
@@ -58,7 +71,7 @@ Content-type: text/html\n
 
 <head>
   <meta charset="UTF-8">
-  <title>@{[$mode eq 'edit'?"編集：$pc{monsterName}":'新規作成']} - $set::title</title>
+  <title>$title - $set::title</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/base.css?${main::ver}">
   <link rel="stylesheet" media="all" href="${main::core_dir}/skin/_common/css/sheet.css?${main::ver}">
@@ -95,6 +108,7 @@ print <<"HTML";
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
+          <li onclick="exportAsJson()" class="download-icon" title="JSON出力">
           <li class="buttons">
             <ul>
               <li @{[ display ($mode eq 'edit') ]} class="view-icon" title="閲覧画面"><a href="./?id=$::in{id}"></a>
@@ -124,7 +138,7 @@ else {
   print <<"HTML";
       <details class="box" id="edit-protect" @{[$mode eq 'edit' ? '':'open']}>
       <summary>編集保護設定</summary>
-      <p id="edit-protect-view"><input type="hidden" name="protectOld" value="$pc{protect}">
+      <fieldset id="edit-protect-view"><input type="hidden" name="protectOld" value="$pc{protect}">
 HTML
   if($LOGIN_ID){
     print '<input type="radio" name="protect" value="account"'.($pc{protect} eq 'account'?' checked':'').'> アカウントに紐付ける（ログイン中のみ編集可能になります）<br>';
@@ -137,7 +151,7 @@ HTML
   }
   print <<"HTML";
 <input type="radio" name="protect" value="none"@{[ $pc{protect} eq 'none'?' checked':'' ]}> 保護しない（誰でも編集できるようになります）
-      </p>
+      </fieldset>
       </details>
 HTML
 }
@@ -157,12 +171,12 @@ HTML
           </select>
         <dd>※「一覧に非表示」でもタグ検索結果・マイリストには表示されます
       </dl>
-      <div class="box" id="group">
+      <div class="box in-toc" id="group" data-content-title="分類・タグ">
         <dl>
           <dt>分類</dt>
           <dd>
             <div class="select-input">
-              <select name="taxa" oninput="selectInputCheck('taxa',this,'その他')">
+              <select name="taxa" oninput="selectInputCheck(this,'その他')">
 HTML
 foreach (@data::taxa){
   print '<option '.($pc{taxa} eq @$_[0] ? ' selected': '').'>'.@$_[0].'</option>';
@@ -180,7 +194,7 @@ print <<"HTML";
         </dl>
       </div>
 
-      <div class="box" id="name-form">
+      <div class="box in-toc" id="name-form" data-content-title="名称・製作者">
         <div>
           <dl id="character-name">
             <dt>名称
@@ -197,7 +211,7 @@ print <<"HTML";
         </dl>
       </div>
 
-      <div class="box status">
+      <div class="box status in-toc" data-content-title="基本データ">
         <dl class="mount-only price">
           <dt>価格
           <dd>購入@{[ input 'price' ]}G
@@ -211,7 +225,7 @@ print <<"HTML";
         <dl>
           <dt><span class="mount-only">騎獣</span>レベル
           <dd>@{[ input 'lv','number','checkLevel','min="0"' ]}
-          <dd class="mount-only small" style="display:inline-block">※入力すると、閲覧画面では現在の騎獣レベルのステータスのみ表示されます
+          <dd class="mount-only small">※入力すると、閲覧画面では現在の騎獣レベルのステータスのみ表示されます
         </dl>
         <dl>
           <dt>知能
@@ -262,7 +276,7 @@ print <<"HTML";
         </dl>
       </div>
       <p class="monster-only">@{[ input "statusTextInput",'checkbox','statusTextInputToggle']}命中・回避・抵抗に数値以外を入力</p>
-      <div class="box">
+      <div class="box in-toc" data-content-title="攻撃方法・命中・打撃・回避・防護・ＨＰ・ＭＰ">
       <table id="status-table" class="status">
         <thead>
           <tr>
@@ -333,12 +347,12 @@ print <<"HTML";
       <div class="add-del-button"><a onclick="addStatus()">▼</a><a onclick="delStatus()">▲</a></div>
       @{[input('statusNum','hidden')]}
       </div>
-      <div class="box parts">
+      <div class="box parts in-toc" data-content-title="部位数・コア部位">
         <dl><dt>部位数<dd>@{[ input 'partsNum','number','','min="1"' ]} (@{[ input 'parts' ]}) </dl>
         <dl><dt>コア部位<dd>@{[ input 'coreParts' ]}</dl>
       </div>
       <div class="box">
-        <h2>特殊能力</h2>
+        <h2 class="in-toc">特殊能力</h2>
         <textarea name="skills">$pc{skills}</textarea>
         <div class="annotate">
           ※<b>行頭に</b>特殊能力の分類マークなどを記述すると、そこから次の「改行」または「全角スペース」までを自動的に見出し化します。<br>
@@ -365,8 +379,8 @@ HTML
 print <<"HTML";
         </div>
       </div>
-      <div class="box loots">
-        <h2>戦利品</h2>
+      <div class="box loots monster-only">
+        <h2 class="in-toc">戦利品</h2>
         <div id="loots-list">
           <ul id="loots-num">
 HTML
@@ -383,7 +397,7 @@ print <<"HTML";
       @{[input('lootsNum','hidden')]}
       </div>
       <div class="box">
-        <h2>解説</h2>
+        <h2 class="in-toc">解説</h2>
         <textarea name="description">$pc{description}</textarea>
       </div>
       </section>

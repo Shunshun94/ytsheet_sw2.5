@@ -87,6 +87,7 @@ print <<"HTML";
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
+          <li onclick="exportAsJson()" class="download-icon" title="JSON出力">
           <li class="buttons">
             <ul>
               <li @{[ display ($mode eq 'edit') ]} class="view-icon" title="閲覧画面"><a href="./?id=$::in{id}"></a>
@@ -116,7 +117,7 @@ else {
   print <<"HTML";
       <details class="box" id="edit-protect" @{[$mode eq 'edit' ? '':'open']}>
       <summary>編集保護設定</summary>
-      <p id="edit-protect-view"><input type="hidden" name="protectOld" value="$pc{protect}">
+      <fieldset id="edit-protect-view"><input type="hidden" name="protectOld" value="$pc{protect}">
 HTML
   if($LOGIN_ID){
     print '<input type="radio" name="protect" value="account"'.($pc{protect} eq 'account'?' checked':'').'> アカウントに紐付ける（ログイン中のみ編集可能になります）<br>';
@@ -129,7 +130,7 @@ HTML
   }
   print <<"HTML";
 <input type="radio" name="protect" value="none"@{[ $pc{protect} eq 'none'?' checked':'' ]}> 保護しない（誰でも編集できるようになります）
-      </p>
+      </fieldset>
       </details>
 HTML
 }
@@ -155,7 +156,7 @@ HTML
         </dl>
       </div>
 
-      <div class="box" id="name-form">
+      <div class="box in-toc" id="name-form" data-content-title="名称・製作者">
         <div>
           <dl id="character-name">
             <dt>名称
@@ -168,7 +169,7 @@ HTML
         </dl>
       </div>
       
-      <div class="box input-data">
+      <div class="box input-data in-toc" data-content-title="基本データ">
       <label>@{[ input 'magic', 'checkbox' ]}<span>魔法のアイテム</span></label>
       <!-- <label>@{[ input 'school', 'checkbox' ]}　流派装備</label> -->
       <hr>
@@ -181,9 +182,9 @@ HTML
       <dl><dt>概要    <dd>@{[ input 'summary' ]}</dl>
     </div>
     <div class="box">
-      <h2>効果</h2>
+      <h2 class="in-toc">効果</h2>
       <textarea name="effects">$pc{effects}</textarea>
-      <h4>武器データ</h4>
+      <h4 class="in-toc">武器データ</h4>
       <table class="input-arms-data" id="weapons-table">
         <thead>
           <tr><th><th>用法<th>必筋<th>命中<th>威力<th>C値<th>追加D<th>備考
@@ -210,7 +211,7 @@ HTML
       <p>
       <code>[刃]</code> <code>[打]</code> でそれぞれ<img class="i-icon" src="${set::icon_dir}wp_edge.png"><img class="i-icon" src="${set::icon_dir}wp_blow.png">に置き換え
       <p>
-      <h4>防具データ</h4>
+      <h4 class="in-toc">防具データ</h4>
       <table class="input-arms-data" id="armours-table">
         <thead>
           <tr><th><th>用法<th>必筋<th>回避<th>防護<th>備考
@@ -234,7 +235,7 @@ HTML
       @{[ input 'armourNum','hidden' ]}
     </div>
     <div class="box">
-      <h2>由来・逸話</h2>
+      <h2 class="in-toc">由来・逸話</h2>
       <textarea name="description">$pc{description}</textarea>
     </div>
     </section>

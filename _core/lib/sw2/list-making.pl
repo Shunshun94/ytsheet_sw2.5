@@ -101,7 +101,7 @@ foreach my $data (@lines) {
                  + $data::races{$race}{dice}{'E+'}
                  + $data::races{$race}{dice}{'F+'};
     
-    my $average = ($stt_A + $stt_B + $stt_C + $stt_D + $stt_E + $stt_F) / $dicetotal;
+    my $average = $dicetotal ? ($stt_A + $stt_B + $stt_C + $stt_D + $stt_E + $stt_F) / $dicetotal : 0;
        $average = ($stt_A + $stt_B + $stt_C + $stt_D + $stt_E + $stt_F + $tec + $phy + $spi) / 18 if $adventurer;
        
     my $url = "${tec}_${phy}_${spi}_"
@@ -141,7 +141,7 @@ foreach my $data (@lines) {
   }
 
   my @curses = split('/', $curse);
-  $_ = $_.':'.($set::curseList{$_} || '＃選択不可＃') foreach (@curses);
+  $_ = $_.':'.$set::curseList{$_} foreach (@curses);
 
   $comment =~ s/([#＃])(.+?)(?=\s|[#＃]|$)/<a href=".\/?mode=making&tag=$2">$1$2<\/a>/g;
 
