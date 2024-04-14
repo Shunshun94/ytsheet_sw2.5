@@ -213,7 +213,7 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         cost: ''
     }, {
         name: 'アウェイクポーションと保存食と冒険者セット',
-        content: '背負い袋\n水袋\n毛布\n火口箱\nナイフ\n\n|ロープ|10m|\n|たいまつ|6本|\n|保存食|21食分|\n|アウェイクポーション|1本|',
+        content: '背負い袋\n水袋\n毛布\n火口箱\nナイフ\n\n|ロープ|10m|\n|たいまつ|6本|\n|保存食|7日分|\n|アウェイクポーション|1本|',
         cost: '250'
     }, {
         name: '【冒険でしばしば使うアイテム】',
@@ -228,7 +228,7 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         cost: '10'
     }, {
         name: '保存食1週間分',
-        content: '|保存食|21食分|',
+        content: '|保存食|7日分|',
         cost: '50'
     }, {
         name: 'ランタンと油',
