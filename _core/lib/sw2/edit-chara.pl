@@ -1506,7 +1506,6 @@ print <<"HTML";
     <p class="notes">(C)Group SNE「ソード・ワールド2.5」</p>
     <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
-<<<<<<< HEAD
   <datalist id="list-gender">
     <option value="男">
     <option value="女">
@@ -1567,14 +1566,12 @@ print <<"HTML";
     <option value="魔神語">
   </datalist>
   <script src="${main::core_dir}/skin/sw2/js/lib/quickInsertionForSW25.js?${main::ver}" defer></script>
-=======
 HTML
 
 require($::core_dir . '/lib/sw2/edit-chara-datalist.pl');
 printCharaDataList();
 
 print <<"HTML";
->>>>>>> 26f8724fef87a8caeddfb8408983044042bdb12d
 </body>
 
 </html>
