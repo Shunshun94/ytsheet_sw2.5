@@ -491,36 +491,6 @@ details:not([open]).box > summary:hover {
   }
 }
 
-.comment:before {
-  content: '？';
-  font-size:16px;
-}
-.comment {
-  width:20px;
-  height:20px;
-  font-size:0px;
-  display:inline-block;
-  background-color:yellow;
-  vertical-align: middle;
-}
-.comment:hover:before {
-  content: '【コメント】';
-  font-size:12px;
-}
-.comment:hover {
-  font-size:12px;
-  width: auto;
-  height: auto;
-  text-align:left;
-}
-
-/* テキスト処理 */
-table.note-table,
-table.note-table th,
-table.note-table td {
-  margin: 3px .5em  .5em;
-  padding: 0 .5em;
-  border-width: 1px;
 /* データ表組み */
 .data-table {
   width: 100%;
@@ -1354,4 +1324,27 @@ aside#error {
 }
 
 /* ////////// LayerEnd ////////// */
+}
+
+.comment:before {
+  content: '？';
+  font-size:16px;
+}
+.comment {
+  width:20px;
+  height:20px;
+  font-size:0px;
+  display:inline-block;
+  background-color:yellow;
+  vertical-align: middle;
+}
+.comment:hover:before {
+  content: '【コメント】';
+  font-size:12px;
+}
+.comment:hover {
+  font-size:12px;
+  width: auto;
+  height: auto;
+  text-align:left;
 }
