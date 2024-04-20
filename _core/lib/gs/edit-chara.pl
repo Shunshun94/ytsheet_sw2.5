@@ -153,8 +153,8 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
-          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
-          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
+          <li onclick="sectionSelect('common');"><span>キャラ<span class="shorten">クター</span></span><span>データ</span>
+          <li onclick="sectionSelect('palette');"><span><span class="shorten">ユニット(</span>コマ<span class="shorten">)</span></span><span>設定</span>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
@@ -482,7 +482,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{skillNum}) {
   if($num eq 'TMPL'){ print '<template id="skill-template">' }
 print <<"HTML";
-            <tr id="skill${num}">
+            <tr id="skill-row${num}">
               <td class="handle">
               <td class="adp  ">0
               <td class="auto ">@{[ checkbox "skill${num}Auto", '','calcAdp' ]}
@@ -521,7 +521,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{generalSkillNum}) {
   if($num eq 'TMPL'){ print '<template id="general-skill-template">' }
 print <<"HTML";
-            <tr id="general-skill${num}">
+            <tr id="general-skill-row${num}">
               <td class="handle">
               <td class="adp  ">0
               <td class="auto ">@{[ checkbox "generalSkill${num}Auto", '','calcAdp' ]}
@@ -592,7 +592,7 @@ push(@spell_names, $data::class{$_}{magic}) foreach(grep { $data::class{$_}{magi
 foreach my $num ('TMPL',1 .. $pc{spellNum}) {
   if($num eq 'TMPL'){ print '<template id="spell-template">' }
 print <<"HTML";
-            <tr id="spell${num}">
+            <tr id="spell-row${num}">
               <td class="handle">
               <td class="name  "><span class="flex">《@{[ input "spell${num}Name" ]}》</span>
               <td class="system"><select name="spell${num}System">@{[ option "spell${num}System", @spell_names ]}</select>
@@ -627,7 +627,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{artsNum}) {
   if($num eq 'TMPL'){ print '<template id="arts-template">' }
 print <<"HTML";
-          <tbody id="arts${num}">
+          <tbody id="arts-row${num}">
             <tr>
               <td rowspan="2" class="handle">
               <td class="name  ">@{[ input "arts${num}Name" ]}
@@ -936,7 +936,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{historyNum}) {
   if($num eq 'TMPL'){ print '<template id="history-template">' }
 print <<"HTML";
-          <tbody id="history${num}">
+          <tbody id="history-row${num}">
             <tr>
               <td class="handle" rowspan="2">
               <td class="date  " rowspan="2">@{[ input "history${num}Date" ]}

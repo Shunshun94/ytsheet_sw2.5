@@ -192,8 +192,8 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
-          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
-          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
+          <li onclick="sectionSelect('common');"><span>キャラ<span class="shorten">クター</span></span><span>データ</span>
+          <li onclick="sectionSelect('palette');"><span><span class="shorten">ユニット(</span>コマ<span class="shorten">)</span></span><span>設定</span>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
@@ -707,7 +707,7 @@ if($data::class{$pc{classMain}} && $data::class{$pc{classMain}}{type} eq 'fate')
 foreach my $num ('TMPL',1 .. $pc{skillsNum}) {
   if($num eq 'TMPL'){ print '<template id="skill-template">' }
 print <<"HTML";
-          <tbody id="skill${num}">
+          <tbody id="skill-row${num}">
             <tr>
               <td rowspan="2" class="handle"> 
               <td>@{[input "skill${num}Name",'','','onchange="calcSkills()" placeholder="名称"']}
@@ -1121,7 +1121,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{geisesNum}){
   if($num eq 'TMPL'){ print '<template id="geis-template">' }
 print <<"HTML";
-                <tr id="geis${num}">
+                <tr id="geis-row${num}">
                   <td class="handle">
                   <td>@{[ input "geis${num}Name" ]}
                   <td>@{[ input "geis${num}Cost", 'number', 'calcGeises' ]}
@@ -1159,7 +1159,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{connectionsNum}){
   if($num eq 'TMPL'){ print '<template id="connection-template">' }
 print <<"HTML";
-                <tr id="connection${num}">
+                <tr id="connection-row${num}">
                   <td class="handle">
                   <td>@{[ input "connection${num}Name",'','calcConnections' ]}
                   <td>@{[ input "connection${num}Relation" ]}
@@ -1213,7 +1213,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{historyNum}) {
   if($num eq 'TMPL'){ print '<template id="history-template">' }
 print <<"HTML";
-          <tbody id="history${num}">
+          <tbody id="history-row${num}">
             <tr>
               <td class="handle" rowspan="2" class="handle">
               <td class="date  " rowspan="2">@{[input("history${num}Date")]}

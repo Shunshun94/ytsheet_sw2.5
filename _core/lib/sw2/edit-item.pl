@@ -160,7 +160,7 @@ HTML
         <div>
           <dl id="character-name">
             <dt>名称
-            <dd>@{[ input('itemName','text',"nameSet('itemName')") ]}
+            <dd>@{[ input('itemName','text',"nameSet('itemName')",'list="list-item-name"') ]}
           </dl>
         </div>
         <dl id="player-name">
@@ -192,7 +192,7 @@ HTML
 HTML
 foreach my $num ('TMPL', 1 .. $pc{weaponNum}){
   print <<"HTML";
-          @{[ $num eq 'TMPL' ? '<template id="weapon-template">' : '' ]}<tr id="weapon$num">
+          @{[ $num eq 'TMPL' ? '<template id="weapon-template">' : '' ]}<tr id="weapon-row$num">
             <td class="handle">
             <td>@{[ input "weapon${num}Usage",'text','','list="list-usage"' ]}
             <td>@{[ input "weapon${num}Reqd" ]}
@@ -219,7 +219,7 @@ HTML
 HTML
 foreach my $num ('TMPL', 1 .. $pc{armourNum}){
   print <<"HTML";
-          @{[ $num eq 'TMPL' ? '<template id="armour-template">' : '' ]}<tr id="armour$num">
+          @{[ $num eq 'TMPL' ? '<template id="armour-template">' : '' ]}<tr id="armour-row$num">
             <td class="handle">
             <td>@{[ input "armour${num}Usage",'text','','list="list-usage"' ]}
             <td>@{[ input "armour${num}Reqd" ]}
@@ -281,6 +281,9 @@ print <<"HTML";
     <p class="notes">(C)Group SNE「ソード・ワールド2.0／2.5」</p>
     <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
+  <datalist id="list-item-name">
+    <option value="〈〉">
+  </datalist>
   <datalist id="list-usage">
     <option value="1H">
     <option value="1H#">

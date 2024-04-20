@@ -185,8 +185,8 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
-          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
-          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
+          <li onclick="sectionSelect('common');"><span>キャラ<span class="shorten">クター</span></span><span>データ</span>
+          <li onclick="sectionSelect('palette');"><span><span class="shorten">ユニット(</span>コマ<span class="shorten">)</span></span><span>設定</span>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
@@ -353,12 +353,12 @@ print <<"HTML";
                 <td>@{[ selectInput 'syndrome3','changeSyndrome(3,this.value)',@data::syndromes ]}
                 <td colspan="4">
             <tbody>
-              <tr>
+              <tr class="works-row">
                 <th colspan="2" class="right">ワークスによる修正
-                <td>@{[ radio 'sttWorks', 'calcStt', 'body'   ]}
-                <td>@{[ radio 'sttWorks', 'calcStt', 'sense'  ]}
-                <td>@{[ radio 'sttWorks', 'calcStt', 'mind'   ]}
-                <td>@{[ radio 'sttWorks', 'calcStt', 'social' ]}
+                <td>@{[ radio 'sttWorks', 'calcStt', 'body'  , '+1' ]}
+                <td>@{[ radio 'sttWorks', 'calcStt', 'sense' , '+1' ]}
+                <td>@{[ radio 'sttWorks', 'calcStt', 'mind'  , '+1' ]}
+                <td>@{[ radio 'sttWorks', 'calcStt', 'social', '+1' ]}
               <tr>
                 <th colspan="2" class="right"><span class="construction-only">フリーポイント＋</span>成長
                 <td>@{[input "sttGrowBody"  ,'number','calcStt', 'min="0"']}
@@ -640,7 +640,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{effectNum}) {
   if($num eq 'TMPL'){ print '<template id="effect-template">' }
 print <<"HTML";
-          <tbody id="effect${num}">
+          <tbody id="effect-row${num}">
             <tr>
               <td rowspan="2" class="handle"> 
               <td>@{[input "effect${num}Name",'','','placeholder="名称"']}
@@ -687,7 +687,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{magicNum}) {
   if($num eq 'TMPL'){ print '<template id="magic-template">' }
 print <<"HTML";
-          <tbody id="magic${num}">
+          <tbody id="magic-row${num}">
             <tr>
               <td class="handle"> 
               <td>@{[input "magic${num}Name"    ,'','','placeholder="名称"']}
@@ -748,7 +748,7 @@ sub comboStatusSet {
 foreach my $num ('TMPL',1 .. $pc{comboNum}) {
   if($num eq 'TMPL'){ print '<template id="combo-template">' }
 print <<"HTML";
-        <div class="combo-table" id="combo${num}">
+        <div class="combo-table" id="combo-row${num}">
           <div class="handle"></div>
           <dl class="combo-name"><dt>名称</dt><dd>@{[input "combo${num}Name"]}</dd></dl>
           <dl class="combo-combo"><dt>組み合わせ</dt><dd>@{[input "combo${num}Combo"]}</dl>
@@ -806,7 +806,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{weaponNum}) {
   if($num eq 'TMPL'){ print '<template id="weapon-template">' }
 print <<"HTML";
-            <tr id="weapon${num}">
+            <tr id="weapon-row${num}">
               <td>@{[input "weapon${num}Name"]}<span class="handle"></span>
               <td>@{[input "weapon${num}Stock",'number','calcItem', 'min="0"']}
               <td>@{[input "weapon${num}Exp",'number','calcItem', 'min="0"']}
@@ -834,7 +834,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{armorNum}) {
   if($num eq 'TMPL'){ print '<template id="armor-template">' }
 print <<"HTML";
-            <tr id="armor${num}">
+            <tr id="armor-row${num}">
               <td>@{[input "armor${num}Name"]}<span class="handle"></span>
               <td>@{[input "armor${num}Stock",'number','calcItem', 'min="0"']}
               <td>@{[input "armor${num}Exp",'number','calcItem', 'min="0"']}
@@ -862,7 +862,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{vehicleNum}) {
   if($num eq 'TMPL'){ print '<template id="vehicle-template">' }
 print <<"HTML";
-            <tr id="vehicle${num}">
+            <tr id="vehicle-row${num}">
               <td>@{[input "vehicle${num}Name"]}<span class="handle"></span>
               <td>@{[input "vehicle${num}Stock",'number','calcItem', 'min="0"']}
               <td>@{[input "vehicle${num}Exp",'number','calcItem', 'min="0"']}
@@ -890,7 +890,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{itemNum}) {
   if($num eq 'TMPL'){ print '<template id="item-template">' }
 print <<"HTML";
-            <tr id="item${num}">
+            <tr id="item-row${num}">
               <td>@{[input "item${num}Name"]}<span class="handle"></span>
               <td>@{[input "item${num}Stock",'number','calcItem', 'min="0"']}
               <td>@{[input "item${num}Exp",'number','calcItem', 'min="0"']}
@@ -963,7 +963,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{historyNum}) {
   if($num eq 'TMPL'){ print '<template id="history-template">' }
 print <<"HTML";
-          <tbody id="history${num}">
+          <tbody id="history-row${num}">
             <tr>
               <td class="handle" rowspan="2">
               <td class="date  " rowspan="2">@{[input "history${num}Date" ]}

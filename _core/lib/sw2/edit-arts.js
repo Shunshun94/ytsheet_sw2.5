@@ -144,11 +144,31 @@ function viewMagicInputs(items){
 // 流派装備欄 ----------------------------------------
 // 追加
 let schoolItems = [];
+let errorGetItem
+async function setSchoolItemList(){
+  if(form.schoolItemList.value){
+    schoolItems = Array.from(new Set(form.schoolItemList.value.split(',')));
+  }
+}
 async function addSchoolItem(){
   const urlForm = document.getElementById('schoolItemUrl');
-  if(urlForm.value && !schoolItems.includes(urlForm.value)){
-    const result = await setSchoolItem(urlForm.value);
-    if(result){
+  const url = urlForm.value;
+  if(!url){ return; }
+  if(!schoolItems.includes(url)){
+    const data = await getYtsheetJSON(url);
+    if(data){
+      if(data.itemName == null){ alert('アイテムデータではありません。'); return; }
+      let tr = document.createElement('tr');
+      tr.setAttribute('class','item-data');
+      tr.innerHTML = `
+        <td><a href="${url}">${ruby(data.itemName||'')}</a></td>
+        <td>${data.category||''}</td>
+        <td>${data.summary ||''}</td>
+        <td class="button" onclick="delSchoolItem(this,'${url}')">×</td>
+      `;
+      document.querySelector("#school-item-list tbody").appendChild(tr);
+      schoolItems.push(url);
+      form.schoolItemList.value = schoolItems.join(',');
       urlForm.value = "";
     }
   }
@@ -157,39 +177,7 @@ async function addSchoolItem(){
     urlForm.value = "";
   }
 }
-async function setSchoolItemList(){
-  if(form.schoolItemList.value){
-    let list = Array.from(new Set(form.schoolItemList.value.split(',')));
-    for(const url of list){
-      await setSchoolItem(url);
-    }
-  }
-}
-function setSchoolItem(url){
-  return new Promise(resolve => {
-    fetch(url+'&mode=json')
-    .then(response => { return response.json(); })
-    .then(data => {
-      if(data[`result`] === 'OK'){
-        let tr = document.createElement('tr');
-        tr.setAttribute('class','item-data');
-        tr.innerHTML = `
-          <td><a href="${url}">${ruby(data['itemName'])}</a></td>
-          <td>${data['category']}</td>
-          <td>${data['summary']}</td>
-          <td class="button" onclick="delSchoolItem(this,'${url}')">×</td>
-        `;
-        document.querySelector("#school-item-list tbody").appendChild(tr);
-        schoolItems.push(url);
-        form.schoolItemList.value = schoolItems.join(',');
-        resolve('resolved');
-      }
-      else {
 
-      }
-    });
-  });
-}
 // 削除
 function delSchoolItem(obj, url){
   obj.parentNode.remove();
@@ -200,130 +188,23 @@ function delSchoolItem(obj, url){
 // 秘伝欄 ----------------------------------------
 // 追加
 function addSchoolArts(){
-  let num = Number(form.schoolArtsNum.value) + 1;
-
-  let row = document.querySelector('#arts-template').content.firstElementChild.cloneNode(true);
-  row.id = idNumSet('arts');
-  row.innerHTML = row.innerHTML.replaceAll('TMPL', num);
-  document.querySelector("#arts-list").append(row);
-
-  form.schoolArtsNum.value = num;
+  document.querySelector("#arts-list").append(createRow('arts','schoolArtsNum'));
 }
 // 削除
 function delSchoolArts(){
-  let num = Number(form.schoolArtsNum.value);
-  if(num > 0){
-    if(form[`schoolArts${num}Name`].value || form[`schoolArts${num}Cost`].value || form[`schoolArts${num}Type`].value || form[`schoolArts${num}Premise`].value || form[`schoolArts${num}Equip`].value || form[`schoolArts${num}Use`].value || form[`schoolArts${num}Apply`].value || form[`schoolArts${num}Risk`].value || form[`schoolArts${num}Summary`].value || form[`schoolArts${num}Effect`].value){
-      if (!confirm(delConfirmText)) return false;
-    }
-    document.querySelector("#arts-list .input-data:last-child").remove();
-    num--;
-    form.schoolArtsNum.value = num;
-  }
+  delRow('schoolArtsNum', '#arts-list .input-data:last-child');
 }
 // 並べ替え
-(() => {
-  const sortable = Sortable.create(
-      document.getElementById('arts-list'),
-      {
-        group: 'school-arts',
-        dataIdAttr: 'id',
-        animation: 100,
-        handle: '.handle',
-        filter: 'template',
-        ghostClass: 'sortable-ghost',
-        onUpdate: () => {
-          const reorderedIds = sortable.toArray();
+setSortable('schoolArts','#arts-list','tbody');
 
-          let index = 1;
-          for (const id of reorderedIds) {
-            const node = document.querySelector(`div#${id}`);
-            if (node == null) {
-              continue;
-            }
-
-            node.querySelectorAll('input[name], textarea[name]').forEach(
-                controlNode => {
-                  const name = controlNode.getAttribute('name');
-                  if (!/^schoolArts\d+.+$/.test(name)) {
-                    return;
-                  }
-
-                  controlNode.setAttribute(
-                      'name',
-                      name.replace(/^(schoolArts)\d+(.+)$/, `$1${index}$2`)
-                  );
-                }
-            );
-
-            index++;
-          }
-        }
-      }
-  );
-})();
 // 秘伝魔法欄 ----------------------------------------
 // 追加
 function addSchoolMagic(){
-  let num = Number(form.schoolMagicNum.value) + 1;
-
-  let row = document.querySelector('#school-magic-template').content.firstElementChild.cloneNode(true);
-  row.id = idNumSet('school-magic');
-  row.innerHTML = row.innerHTML.replaceAll('TMPL', num);
-  document.querySelector("#school-magic-list").append(row);
-
-  form.schoolMagicNum.value = num;
+  document.querySelector("#school-magic-list").append(createRow('school-magic','schoolMagicNum'));
 }
 // 削除
 function delSchoolMagic(){
-  let num = Number(form.schoolMagicNum.value);
-  if(num > 0){
-    if(form[`schoolMagic${num}Name`].value || form[`schoolMagic${num}Cost`].value || form[`schoolMagic${num}Target`].value || form[`schoolMagic${num}Range`].value || form[`schoolMagic${num}Form`].value || form[`schoolMagic${num}Duration`].value || form[`schoolMagic${num}Resist`].value || form[`schoolMagic${num}Element`].value || form[`schoolMagic${num}Summary`].value || form[`schoolMagic${num}Effect`].value){
-      if (!confirm(delConfirmText)) return false;
-    }
-    document.querySelector("#school-magic-list .input-data:last-child").remove();
-    num--;
-    form.schoolMagicNum.value = num;
-  }
+  delRow('schoolMagicNum', '#school-magic-list .input-data:last-child');
 }
 // 並べ替え
-(() => {
-  const sortable = Sortable.create(
-      document.getElementById('school-magic-list'),
-      {
-        group: 'school-magic',
-        dataIdAttr: 'id',
-        animation: 100,
-        handle: '.handle',
-        filter: 'template',
-        ghostClass: 'sortable-ghost',
-        onUpdate: () => {
-          const reorderedIds = sortable.toArray();
-
-          let index = 1;
-          for (const id of reorderedIds) {
-            const node = document.querySelector(`div#${id}`);
-            if (node == null) {
-              continue;
-            }
-
-            node.querySelectorAll('input[name], textarea[name]').forEach(
-                controlNode => {
-                  const name = controlNode.getAttribute('name');
-                  if (!/^schoolMagic\d+.+$/.test(name)) {
-                    return;
-                  }
-
-                  controlNode.setAttribute(
-                      'name',
-                      name.replace(/^(schoolMagic)\d+(.+)$/, `$1${index}$2`)
-                  );
-                }
-            );
-
-            index++;
-          }
-        }
-      }
-  );
-})();
+setSortable('schoolMagic','#school-magic-list','tbody');

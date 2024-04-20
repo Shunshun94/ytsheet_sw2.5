@@ -157,8 +157,8 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
-          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
-          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
+          <li onclick="sectionSelect('common');"><span>キャラ<span class="shorten">クター</span></span><span>データ</span>
+          <li onclick="sectionSelect('palette');"><span><span class="shorten">ユニット(</span>コマ<span class="shorten">)</span></span><span>設定</span>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
@@ -940,7 +940,7 @@ foreach my $num ('TMPL',1 .. $pc{weaponNum}) {
 print <<"HTML";
             <tbody id="weapon-row$num">
               <tr>
-                <td rowspan="2">@{[input("weapon${num}Name")]}<span class="handle"></span>
+                <td rowspan="2">@{[input("weapon${num}Name",'','','placeholder="名称" list="list-weapon-name"')]}<span class="handle"></span>
                 <td rowspan="2">@{[input("weapon${num}Usage","text",'','list="list-usage"')]}
                 <td rowspan="2">@{[input("weapon${num}Reqd",'text','calcWeapon')]}
                 <td rowspan="2">+@{[input("weapon${num}Acc",'number','calcWeapon')]}<b id="weapon${num}-acc-total">0</b>
@@ -1059,7 +1059,7 @@ foreach my $num ('TMPL',1 .. $pc{armourNum}) {
               <tr id="armour${num}" data-type="">
                 <th class="type handle">
                 <td><select name="armour${num}Category" oninput="calcDefense()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
-                <td>@{[ input "armour${num}Name",'','calcDefense' ]}
+                <td>@{[ input "armour${num}Name",'','calcDefense','list="list-item-name"' ]}
                 <td>@{[ input "armour${num}Reqd",'','calcDefense' ]}
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
@@ -1140,7 +1140,7 @@ foreach (
   }
   print <<"HTML";
     <th>@$_[0]
-    <td>@{[input('accessory'.@$_[1].'Name')]}
+    <td>@{[input 'accessory'.@$_[1].'Name','','','list="list-item-name"']}
     <td>
       <select name="accessory@$_[1]Own" oninput="calcSubStt()">
         <option></option>
@@ -1373,7 +1373,7 @@ print <<"HTML";
           </tbody>
         </table>
         <div class="annotate">
-        ※経験点欄は<code>1000+50*2</code>など四則演算が有効です（ファンブル経験点などを分けて書けます）。<br>
+        ※経験点欄は<code>1000+50*2</code>など四則演算が有効です（１ゾロの経験点などを分けて書けます）。<br>
         ※成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
         　また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
         　<code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
@@ -1441,65 +1441,13 @@ print <<"HTML";
     <p class="notes">(C)Group SNE「ソード・ワールド2.0」</p>
     <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
-  <datalist id="list-gender">
-    <option value="男">
-    <option value="女">
-    <option value="その他">
-    <option value="なし">
-    <option value="不明">
-    <option value="不詳">
-  </datalist>
-  <datalist id="list-usage">
-    <option value="1H">
-    <option value="1H#">
-    <option value="1H投">
-    <option value="1H拳">
-    <option value="1H両">
-    <option value="2H">
-    <option value="2H#">
-    <option value="振2H">
-    <option value="突2H">
-  </datalist>
-  <datalist id="list-grow">
-    <option value="器用">
-    <option value="敏捷">
-    <option value="筋力">
-    <option value="生命">
-    <option value="知力">
-    <option value="精神">
-  </datalist>
-  <datalist id="list-language">
-    <option value="交易共通語">
-    <option value="地方語（）">
-    <option value="神紀文明語">
-    <option value="魔法文明語">
-    <option value="魔動機文明語">
-    <option value="エルフ語">
-    <option value="ドワーフ語">
-    <option value="グラスランナー語">
-    <option value="シャドウ語">
-    <option value="ソレイユ語">
-    <option value="ミアキス語">
-    <option value="リカント語">
-    <option value="ドラゴン語">
-    <option value="妖精語">
-    <option value="海獣語">
-    <option value="ヴァルグ語">
-    <option value="汎用蛮族語">
-    <option value="妖魔語">
-    <option value="巨人語">
-    <option value="ドレイク語">
-    <option value="バジリスク語">
-    <option value="ノスフェラトゥ語">
-    <option value="マーマン語">
-    <option value="ケンタウロス語">
-    <option value="ライカンスロープ語">
-    <option value="リザードマン語">
-    <option value="ハルピュイア語">
-    <option value="バルカン語">
-    <option value="翼人語">
-    <option value="魔神語">
-  </datalist>
+
+HTML
+
+require($::core_dir . '/lib/sw2/edit-chara-datalist.pl');
+printCharaDataList();
+
+print <<"HTML";
 </body>
 
 </html>

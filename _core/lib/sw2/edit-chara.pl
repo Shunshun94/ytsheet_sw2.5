@@ -161,9 +161,9 @@ print <<"HTML";
       <div id="header-menu">
         <h2><span></span></h2>
         <ul>
-          <li onclick="sectionSelect('common');"><span>キャラクター</span><span>データ</span>
+          <li onclick="sectionSelect('common');"><span>キャラ<span class="shorten">クター</span></span><span>データ</span>
           <li onclick="sectionSelect('fellow');"><span>フェロー</span><span>データ</span>
-          <li onclick="sectionSelect('palette');"><span>チャット</span><span>パレット</span>
+          <li onclick="sectionSelect('palette');"><span><span class="shorten">ユニット(</span>コマ<span class="shorten">)</span></span><span>設定</span>
           <li onclick="sectionSelect('color');" class="color-icon" title="カラーカスタム">
           <li onclick="view('text-rule')" class="help-icon" title="テキスト整形ルール">
           <li onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード切替">
@@ -480,7 +480,7 @@ HTML
 foreach my $num ('TMPL',1..$pc{commonClassNum}){
   print '<template id="common-class-template">' if($num eq 'TMPL');
   print <<"HTML";
-              <tr id="common-class${num}"><td class="handle"><td>@{[input('commonClass'.$num)]}<td>@{[input('lvCommon'.$num, 'number','calcCommonClass','min="0" max="15"')]}
+              <tr id="common-class-row${num}"><td class="handle"><td>@{[input('commonClass'.$num)]}<td>@{[input('lvCommon'.$num, 'number','calcCommonClass','min="0" max="15"')]}
 HTML
   print '</template>' if($num eq 'TMPL');
 }
@@ -544,7 +544,7 @@ print <<"HTML";
 HTML
 foreach my $num ('TMPL',1 .. $pc{mysticArtsNum}){
   if($num eq 'TMPL'){ print '<template id="mystic-arts-template">' }
-  print '<li id="mystic-arts'.$num.'"><span class="handle"></span>'.(input 'mysticArts'.$num).(input 'mysticArts'.$num.'Pt', 'number', 'calcHonor');
+  print '<li id="mystic-arts-row'.$num.'"><span class="handle"></span>'.(input 'mysticArts'.$num).(input 'mysticArts'.$num.'Pt', 'number', 'calcHonor');
   if($num eq 'TMPL'){ print '</template>' }
 }
 print <<"HTML";
@@ -558,7 +558,7 @@ HTML
 $pc{mysticMagicNum} ||= 0;
 foreach my $num ('TMPL',1 .. $pc{mysticMagicNum}){
   if($num eq 'TMPL'){ print '<template id="mystic-magic-template">' }
-  print '<li id="mystic-magic'.$num.'"><span class="handle"></span>'.(input 'mysticMagic'.$num).(input 'mysticMagic'.$num.'Pt', 'number', 'calcHonor');
+  print '<li id="mystic-magic-row'.$num.'"><span class="handle"></span>'.(input 'mysticMagic'.$num).(input 'mysticMagic'.$num.'Pt', 'number', 'calcHonor');
   if($num eq 'TMPL'){ print '</template>' }
 }
 print <<"HTML";
@@ -722,7 +722,7 @@ foreach my $key (reverse keys %data::class) {
 
 foreach my $num ('TMPL', 1 .. $pc{languageNum}){
   if($num eq 'TMPL'){ print '<template id="language-template">' }
-  print '<tr id="language-item'.$num.'"><td class="handle"><td>'.input('language'.$num, '','checkLanguage','list="list-language"').
+  print '<tr id="language-row'.$num.'"><td class="handle"><td>'.input('language'.$num, '','checkLanguage','list="list-language"').
   '<td><select name="language'.$num.'Talk" oninput="checkLanguage()">'.(option "language${num}Talk",@langoptionT).'</select><span class="lang-select-view"></span>'.
   '<td><select name="language'.$num.'Read" oninput="checkLanguage()">'.(option "language${num}Read",@langoptionR).'</select><span class="lang-select-view"></span>'.
   "\n";
@@ -926,7 +926,7 @@ foreach my $num ('TMPL',1 .. $pc{weaponNum}) {
 print <<"HTML";
             <tbody id="weapon-row$num">
               <tr>
-                <td rowspan="2">@{[input("weapon${num}Name",'','','placeholder="名称"')]}<span class="handle"></span>
+                <td rowspan="2">@{[input("weapon${num}Name",'','','placeholder="名称" list="list-weapon-name"')]}<span class="handle"></span>
                 <td rowspan="2">@{[input("weapon${num}Usage","text",'','list="list-usage"')]}
                 <td rowspan="2">@{[input("weapon${num}Reqd",'text','calcWeapon')]}
                 <td rowspan="2">+@{[input("weapon${num}Acc",'number','calcWeapon')]}<b id="weapon${num}-acc-total">0</b>
@@ -1036,10 +1036,10 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{armourNum}) {
   if($num eq 'TMPL'){ print '<template id="armour-template">' }
   print <<"HTML";
-              <tr id="armour${num}" data-type="">
+              <tr id="armour-row${num}" data-type="">
                 <th class="type handle">
                 <td><select name="armour${num}Category" oninput="calcDefense()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
-                <td>@{[ input "armour${num}Name",'','calcDefense' ]}
+                <td>@{[ input "armour${num}Name",'','calcDefense','list="list-item-name"' ]}
                 <td>@{[ input "armour${num}Reqd",'','calcDefense' ]}
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
@@ -1062,7 +1062,7 @@ foreach my $i (1..3){
                 <td colspan="4" class="defense-total-checklist">
 HTML
   foreach my $num (1 .. $pc{armourNum}) {
-    print checkbox("defTotal${i}CheckArmour${num}",($pc{"armour${num}Name"}||'―'),'calcDefense',"data-id='armour${num}'");
+    print checkbox("defTotal${i}CheckArmour${num}",($pc{"armour${num}Name"}||'―'),'calcDefense',"data-id='armour-row${num}'");
   }
   print "</td>";
   print <<"HTML";
@@ -1121,7 +1121,7 @@ foreach (
   print "</td>\n";
   print <<"HTML";
   <th>@$_[0]
-    <td>@{[input('accessory'.@$_[1].'Name')]}
+    <td>@{[input 'accessory'.@$_[1].'Name','','','list="list-item-name"']}
     <td>
       <select name="accessory@$_[1]Own" oninput="calcSubStt()">
         <option></option>
@@ -1188,7 +1188,7 @@ print <<"HTML";
 HTML
 foreach my $num ('TMPL',1 .. $pc{honorItemsNum}){
   if($num eq 'TMPL'){ print '<template id="honor-item-template">' }
-  print '<tr id="honor-item'.$num.'"><td class="handle"><td>'.(input "honorItem${num}", "text").'<td>'.(input "honorItem${num}Pt", "number", "calcHonor");
+  print '<tr id="honor-item-row'.$num.'"><td class="handle"><td>'.(input "honorItem${num}", "text").'<td>'.(input "honorItem${num}Pt", "number", "calcHonor");
   if($num eq 'TMPL'){ print '</template>' }
 }
 print <<"HTML";
@@ -1212,7 +1212,7 @@ print <<"HTML";
 HTML
 foreach my $num ('TMPL',1 .. $pc{dishonorItemsNum}){
   if($num eq 'TMPL'){ print '<template id="dishonor-item-template">' }
-  print '<tr id="dishonor-item'.$num.'"><td class="handle"><td>'.(input "dishonorItem${num}", "text").'<td>'.(input "dishonorItem${num}Pt", "number", "calcDishonor");
+  print '<tr id="dishonor-item-row'.$num.'"><td class="handle"><td>'.(input "dishonorItem${num}", "text").'<td>'.(input "dishonorItem${num}Pt", "number", "calcDishonor");
   if($num eq 'TMPL'){ print '</template>' }
 }
 print <<"HTML";
@@ -1278,7 +1278,7 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{historyNum}) {
   if($num eq 'TMPL'){ print '<template id="history-template">' }
 print <<"HTML";
-          <tbody id="history${num}">
+          <tbody id="history-row${num}">
             <tr>
               <td class="handle" rowspan="2">
               <td class="date  " rowspan="2">@{[input("history${num}Date")]}
@@ -1348,7 +1348,7 @@ print <<"HTML";
           </tbody>
         </table>
         <div class="annotate">
-        ※経験点欄は<code>1000+50*2</code>など四則演算が有効です（ファンブル経験点などを分けて書けます）。<br>
+        ※経験点欄は<code>1000+50*2</code>など四則演算が有効です（１ゾロの経験点などを分けて書けます）。<br>
         ※成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
         　また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
         　<code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
@@ -1506,6 +1506,7 @@ print <<"HTML";
     <p class="notes">(C)Group SNE「ソード・ワールド2.5」</p>
     <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
+<<<<<<< HEAD
   <datalist id="list-gender">
     <option value="男">
     <option value="女">
@@ -1566,6 +1567,14 @@ print <<"HTML";
     <option value="魔神語">
   </datalist>
   <script src="${main::core_dir}/skin/sw2/js/lib/quickInsertionForSW25.js?${main::ver}" defer></script>
+=======
+HTML
+
+require($::core_dir . '/lib/sw2/edit-chara-datalist.pl');
+printCharaDataList();
+
+print <<"HTML";
+>>>>>>> 26f8724fef87a8caeddfb8408983044042bdb12d
 </body>
 
 </html>

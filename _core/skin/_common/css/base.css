@@ -12,18 +12,28 @@
 main::before {
   content: "ブラウザをアップデートしてください。\A必須: Chrome 112～／FireFox 98～／Safari 16.5～\A推奨: Chrome 最新版／FireFox 最新版／Safari 最新版";
   white-space: pre;
-  background-color: #f705;
+  background-color: #fca;
+  color: #000;
 
   display: block;
+  max-width: 900px;
   margin: 2em 1em;
   padding: .5em;
   border-radius: 5px;
   text-align: center;
   font-weight: bold;
+
+  position: absolute;
+  inset: 5em 0 auto;
+  z-index: 1000;
 }
 main {
+  margin-top: 10em;
   &::before {
     display: none;
+  }
+  & {
+    margin-top: 0;
   }
 }
 @layer base {
@@ -301,6 +311,7 @@ header {
     font-weight: normal;
     font-size: 80%;
     text-shadow: none;
+    pointer-events: none;
     > span {
       display: inline-block;
       width: max-content;
@@ -309,6 +320,7 @@ header {
       line-height: 1;
       border-radius: 5px;
       background-color: #0007;
+      pointer-events: auto;
       > b {
         font-size: 110%;
       }
