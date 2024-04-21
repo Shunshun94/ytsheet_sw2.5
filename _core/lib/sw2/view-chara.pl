@@ -20,7 +20,7 @@ $SHEET = HTML::Template->new( filename => $set::skin_sheet, utf8 => 1,
   die_on_bad_params => 0, die_on_missing_include => 0, case_sensitive => 1, global_vars => 1);
 
 ### キャラクターデータ読み込み #######################################################################
-our %pc = pcDataGet();
+our %pc = getSheetData();
 
 ### タグ置換前処理 ###################################################################################
 ### 閲覧禁止データ --------------------------------------------------
@@ -120,9 +120,9 @@ if($pc{ver}){
   foreach (keys %pc) {
     next if($_ =~ /^image/);
     if($_ =~ /^(?:items|freeNote|freeHistory|cashbook)$/){
-      $pc{$_} = tagUnescapeLines($pc{$_});
+      $pc{$_} = unescapeTagsLines($pc{$_});
     }
-    $pc{$_} = tagUnescape($pc{$_});
+    $pc{$_} = unescapeTags($pc{$_});
 
     $pc{$_} = noiseTextTag $pc{$_} if $pc{forbiddenMode};
   }
@@ -194,15 +194,12 @@ foreach(split(/ /, $pc{tags})){
 $SHEET->param(Tags => \@tags);
 
 ### セリフ --------------------------------------------------
-$pc{words} =~ s/<br>/\n/g;
-$pc{words} =~ s/^([「『（])/<span class="brackets">$1<\/span>/gm;
-$pc{words} =~ s/(.+?(?:[，、。？」』）]|$))/<span>$1<\/span>/g;
-$pc{words} =~ s/\n<span>　/\n<span>/g;
-$pc{words} =~ s/\n/<br>/g;
-$SHEET->param(words => $pc{words});
-$SHEET->param(wordsX => ($pc{wordsX} eq '左' ? 'left:0;' : 'right:0;'));
-$SHEET->param(wordsY => ($pc{wordsY} eq '下' ? 'bottom:0;' : 'top:0;'));
-
+{
+  my ($words, $x, $y) = stylizeWords($pc{words},$pc{wordsX},$pc{wordsY});
+  $SHEET->param(words => $words);
+  $SHEET->param(wordsX => $x);
+  $SHEET->param(wordsY => $y);
+}
 ### 種族名 --------------------------------------------------
 $pc{race} =~ s/［.*］//g;
 {
@@ -1003,13 +1000,13 @@ if($pc{forbidden} eq 'all' && $pc{forbiddenMode}){
   $SHEET->param(titleName => '非公開データ');
 }
 else {
-  $SHEET->param(titleName => tagDelete nameToPlain($pc{characterName}||"“$pc{aka}”"));
+  $SHEET->param(titleName => removeTags nameToPlain($pc{characterName}||"“$pc{aka}”"));
 }
 
 ### OGP --------------------------------------------------
 $SHEET->param(ogUrl => url().($::in{url} ? "?url=$::in{url}" : "?id=$::in{id}"));
 if($pc{image}) { $SHEET->param(ogImg => $pc{imageURL}); }
-$SHEET->param(ogDescript => tagDelete "種族:$pc{race}　性別:$pc{gender}　年齢:$pc{age}　技能:${class_text}");
+$SHEET->param(ogDescript => removeTags "種族:$pc{race}　性別:$pc{gender}　年齢:$pc{age}　技能:${class_text}");
 
 ### バージョン等 --------------------------------------------------
 $SHEET->param(ver => $::ver);

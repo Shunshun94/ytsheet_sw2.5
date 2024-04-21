@@ -24,14 +24,15 @@ my %pows = (
   },
   Con => {
     0   =>  1,
+    10  =>  7,
     20  =>  8,
     30  =>  9,
     60  => 15,
   },
   Wiz => {
-    10  =>  8,
+    10  =>  7,
     20  =>  4,
-    30  => 10,
+    30  =>  9,
     70  => 13,
   },
   Pri => {
@@ -47,18 +48,20 @@ my %pows = (
   Fai => {
     10  =>  2,
     20  =>  5,
+    30  =>  4,
     40  => 10,
     50  => 11,
-    60  => 14
+    60  => 14,
+    80  => 10
   },
   Dru => {
     10  =>  4,
     20  =>  4,
-    30  => 13,
+    30  => 12,
     50  => 15,
   },
   Dem => {
-    10  =>  5,
+    10  =>  3,
     20  =>  2,
     30  => 15,
     40  =>  9,
@@ -484,7 +487,7 @@ sub paletteProperties {
       push @classes_en, "//".uc($id)."={$name}";
     }
     foreach my $num (1..($::pc{commonClassNum}||10)){
-      my $name = tagDelete tagUnescape $::pc{'commonClass'.$num};
+      my $name = removeTags unescapeTags $::pc{'commonClass'.$num};
       $name =~ s/[(（].+?[）)]$//;
       push @propaties, "//$name=$::pc{'lvCommon'.$num}" if $name;
     }
@@ -614,10 +617,8 @@ sub paletteProperties {
         .($::pc{evasionClass} ? "{$::pc{evasionClass}}+({敏捷}${own_agi})/6+" : '')
         .($::pc{evasiveManeuver} + $armorTotal)
         .")";
+      push @propaties, "//防護${i}=".($::pc{"defenseTotal${i}Def"} || 0);
     }
-    push @propaties, "//防護1=".($::pc{defenseTotal1Def} || $::pc{defenseTotalAllDef} || 0);
-    push @propaties, "//防護2=$::pc{defenseTotal2Def}" if $::pc{defenseTotal2Def} ne '';
-    push @propaties, "//防護3=$::pc{defenseTotal3Def}" if $::pc{defenseTotal3Def} ne '';
     
   }
   ## 魔物

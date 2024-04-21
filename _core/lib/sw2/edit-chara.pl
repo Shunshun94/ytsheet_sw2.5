@@ -18,14 +18,14 @@ require $set::data_items;
 require $set::data_faith;
 
 ### データ読み込み ###################################################################################
-my ($data, $mode, $file, $message) = pcDataGet($::in{mode});
+my ($data, $mode, $file, $message) = getSheetData($::in{mode});
 our %pc = %{ $data };
 
 my $mode_make = ($mode =~ /^(blanksheet|copy|convert)$/) ? 1 : 0;
 
 ### 出力準備 #########################################################################################
 if($message){
-  my $name = tagUnescape($pc{characterName} || $pc{aka} || '無題');
+  my $name = unescapeTags($pc{characterName} || $pc{aka} || '無題');
   $message =~ s/<!NAME>/$name/;
 }
 ### プレイヤー名 --------------------------------------------------
@@ -113,7 +113,7 @@ $pc{fellowNote}    =~ s/&lt;br&gt;/\n/g;
 $pc{chatPalette}   =~ s/&lt;br&gt;/\n/g;
 
 ### フォーム表示 #####################################################################################
-my $titlebarname = tagDelete nameToPlain tagUnescape ($pc{characterName}||"“$pc{aka}”");
+my $titlebarname = removeTags nameToPlain unescapeTags ($pc{characterName}||"“$pc{aka}”");
 print <<"HTML";
 Content-type: text/html\n
 <!DOCTYPE html>
@@ -253,13 +253,13 @@ print <<"HTML";
         <div>
           <dl id="character-name">
             <dt>キャラクター名
-            <dd>@{[input('characterName','text',"nameSet")]}
+            <dd>@{[input('characterName','text',"setName")]}
           </dl>
           <dl id="aka">
             <dt>二つ名
-            <dd>@{[input('aka','text',"nameSet")]}
+            <dd>@{[input('aka','text',"setName")]}
             <dt class="ruby">フリガナ
-            <dd>@{[input('akaRuby','text',"nameSet")]}
+            <dd>@{[input('akaRuby','text',"setName")]}
           </dl>
         </div>
         <dl id="player-name">
@@ -1506,65 +1506,6 @@ print <<"HTML";
     <p class="notes">(C)Group SNE「ソード・ワールド2.5」</p>
     <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
-  <datalist id="list-gender">
-    <option value="男">
-    <option value="女">
-    <option value="その他">
-    <option value="なし">
-    <option value="不明">
-    <option value="不詳">
-  </datalist>
-  <datalist id="list-usage">
-    <option value="1H">
-    <option value="1H#">
-    <option value="1H投">
-    <option value="1H拳">
-    <option value="1H両">
-    <option value="2H">
-    <option value="2H#">
-    <option value="振2H">
-    <option value="突2H">
-  </datalist>
-  <datalist id="list-grow">
-    <option value="器用">
-    <option value="敏捷">
-    <option value="筋力">
-    <option value="生命">
-    <option value="知力">
-    <option value="精神">
-  </datalist>
-  <datalist id="list-language">
-    <option value="交易共通語">
-    <option value="地方語（）">
-    <option value="神紀文明語">
-    <option value="魔法文明語">
-    <option value="魔動機文明語">
-    <option value="エルフ語">
-    <option value="ドワーフ語">
-    <option value="グラスランナー語">
-    <option value="シャドウ語">
-    <option value="ソレイユ語">
-    <option value="ミアキス語">
-    <option value="リカント語">
-    <option value="ドラゴン語">
-    <option value="妖精語">
-    <option value="海獣語">
-    <option value="ヴァルグ語">
-    <option value="汎用蛮族語">
-    <option value="妖魔語">
-    <option value="巨人語">
-    <option value="ドレイク語">
-    <option value="バジリスク語">
-    <option value="ノスフェラトゥ語">
-    <option value="マーマン語">
-    <option value="ケンタウロス語">
-    <option value="ライカンスロープ語">
-    <option value="リザードマン語">
-    <option value="ハルピュイア語">
-    <option value="バルカン語">
-    <option value="翼人語">
-    <option value="魔神語">
-  </datalist>
   <script src="${main::core_dir}/skin/sw2/js/lib/quickInsertionForSW25.js?${main::ver}" defer></script>
 HTML
 
