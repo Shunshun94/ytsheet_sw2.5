@@ -89,7 +89,7 @@ autoCompleteTarget.LIST = [{
 window.onload = function() {
   console.log('=====START=====');
 
-  nameSet();
+  setName();
   race = form.race.value;
   checkLvCap();
   calcExp();

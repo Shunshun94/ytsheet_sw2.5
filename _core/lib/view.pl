@@ -31,7 +31,7 @@ else { require $set::lib_view_char; }
 
 
 ### データ取得 --------------------------------------------------
-sub pcDataGet {
+sub getSheetData {
   my %pc;
   my $datadir = 
     ($set::game eq 'sw2' && $type eq 'm') ? $set::mons_dir : 
@@ -60,7 +60,7 @@ sub pcDataGet {
     if($datatype eq 'logs' && !$hit){ error("過去ログ（$::in{log}）が見つかりません。"); }
 
     if($::in{log}){
-      ($pc{protect}, $pc{forbidden}) = protectTypeGet("${datadir}${file}/data.cgi");
+      ($pc{protect}, $pc{forbidden}) = getProtectType("${datadir}${file}/data.cgi");
       $pc{logId} = $::in{log};
     }
   }
@@ -203,6 +203,20 @@ sub noiseTextTag {
 sub isNoiseText {
   my $text = shift;
   return $text =~ /^[█▇▆▅▄▃▂▚▞▙▛▜▟\n\s]+$/ ? 1 : undef;
+}
+### セリフ --------------------------------------------------
+sub stylizeWords {
+  my ($words, $x, $y) = @_;
+  $words =~ s/<br>/\n/g;
+  $words =~ s/“/〝/g;
+  $words =~ s/”/〟/g;
+  $words =~ s/^([「『（〝])/<span class="brackets">$1<\/span>/gm;
+  $words =~ s/(.+?(?:[，、。？」』）〟]|$))/<span>$1<\/span>/g;
+  $words =~ s/\n<span>　/\n<span>/g;
+  $words =~ s/\n/<br>/g;
+  $x = $x eq '左' ? 'left:0;' : 'right:0;';
+  $y = $y eq '下' ? 'bottom:0;' : 'top:0;';
+  return $words, $x, $y;
 }
 ### メニュー --------------------------------------------------
 sub sheetMenuCreate {

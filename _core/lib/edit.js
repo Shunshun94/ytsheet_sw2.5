@@ -193,7 +193,7 @@ window.addEventListener('load', () => {
 });
 
 // 名前 ----------------------------------------
-function nameSet(id){
+function setName(id){
   id = id ? id : 'characterName';
   let name = vCheck(id+'Ruby') ? `<ruby>${form[id].value}<rp>(</rp><rt>${vCheck(id+'Ruby')}</rt><rp>)</rp></ruby>` : ruby(form[id].value);
   let aka = (form.aka && form.aka.value) ? '<span class="aka">“'+(vCheck('akaRuby') ? `<ruby>${form.aka.value}<rp>(</rp><rt>${vCheck('akaRuby')}</rt><rp>)</rp></ruby>` : `${ruby(form.aka.value)}`)+'”</span>' : '';
@@ -442,10 +442,10 @@ function imageDragMove(e){
   const touches = e.changedTouches || 0;
   // スマホ拡大縮小
   if (touches.length > 1) {
-		const x1 = touches[0].pageX;
-		const y1 = touches[0].pageY;
-		const x2 = touches[1].pageX;
-		const y2 = touches[1].pageY;
+    const x1 = touches[0].pageX;
+    const y1 = touches[0].pageY;
+    const x2 = touches[1].pageX;
+    const y2 = touches[1].pageY;
     const distance = Math.sqrt( Math.pow( x2-x1, 2 ) + Math.pow( y2-y1, 2 ) );
     const obj = form.imagePercent;
     if(baseDistance){
@@ -531,8 +531,10 @@ function wordsPreView(){
   let words = form.words.value;
   words = words.replace(/[|｜](.+?)《(.+?)》/g, '<ruby><rp>｜</rp>$1<rp>《</rp><rt>$2</rt><rp>》</rp></ruby>')
                .replace(/《《(.+?)》》/g, '<span class="text-em">$1</span>')
-               .replace(/^([「『（])/gm, '<span class="brackets">$1</span>')
-               .replace(/(.+?(?:[，、。？」]|$))/g, '<span>$1</span>')
+               .replace(/“/g, '〝')
+               .replace(/”/g, '〟')
+               .replace(/^([「『（〝])/gm, '<span class="brackets">$1</span>')
+               .replace(/(.+?(?:[，、。？」』）〟]|$))/g, '<span>$1</span>')
                .replace(/\n<span>　/g, '\n<span>')
                .replace(/\n/g, '<br>');
   
