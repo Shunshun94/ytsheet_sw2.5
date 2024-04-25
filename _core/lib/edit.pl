@@ -458,7 +458,7 @@ sub chatPaletteForm {
           <dt>表示名
           <dd>@{[ input 'namePlate','','changeNamePlate','placeholder="ニックネーム、ファーストネームなど"' ]} <small>※コマ出力時、こちらの入力が名前として優先されます。名前が長いキャラなどに</small>
           <dt>発言者色
-          <dd>@{[ input 'nameColor','','changeNamePlate' ]} <small>※6桁のカラーコードで記入してください。</small>
+          <dd>@{[ input 'nameColor','','changeNamePlate' ]} <small>※#から始まる6桁のカラーコードで記入してください。</small>
             <div id="name-plate-view">表示例：
               <span class="ytcha"></span> ／
               <span class="tekey"></span> ／
@@ -481,44 +481,49 @@ sub chatPaletteForm {
             </div>
         </dl>
       </div>
-      <div class="box" id="chatpalette">
-        <h2>チャットパレット <small>(ユニット(コマ)出力時、ここで設定したものが出力されます)</small></h2>
-        <p>
-          手動パレットの配置:<select name="paletteInsertType" style="width: auto;">
-            <option value="exchange" @{[ $::pc{paletteInsertType} eq 'exchange'?'selected':'' ]}>プリセットと入れ替える</option>
-            <option value="begin"    @{[ $::pc{paletteInsertType} eq 'begin'   ?'selected':'' ]}>プリセットの手前に挿入</option>
-            <option value="end"      @{[ $::pc{paletteInsertType} eq 'end'     ?'selected':'' ]}>プリセットの直後に挿入</option>
-          </select>
-        </p>
-        <textarea name="chatPalette" style="height:20em" placeholder="例）&#13;&#10;2d6+{冒険者}+{器用}&#13;&#10;&#13;&#10;※入力がない場合、プリセットが自動的に反映されます。">$::pc{chatPalette}</textarea>
-        
-        <div class="palette-column">
-        <h2>デフォルト変数 （自動的に末尾に出力されます）</h2>
-        <textarea id="paletteDefaultProperties" readonly style="height:20em">$palette</textarea>
+      <div class="box-union">
+        <div class="box" id="chatpalette">
+          <h2>チャットパレット <small>(ユニット(コマ)出力時、ここで設定したものが出力されます)</small></h2>
           <p>
-            @{[ checkbox 'chatPalettePropertiesAll','全てのデフォルト変数を出力する','setChatPalette' ]} <br>
-            <small>※デフォルトだと、未使用の変数は出力されません</small>
+            手動パレットの配置:<select name="paletteInsertType" style="width: auto;">
+              <option value="exchange" @{[ $::pc{paletteInsertType} eq 'exchange'?'selected':'' ]}>プリセットと入れ替える</option>
+              <option value="begin"    @{[ $::pc{paletteInsertType} eq 'begin'   ?'selected':'' ]}>プリセットの手前に挿入</option>
+              <option value="end"      @{[ $::pc{paletteInsertType} eq 'end'     ?'selected':'' ]}>プリセットの直後に挿入</option>
+            </select>
           </p>
+          <textarea name="chatPalette" style="height:20em" placeholder="例）&#13;&#10;2d6+{冒険者}+{器用}&#13;&#10;&#13;&#10;※入力がない場合、プリセットが自動的に反映されます。">$::pc{chatPalette}</textarea>
+          
+          <div class="palette-column">
+          <h2>デフォルト変数 （自動的に末尾に出力されます）</h2>
+          <textarea id="paletteDefaultProperties" readonly style="height:20em">$palette</textarea>
+            <p>
+              @{[ checkbox 'chatPalettePropertiesAll','全てのデフォルト変数を出力する','setChatPalette' ]} <br>
+              <small>※デフォルトだと、未使用の変数は出力されません</small>
+            </p>
+          </div>
+          <div class="palette-column">
+            <h2>プリセット （見本またはコピーペースト用）</h2>
+            <textarea id="palettePreset" readonly style="height:20em"></textarea>
+            <p>
+              @{[ checkbox 'paletteUseVar','デフォルト変数を使う','setChatPalette' ]}
+              @{[ $opt{buff} ? checkbox('paletteUseBuff','バフデバフ用変数を使う','setChatPalette') : '' ]}<br>
+              @{[ checkbox 'paletteRemoveTags','ルビなどテキスト装飾の構文を取り除く','setChatPalette' ]} 
+            </p>
+            <dl>
+              <dt>使用するオンセツール
+              <dd class="left">
+                @{[ radios 'paletteTool','setChatPalette',@{$opt{tool}} ]}<br>
+                <small>※プリセットの内容がツールに合わせたものに切り替わります。<br>　なお、コマ出力の際にはここでの変更に関わらず、自動的に出力先のツールに合わせたものになります。</small>
+            </dl>
+          </div>
         </div>
-        <div class="palette-column">
-          <h2>プリセット （見本またはコピーペースト用）</h2>
-          <textarea id="palettePreset" readonly style="height:20em"></textarea>
-          <p>
-            @{[ checkbox 'paletteUseVar','デフォルト変数を使う','setChatPalette' ]}
-            @{[ $opt{buff} ? checkbox('paletteUseBuff','バフデバフ用変数を使う','setChatPalette') : '' ]}<br>
-            @{[ checkbox 'paletteRemoveTags','ルビなどテキスト装飾の構文を取り除く','setChatPalette' ]} 
-          </p>
-          <dl>
-            <dt>使用するオンセツール
-            <dd class="left">
-              @{[ radios 'paletteTool','setChatPalette',@{$opt{tool}} ]}<br>
-              <small>※プリセットの内容がツールに合わせたものに切り替わります。<br>　なお、コマ出力の際にはここでの変更に関わらず、自動的に出力先のツールに合わせたものになります。</small>
-          </dl>
-        </div>
+        @{[ chatPaletteFormOptional() ]}
       </div>
     </section>
 HTML
+  sub chatPaletteFormOptional {}
 }
+
 
 ## カラーカスタム欄
 sub colorCostomForm {
@@ -645,6 +650,47 @@ sub textRuleArea {
       </div>
     </aside>
 HTML
+}
+
+## 削除フォーム
+sub deleteForm {
+  my $mode = shift;
+  return if ($mode ne 'edit');
+
+  my $html = <<"HTML";
+    <form name="del" method="post" action="./" class="deleteform">
+      <fieldset style="font-size: 80%;">
+        <input type="hidden" name="mode" value="delete">
+        <input type="hidden" name="type" value="$::pc{type}">
+        <input type="hidden" name="id"   value="$::in{id}">
+        <input type="hidden" name="pass" value="$::in{pass}">
+        <input type="checkbox" name="check1" value="1" required>
+        <input type="checkbox" name="check2" value="1" required>
+        <input type="checkbox" name="check3" value="1" required>
+        <input type="submit" value="シート削除"><br>
+        ※チェックを全て入れてください
+      </fieldset>
+    </form>
+HTML
+  # 管理者用画像削除フォーム
+  if($LOGIN_ID eq $set::masterid){
+    $html .= <<"HTML";
+    <form name="imgdel" method="post" action="./" class="deleteform">
+      <fieldset style="font-size: 80%;">
+        <input type="hidden" name="mode" value="img-delete">
+        <input type="hidden" name="type" value="$::pc{type}">
+        <input type="hidden" name="id"   value="$::in{id}">
+        <input type="hidden" name="pass" value="$::in{pass}">
+        <input type="checkbox" name="check1" value="1" required>
+        <input type="checkbox" name="check2" value="1" required>
+        <input type="checkbox" name="check3" value="1" required>
+        <input type="submit" value="画像削除">
+      </fieldset>
+    </form>
+    <p class="right">@{[ $::in{log}?$::in{log}:'最終' ]}更新時のIP:$::pc{IP}</p>
+HTML
+  }
+  return $html;
 }
 
 1;

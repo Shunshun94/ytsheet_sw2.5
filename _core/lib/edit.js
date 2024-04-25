@@ -276,13 +276,22 @@ function setChatPalette(){
       setDefaultStatus(data.unitStatus);
     })
 }
-
+// 追加挿入
+function addChatPaletteInsert(){
+  document.querySelector("#palette-insert > ul").append(createRow('palette-insert','chatPaletteInsertNum'));
+}
+function delChatPaletteInsert(){
+  if(delRow('chatPaletteInsertNum', '#palette-insert > ul li:last-of-type')){
+    setChatPalette();
+  }
+}
 // ユニット ----------------------------------------
 // 表示名・名前色
 function changeNamePlate(){
   const name = form.namePlate.value || form.characterName?.value || form.aka?.value || form.monsterName?.value || '';
   const colors = form.nameColor.value.split(/,/);
-  const color  = /^#[0-9a-zA-Z]{6}$/.test(colors[0]) ? colors[0] : ''
+  const color  = /^#[0-9a-zA-Z]{6}$/.test(colors[0]) ? colors[0] : '';
+  form.nameColor.classList.toggle('error', colors[0] != '' && !color);
   document.querySelectorAll('#name-plate-view > span').forEach( namePlate =>{
     namePlate.textContent = name;
     namePlate.style.color = color;
@@ -322,7 +331,9 @@ function addUnitStatus(){
 function delUnitStatus(){
   delRow('unitStatusNum', '#unit-status-optional tr:last-of-type')
 }
-setSortable('unitStatus','#unit-status-optional','tr');
+if (document.getElementById('unit-status-optional')) {
+  setSortable('unitStatus', '#unit-status-optional', 'tr');
+}
 
 // 画像配置 ----------------------------------------
 // ビューを開く
@@ -623,6 +634,7 @@ function sectionSelect(id){
     obj.style.display = 'none';
   });
   document.getElementById('section-'+id).style.display = 'block';
+  window.scrollTo({ top:0 });
   if(id === 'palette'){ changeNamePlate(); setChatPalette() }
 }
 

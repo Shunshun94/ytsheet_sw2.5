@@ -23,6 +23,7 @@ body {
     display: grid;
     grid-gap: 0 1.2rem;
     grid-template-columns: 1fr 1fr;
+    grid-auto-rows: max-content max-content max-content 1fr auto;
     padding: 0 1.2rem;
     position: relative;
   }
@@ -31,9 +32,6 @@ body {
   }
   div.column-status {
     grid-row: span 2;
-  }
-  #area-actions {
-    align-items: flex-start !important;
   }
   #area-items {
     grid-column: 2;
@@ -561,10 +559,11 @@ dl#level {
 /* // Area-Actions & Language
 ---------------------------------------------------------------------------------------------------- */
 #area-actions {
+  align-self: start;
   display: grid;
   grid-template-columns: 1.05fr 1.05fr 0.9fr;
-  align-self: start;
   gap: var(--box-v-gap) var(--box-h-gap);
+  align-items: start;
   
   margin-top: var(--box-v-gap);
   line-height: 1.8;
@@ -915,11 +914,11 @@ dl#level {
     text-align: center;
   }
   & tbody tr {
-    &.cards-red { background-color: rgba(255,  0,  0,0.15); }
-    &.cards-gre { background-color: rgba( 50,255,220,0.15); }
-    &.cards-bla { background-color: rgba(125,125,125,0.2 ); }
-    &.cards-whi { background-color: rgba(255,255,255,0.2 ); }
-    &.cards-gol { background-color: rgba(255,210, 50,0.15); }
+    &.cards-red { background-color: rgba(255,  0,  0,0.15) !important; }
+    &.cards-gre { background-color: rgba( 50,255,220,0.15) !important; }
+    &.cards-bla { background-color: rgba(125,125,125,0.2 ) !important; }
+    &.cards-whi { background-color: rgba(255,255,255,0.2 ) !important; }
+    &.cards-gol { background-color: rgba(255,210, 50,0.15) !important; }
   
     & th {
       background: transparent;
