@@ -103,19 +103,20 @@ sub class_color {
 ### タグ変換 --------------------------------------------------
 sub textToIcon {
   my $text = shift;
+  
   if($::SW2_0){
-    $text =~ s{[○◯〇]}{<i class="s-icon passive">○</i>}gi;
-    $text =~ s{[＞▶〆]}{<i class="s-icon major0">〆</i>}gi;
-    $text =~ s{[☆≫»]|&gt;&gt;}{<i class="s-icon minor0">☆</i>}gi;
-    $text =~ s{[□☐☑🗨]}{<i class="s-icon active0">☑</i>}gi;
-    $text =~ s{[▽]}{<i class="s-icon condition">▽</i>}gi;
-    $text =~ s{[▼]}{<i class="s-icon selection">▼</i>}gi;
+    $text =~ s{\[常\]|[○◯〇]}{<i class="s-icon passive"><span class="raw">[常]</span></i>}gi;
+    $text =~ s{\[主\]|[＞▶〆]}{<i class="s-icon major0"><span class="raw">[主]</span></i>}gi;
+    $text =~ s{\[補\]|[☆≫»]|&gt;&gt;}{<i class="s-icon minor0"><span class="raw">[補]</span></i>}gi;
+    $text =~ s{\[宣\]|[□☐☑🗨]}{<i class="s-icon active0"><span class="raw">[宣]</span></i>}gi;
+    $text =~ s{\[条\]|[▽]}{<i class="s-icon condition"><span class="raw">[条]</span></i>}gi;
+    $text =~ s{\[選\]|[▼]}{<i class="s-icon selection"><span class="raw">[選]</span></i>}gi;
   } else {
-    $text =~ s{[○◯〇]}{<i class="s-icon passive">○</i>}gi;
-    $text =~ s{[△]}{<i class="s-icon setup">△</i>}gi;
-    $text =~ s{[＞▶〆]}{<i class="s-icon major">▶</i>}gi;
-    $text =~ s{[☆≫»]|&gt;&gt;}{<i class="s-icon minor">≫</i>}gi;
-    $text =~ s{[□☐☑🗨]}{<i class="s-icon active">☑</i>}gi;
+    $text =~ s{\[常\]|[○◯〇]}{<i class="s-icon passive"><span class="raw">[常]</span></i>}gi;
+    $text =~ s{\[準\]|[△]}{<i class="s-icon setup"><span class="raw">[準]</span></i>}gi;
+    $text =~ s{\[主\]|[＞▶〆]}{<i class="s-icon major"><span class="raw">[主]</span></i>}gi;
+    $text =~ s{\[補\]|[☆≫»]|&gt;&gt;}{<i class="s-icon minor"><span class="raw">[補]</span></i>}gi;
+    $text =~ s{\[宣\]|[□☐☑🗨]}{<i class="s-icon active"><span class="raw">[宣]</span></i>}gi;
   }
   
   return $text;
@@ -300,11 +301,15 @@ sub data_update_chara {
   if($ver < 1.23000){
     $pc{raceAbilitySelect1} = $pc{raceAbilityLv6}  =~ s/^［|］$//gr;
     $pc{raceAbilitySelect2} = $pc{raceAbilityLv11} =~ s/^［|］$//gr;
-    $pc{raceAbilitySelect2} = $pc{raceAbilityLv16} =~ s/^［|］$//gr;
+    $pc{raceAbilitySelect3} = $pc{raceAbilityLv16} =~ s/^［|］$//gr;
     if($pc{race} eq 'ルーンフォーク（戦闘用ルーンフォーク）'){ $pc{race} = 'ルーンフォーク（戦闘型ルーンフォーク）' }
   }
   if($ver < 1.24011){
     $pc{'craftEnhance'.$_} =~ s/^ヴジャドーアイ$/ヴジャトーアイ/ foreach (16..17);
+  }
+  if($ver < 1.24024){
+    if($pc{money}   =~ /^(?:自動|auto)$/i){ $pc{moneyAuto  } = 1; $pc{money  } = commify $pc{moneyTotal}; }
+    if($pc{deposit} =~ /^(?:自動|auto)$/i){ $pc{depositAuto} = 1; $pc{deposit} = commify($pc{depositTotal}).'／'.commify($pc{debtTotal}); }
   }
   $pc{ver} = $main::ver;
   $pc{lasttimever} = $ver;

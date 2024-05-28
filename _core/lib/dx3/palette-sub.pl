@@ -54,11 +54,11 @@ sub palettePreset {
       $text .= "【$::pc{'combo'.$num.'Name'}】：$::pc{'combo'.$num.'Combo'}\n";
       $text .= textTiming($::pc{'combo'.$num.'Timing'})." / $::pc{'combo'.$num.'Skill'} / $::pc{'combo'.$num.'Dfclty'} / $::pc{'combo'.$num.'Target'} / $::pc{'combo'.$num.'Range'}\n";
       $text .= "$::pc{'combo'.$num.'Note'}\n" if $bot{YTC};
-      $text .= ($bot{YTC} ? '@侵蝕' : ':侵蝕率')  . "+$::pc{'combo'.$num.'Encroach'}\n";
+      $text .= ($bot{YTC} ? '@侵蝕' : ':侵蝕')  . "+$::pc{'combo'.$num.'Encroach'}\n";
       foreach my $i (1..5) {
         next if !$::pc{'combo'.$num.'Condition'.$i};
         $text .= "▼$::pc{'combo'.$num.'Condition'.$i} ----------\n" if $bot{YTC} || $bot{TKY};
-        if(!$::pc{comboCalcOff}){
+        if(!$::pc{"combo${num}Manual"}){
           if($::pc{"combo${num}Stt"}){
             if   ($::pc{"combo${num}Stt"} eq '肉体'){ $text .= '{肉体}+'; }
             elsif($::pc{"combo${num}Stt"} eq '感覚'){ $text .= '{感覚}+'; }

@@ -242,6 +242,9 @@ function changeRace(value){
   else if(!SET.races[race]) {
     document.getElementById('race-ability-value').innerHTML = `<input type="text" name="raceAbilityFree" oninput="changeRaceAbility()" value="${form.raceAbilityFree?.value ?? '［］'}">`;
   }
+  if(form.mode.value === 'make'){
+    form.sin.value = SET.races[race]?.sin || 0;
+  }
   checkRace();
   calcStt();
 }
@@ -1595,6 +1598,20 @@ function calcCash(){
   document.getElementById('cashbook-total-value').textContent = commify(cash);
   document.getElementById('cashbook-deposit-value').textContent = commify(deposit);
   document.getElementById('cashbook-debt-value').textContent = commify(debt);
+  
+  if(form.moneyAuto.checked){
+    form.money.value = commify(cash);
+    form.money.readOnly = true;
+  }
+  else {
+    form.money.readOnly = false;
+  }
+
+  if(form.depositAuto.checked){
+    form.deposit.value = commify(deposit)+'／'+commify(debt);
+    form.deposit.readOnly = true;
+  }
+  else { form.deposit.readOnly = false; }
 }
 
 // 装飾品欄 ----------------------------------------
@@ -1688,7 +1705,7 @@ function checkLanguage(){
     count[read.value] ||= 0; count[read.value]++;
   }
   let notice = '';
-  for (let key in SET.class){
+  for (let key of SET.classNames){
     if(!SET.class[key].language){ continue; }
     const className = key;
     const classId = SET.class[key].id;
@@ -1699,14 +1716,14 @@ function checkLanguage(){
       const notR = (data.read && !acqR[langName]) ? true : false;
       if(langName === 'any'){
         const v = classLv - (count[classId] || 0);
-        if     (v > 0){ notice += `${className}技能であと「${v}」習得できます<br>`; }
-        else if(v < 0){ notice += `${className}技能での習得が「${v*-1}」過剰です<br>`; }
+        if     (v > 0){ notice += `<li class="under">${className}技能であと「${v}」習得できます`; }
+        else if(v < 0){ notice += `<li class="over">${className}技能での習得が「${v*-1}」過剰です`; }
       }
       else if(classLv && (notT || notR)) {
-        notice += `${langName}の`;
+        notice += `<li class="under">${langName}の`;
         if(notT){ acqT[langName] = true; notice += `会話`+(notR ? '/' : '');  }
         if(notR){ acqR[langName] = true; notice += `読文`;  }
-        notice += `が習得できます<br>`;
+        notice += `が習得できます`;
       }
     }
   }
@@ -1934,7 +1951,7 @@ setSortable('history','#history-table','tbody');
 
 // 戦闘用アイテム欄 ----------------------------------------
 // ソート
-setSortable('history','#battle-items-list');
+setSortable('battleItem','#battle-items-list');
 
 // チャットパレット ----------------------------------------
 // 武器攻撃

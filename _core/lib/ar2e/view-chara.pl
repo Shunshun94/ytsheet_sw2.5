@@ -536,8 +536,7 @@ foreach (0 .. $pc{historyNum}){
   foreach my $mem (split(/　/,$pc{'history'.$_.'Member'})){
     $members .= '<span>'.$mem.'</span>';
   }
-  $pc{'history'.$_.'Money'} =~ s/([0-9]+)/$1<wbr>/g;
-  $pc{'history'.$_.'Money'} =~ s/([0-9]+)/commify($1);/ge;
+  $pc{'history'.$_.'Money'} = formatHistoryFigures($pc{'history'.$_.'Money'});
   push(@history, {
     NUM     => ($pc{'history'.$_.'Gm'} ? $h_num : ''),
     DATE    => $pc{'history'.$_.'Date'},
@@ -562,8 +561,8 @@ $pc{items} =~ s/[@＠]\[\s*?((?:[\+\-\*\/]?[0-9]+)+)\s*?\]/<i class="weight">$1<
 $SHEET->param(items => $pc{items});
 
 ### ゴールド --------------------------------------------------
-if($pc{money} =~ /^(?:自動|auto)$/i){
-  $SHEET->param(money => $pc{moneyTotal});
+if($pc{moneyAuto}){
+  $SHEET->param(money => commify($pc{moneyTotal}));
 }
 #if($pc{deposit} =~ /^(?:自動|auto)$/i){
 #  $SHEET->param(deposit => $pc{depositTotal}.' G ／ '.$pc{debtTotal});

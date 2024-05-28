@@ -47,17 +47,36 @@ sub getfile_open {
   close($FH);
   return 0;
 }
+### typeによって各ファイル・ディレクトリを変更 --------------------------------------------------
+sub changeFileByType {
+  my $type = shift;
+  if($type && exists $set::lib_type{$type}){
+    return if exists $set::lib_type{chara};
+    $set::lib_type{chara}{listFile} = $set::listfile;
+    $set::lib_type{chara}{dataDir}  = $set::char_dir;
+    $set::lib_type{chara}{edit}     = $set::lib_edit_char;
+    $set::lib_type{chara}{calc}     = $set::lib_calc_char;
+    $set::lib_type{chara}{view}     = $set::lib_view_char;
+    $set::lib_type{chara}{list}     = $set::lib_list_char;
+    $set::lib_type{chara}{skin}     = $set::skin_sheet;
+
+    $set::listfile      = $set::lib_type{$type}{listFile};
+    $set::char_dir      = $set::lib_type{$type}{dataDir};
+    $set::lib_edit_char = $set::lib_type{$type}{edit};
+    $set::lib_calc_char = $set::lib_type{$type}{calc};
+    $set::lib_view_char = $set::lib_type{$type}{view};
+    $set::lib_list_char = $set::lib_type{$type}{list};
+    $set::skin_sheet    = $set::lib_type{$type}{skin};
+  }
+}
 
 ### 画像リダイレクト --------------------------------------------------
 sub redirectToImage {
   my $id   = shift;
   my $type = shift;
   my ($file,$type,$user) = getfile_open($id);
-  my $datadir = ($set::game eq 'sw2' && $type eq 'm') ? $set::mons_dir
-              : ($set::game eq 'sw2' && $type eq 'i') ? $set::item_dir
-              : ($set::game eq 'sw2' && $type eq 'a') ? $set::arts_dir
-              : ($set::game eq 'ms'  && $type eq 'c') ? $set::clan_dir
-              : $set::char_dir;
+  changeFileByType($type);
+  my $datadir = $set::char_dir;
   my $ext;
 
   if(!$file){ error("ファイルがありません。") }
@@ -445,7 +464,7 @@ sub unescapeTags {
   
   $text =~ s#(―+)#<span class="d-dash">$1</span>#g;
   
-  $text =~ s{[©]}{<i class="s-icon copyright">©</i>}gi;
+  $text =~ s{©}{<i class="s-icon copyright">©</i>}gi;
 
   if($set::game eq 'sw2'){
     if($::in{mode} ne 'download'){
@@ -460,6 +479,13 @@ sub unescapeTags {
     }
   }
   
+  
+  our @linkPlaceholders;
+  $text =~ s/((?:making|能力値作成(?:履歴)?)#([0-9]+(?:-[0-9]+)?))/ &generateLinkTag("?&mode=making&num=$2",$1) /egi if($set::game eq 'sw2'); # メイキングリンク
+  $text =~ s/\[(.+?)#([a-zA-Z0-9\-]+?)\]/ &generateLinkTag("?id=$2",$1) /egi; # シート内リンク
+  $text =~ s/\[\[(.+?)&gt;((?:(?!<br>)[^"])+?)\]\]/ &generateLinkTag($2,$1) /egi; # リンク
+  $text =~ s/(https?:\/\/[^\s\<]+)/ &generateLinkTag($1,$1) /egi; # 自動リンク
+  
   $text =~ s/'''(.+?)'''/<span class="oblique">$1<\/span>/gi; # 斜体
   $text =~ s/''(.+?)''/<b>$1<\/b>/gi;  # 太字
   $text =~ s/%%(.+?)%%/<span class="strike">$1<\/span>/gi;  # 打ち消し線
@@ -467,34 +493,33 @@ sub unescapeTags {
   $text =~ s/\{\{(.+?)\}\}/<span style="color:transparent">$1<\/span>/gi;  # 透明
   $text =~ s/[|｜]([^|｜\n]+?)《(.+?)》/<ruby>$1<rp>(<\/rp><rt>$2<\/rt><rp>)<\/rp><\/ruby>/gi; # なろう式ルビ
   $text =~ s/《《(.+?)》》/<span class="text-em">$1<\/span>/gi; # カクヨム式傍点
-  
-  $text =~ s/\[\[(.+?)&gt;((?:(?!<br>)[^"])+?)\]\]/&generateLinkTag($2,$1)/egi; # リンク
-  if($set::game eq 'sw2'){ $text =~ s/((?:making|能力値作成(?:履歴)?)#([0-9]+(?:-[0-9]+)?))/<a href="?&mode=making&num=$2">$1<\/a>/gi; } # メイキングリンク
-  $text =~ s/\[(.+?)#([a-zA-Z0-9\-]+?)\]/<a href="?id=$2">$1<\/a>/gi; # シート内リンク
-  $text =~ s/(?<!href=")(https?:\/\/[^\s\<]+)/<a href="$1" target="_blank">$1<\/a>/gi; # 自動リンク
+
+  $text =~ s/\x{FFFC}(\d+)\x{FFFC}/$linkPlaceholders[$1-1]/g; # リンク後処理
   
   $text =~ s/\n/<br>/gi;
 
   if($set::game eq 'sw2'){
     if($::SW2_0){
+      $text =~ s/(\[[常主補宣条選]\])+/&textToIcon($&);/egi;
       $text =~ s/「((?:[○◯〇＞▶〆☆≫»□☐☑🗨▽▼]|&gt;&gt;)+)/"「".&textToIcon($1);/egi;
     } else {
+      $text =~ s/(\[[常準主補宣]\])+/&textToIcon($&);/egi;
       $text =~ s/「((?:[○◯〇△＞▶〆☆≫»□☐☑🗨]|&gt;&gt;)+)/"「".&textToIcon($1);/egi;
     }
   }
   
   return $text;
-}
-sub generateLinkTag {
-  my $url = shift;
-  my $txt = shift;
-  #foreach my $safe (@set::safeurl){
-  #  next if !$safe;
-  #  if($url =~ /^$safe/) { return '<a href="'.$url.'" target="_blank">'.$txt.'</a>'; }
-  #}
-  if($url =~ /^[#\.\/]/){ return '<a href="'.$url.'">'.$txt.'</a>'; }
-  return '<a href="'.$url.'" target="_blank">'.$txt.'</a>';
-  #return '<a href="../'.$set::cgi.'?jump='.$url.'" target="_blank">'.$txt.'</a>';
+  
+  sub generateLinkTag {
+    my $url = shift;
+    my $txt = shift;
+    $txt =~ s{<a .+?>|</a>}{}g; # 内側のリンクは削除（二重リンク防止）
+    push @linkPlaceholders, $url;
+    my $number = "\x{FFFC}" . scalar(@linkPlaceholders) . "\x{FFFC}";
+    if($txt =~ "^https?://"){ $txt = $number; } # $txtがURL形式なら$urlと同じに（二重リンクとURLの偽り防止）
+    if($url =~ /^[#\.\/\?]/){ return '<a href="'.$number.'">'.$txt.'</a>'; }
+    else { return '<a href="'.$number.'" target="_blank">'.$txt.'</a>'; }
+  }
 }
 sub unescapeTagsLines {
   my $text = shift;
@@ -671,11 +696,11 @@ sub rgb_to_hsl {
 ### デフォルトカラー --------------------------------------------------
 sub setDefaultColors {
   my $type = shift;
-  $::pc{$type.'colorHeadBgH'} = $::pc{$type.'colorHeadBgH'} eq '' ? 225 : $::pc{$type.'colorHeadBgH'};
-  $::pc{$type.'colorHeadBgS'} = $::pc{$type.'colorHeadBgS'} eq '' ?   9 : $::pc{$type.'colorHeadBgS'};
-  $::pc{$type.'colorHeadBgL'} = $::pc{$type.'colorHeadBgL'} eq '' ?  65 : $::pc{$type.'colorHeadBgL'};
-  $::pc{$type.'colorBaseBgH'} = $::pc{$type.'colorBaseBgH'} eq '' ? 235 : $::pc{$type.'colorBaseBgH'};
-  $::pc{$type.'colorBaseBgS'} = $::pc{$type.'colorBaseBgS'} eq '' ?   0 : $::pc{$type.'colorBaseBgS'};
+  $::pc{$type.'colorHeadBgH'} //= 225;
+  $::pc{$type.'colorHeadBgS'} //=   9;
+  $::pc{$type.'colorHeadBgL'} //=  65;
+  $::pc{$type.'colorBaseBgH'} //= 235;
+  $::pc{$type.'colorBaseBgS'} //=   0;
 }
 
 ### 進数変換 --------------------------------------------------

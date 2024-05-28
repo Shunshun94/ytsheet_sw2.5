@@ -257,6 +257,9 @@ $SHEET->param(Tags => \@tags);
 ### ステージ --------------------------------------------------
 if($pc{stage} =~ /クロウリングケイオス/){ $SHEET->param(ccOn => 1); }
 
+### ワークス --------------------------------------------------
+$SHEET->param(isFH => $pc{works} =~ /[FＦ][HＨ]/i);
+
 ### ブリード --------------------------------------------------
 my $breedPrefix = ($pc{breed} ? $pc{breed} : $pc{syndrome3} ? 'トライ' : $pc{syndrome2} ? 'クロス' : $pc{syndrome1} ? 'ピュア' : '');
 $SHEET->param(breed => isNoiseText(removeTags $breedPrefix) ? $breedPrefix : $breedPrefix ? "$breedPrefix<span class=\"shorten\">ブリード</span>" : '');
@@ -305,13 +308,18 @@ foreach (1 .. 7){
   if (!($pc{'lois'.$_.'Relation'} || $pc{'lois'.$_.'Name'} || $pc{'lois'.$_.'Note'}) || $pc{'lois'.$_.'Relation'} =~ /[DＤEＥ]ロイス|^[DＤEＥ]$/) {
     $pc{'lois'.$_.'State'} = '';
   }
+
+  # 感情の内容もチェックもなく、状態ももたないなら、感情を無効にする.
+  my $noEmotion = !($pc{'lois'.$_.'EmoPosi'} || $pc{'lois'.$_.'EmoPosiCheck'} || $pc{'lois'.$_.'EmoNega'} || $pc{'lois'.$_.'EmoNegaCheck'} || $pc{'lois'.$_.'State'});
+
   push(@loises, {
     "RELATION" => $pc{'lois'.$_.'Relation'},
     "NAME"     => $pc{'lois'.$_.'Name'},
     "POSI"     => $pc{'lois'.$_.'EmoPosi'},
     "NEGA"     => $pc{'lois'.$_.'EmoNega'},
-    "P-CHECK"  => $pc{'lois'.$_.'EmoPosiCheck'},
-    "N-CHECK"  => $pc{'lois'.$_.'EmoNegaCheck'},
+    "P-CHECK"  => ($noEmotion ? 'empty' : $pc{'lois'.$_.'EmoPosiCheck'} ? 'checked' : ''),
+    "N-CHECK"  => ($noEmotion ? 'empty' : $pc{'lois'.$_.'EmoNegaCheck'} ? 'checked' : ''),
+    "NO-EMO"   => $noEmotion,
     "COLOR"    => $pc{'lois'.$_.'Color'},
     "COLOR-BG" => $color,
     "NOTE"     => $pc{'lois'.$_.'Note'},
@@ -606,7 +614,7 @@ foreach (0 .. $pc{historyNum}){
   foreach my $mem (split(/　/,$pc{'history'.$_.'Member'})){
     $members .= '<span>'.$mem.'</span>';
   }
-  if($_ && !$pc{'history'.$_.'ExpApply'}) {
+  if($_ && !$pc{'history'.$_.'ExpApply'} && $pc{'history'.$_.'Exp'} ne '') {
     $pc{'history'.$_.'Exp'} = '<s>'.$pc{'history'.$_.'Exp'}.'</s>';
   }
   push(@history, {

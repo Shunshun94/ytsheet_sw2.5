@@ -55,8 +55,8 @@ elsif($mode eq 'blanksheet'){
   $pc{history0Money} = $set::make_money;
   $pc{expTotal} = $pc{history0Exp};
 
-  $pc{money}   = '自動';
-  $pc{deposit} = '自動';
+  $pc{moneyAuto}   = 1;
+  $pc{depositAuto} = 1;
   
   if($::in{stt}){
     ($pc{sttBaseTec}, $pc{sttBasePhy}, $pc{sttBaseSpi}, $pc{sttBaseA}, $pc{sttBaseB}, $pc{sttBaseC}, $pc{sttBaseD}, $pc{sttBaseE}, $pc{sttBaseF}) = split(/_/, $::in{stt});
@@ -64,6 +64,7 @@ elsif($mode eq 'blanksheet'){
     if($data::races{$pc{race}}{variant} && !$data::races{$pc{race}}{ability}){
       $pc{race} .= "（$data::races{$pc{race}}{variantSort}[0]）";
     }
+    $pc{sin} = $data::races{$pc{race}}{sin} || 0;
     if($::in{making_num}){
       $pc{history0Note} = "能力値作成履歴#$::in{making_num}";
     }
@@ -78,9 +79,9 @@ elsif($mode eq 'blanksheet'){
 
 ## 画像
 $pc{imageFit} = $pc{imageFit} eq 'percent' ? 'percentX' : $pc{imageFit};
-$pc{imagePercent} = $pc{imagePercent} eq '' ? '200' : $pc{imagePercent};
-$pc{imagePositionX} = $pc{imagePositionX} eq '' ? '50' : $pc{imagePositionX};
-$pc{imagePositionY} = $pc{imagePositionY} eq '' ? '50' : $pc{imagePositionY};
+$pc{imagePercent}   //= '200';
+$pc{imagePositionX} //= '50';
+$pc{imagePositionY} //= '50';
 $pc{wordsX} ||= '右';
 $pc{wordsY} ||= '上';
 
@@ -111,7 +112,8 @@ $pc{cashbook}        =~ s/&lt;br&gt;/\n/g;
 $pc{fellowProfile}   =~ s/&lt;br&gt;/\n/g;
 $pc{fellowNote}      =~ s/&lt;br&gt;/\n/g;
 $pc{chatPalette}     =~ s/&lt;br&gt;/\n/g;
-$pc{'chatPaletteInsert'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..2);
+$pc{'chatPaletteInsert'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..$pc{chatPaletteInsertNum});
+$pc{$_} =~ s/&lt;br&gt;/\n/g foreach (grep {/^fellow[-0-9]+(?:Action|Note)$/} keys %pc);
 
 ### フォーム表示 #####################################################################################
 my $titlebarname = removeTags nameToPlain unescapeTags ($pc{characterName}||"“$pc{aka}”");
@@ -289,7 +291,7 @@ print <<"HTML";
               <dt>精神力<dd>@{[ input "sttPreGrowF",'number','calcStt' ]}
             </dl>
         </dl>
-        <div class="annotate">※経験点は、初期所有技能のぶんを含みます。</div>
+        <ul class="annotate"><li>経験点は、初期所有技能のぶんを含みます。</ul>
         <dl class="regulation-note"><dt>備考<dd>@{[ input "history0Note" ]}</dl>
         @{[ checkbox 'unlockAbove16','16レベル以上を解禁する（2.0の超越者ルールの流用）','checkLvCap' ]}
       </details>
@@ -735,7 +737,7 @@ print <<"HTML";
           </table>
           <div class="add-del-button"><a onclick="addLanguage()">▼</a><a onclick="delLanguage()">▲</a></div>
           <p>@{[ input 'languageAutoOff','checkbox','changeRace' ]}初期習得言語を自動記入しない</p>
-          <p id="language-notice"></p>
+          <ul id="language-notice" class="annotate notice"></ul>
           @{[input('languageNum','hidden')]}
         </div>
         <div class="box" id="magic-power">
@@ -947,11 +949,11 @@ HTML
 }
 print <<"HTML";
           </table>
-          <div class="annotate">
-            ※Ｃ値は自動計算されません。<br>
-            <span id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>※備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。</span>
-          </div>
           <div class="add-del-button"><a onclick="addWeapons()">▼</a><a onclick="delWeapons()">▲</a></div>
+          <ul class="annotate">
+            <li>Ｃ値は自動計算されません。
+            <li id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。
+          </ul>
           @{[input('weaponNum','hidden')]}
         </div>
         <div class="box" id="evasion-classes">
@@ -1057,7 +1059,7 @@ HTML
             <tfoot>
               <tr><td colspan="8">
                 <div class="add-del-button"><a onclick="addArmour()">▼</a><a onclick="delArmour()">▲</a></div>
-              <tr><th colspan="8">合計
+              <tr><th colspan="4" class="right small" style="vertical-align:bottom">チェックを入れた防具の数値で合算▼<th colspan="2">合計
 HTML
 foreach my $i (1..3){
   print <<"HTML";
@@ -1137,14 +1139,18 @@ HTML
 print <<"HTML";
           </tbody>
           </table>
-          <div class="annotate">※左のボックスにチェックを入れると欄が一つ追加されます</div>
+          <ul class="annotate"><li>左のボックスにチェックを入れると欄が一つ追加されます</ul>
         </div>
       </div>
       <div id="area-items">
         <div id="area-items-L">
           <dl class="box" id="money">
-            <dt class="in-toc">所持金<dd>@{[ input 'money' ]} G
-            <dt>預金／借金<dd>@{[ input 'deposit' ]} G
+            <dt class="in-toc">所持金
+            <dd>@{[ checkbox 'moneyAuto', '自動計算', 'calcCash' ]}
+            <dd>@{[ input 'money' ]} G
+            <dt>預金／借金
+            <dd>@{[ checkbox 'depositAuto', '自動計算', 'calcCash' ]}
+            <dd>@{[ input 'deposit' ]} G
           </dl>
           <div class="box" id="items">
             <h2 class="in-toc">所持品</h2>
@@ -1233,12 +1239,12 @@ print <<"HTML";
           　預金：<span id="cashbook-deposit-value">－</span> G
           　借金：<span id="cashbook-debt-value">－</span> G
         </p>
-        <div class="annotate">
-          ※<code>::+n</code> <code>::-n</code>の書式で入力すると加算・減算されます。（<code>n</code>には金額を入れてください）<br>
-          　預金は<code>:>+n</code>、借金は<code>:<+n</code>で増減できます。（それに応じて所持金も増減します）<br>
-          ※<span class="underline">セッション履歴に記入されたガメル報酬は自動的に加算されます。</span><br>
-          ※所持金欄、預金／借金欄に<code>自動</code>または<code>auto</code>と記入すると、収支の計算結果を反映します。
-        </div>
+        <ul class="annotate">
+          <li><code>::+n</code> <code>::-n</code>の書式で入力すると加算・減算されます。（<code>n</code>には金額を入れてください）<br>
+            預金は<code>:>+n</code>、借金は<code>:<+n</code>で増減できます。（それに応じて所持金も増減します）
+          <li><span class="underline">セッション履歴に記入されたガメル報酬は自動的に加算されます。</span>
+          <li>所持金欄、預金／借金欄に<code>自動</code>または<code>auto</code>と記入すると、収支の計算結果を反映します。
+        </ul>
       </details>
       
       <details class="box" id="free-note" @{[$pc{freeNote}?'open':'']}>
@@ -1350,12 +1356,12 @@ print <<"HTML";
             </tr>
           </tbody>
         </table>
-        <div class="annotate">
-        ※経験点欄は<code>1000+50*2</code>など四則演算が有効です（１ゾロの経験点などを分けて書けます）。<br>
-        ※成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
-        　また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
-        　<code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
-        </div>
+        <ul class="annotate">
+          <li>経験点欄は<code>1000+50*2</code>など四則演算が有効です（１ゾロの経験点などを分けて書けます）。
+          <li>成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
+            また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
+            <code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
+        </ul>
         @{[ $::in{log} ? '<button type="button" class="set-newest" onclick="setNewestHistoryData()">最新のセッション履歴を適用する</button>' : '' ]}
       </div>
       </section>
@@ -1363,16 +1369,16 @@ print <<"HTML";
       <section id="section-fellow" style="display:none;">
       <h2 id="fellow">フェロー関連データ</h2>
       <div class="box" id="f-public">
-        @{[ input 'fellowPublic', 'checkbox']} フェローを公開する
+        @{[ checkbox 'fellowPublic', "フェローを公開する"]} 
       </div>
       <div class="box" id="f-checkboxes">
-        <dl><dt>経験点</dt>
-          <dd><input type="radio" name="fellowExpCheck" value="1" @{[ $pc{fellowExpCheck}?'checked':'' ]}>あり</dd>
-          <dd><input type="radio" name="fellowExpCheck" value="0" @{[ $pc{fellowExpCheck}?'':'checked' ]}>なし</dd>
+        <dl><dt>経験点
+          <dd>@{[ radio "fellowExpCheck","","1","あり" ]}
+          <dd>@{[ radio "fellowExpCheck","","0","なし" ]}
         </dl>
-        <dl><dt>報酬</dt>
-          <dd><input type="radio" name="fellowRewardCheck" value="1" @{[ $pc{fellowRewardCheck}?'checked':'' ]}>要望</dd>
-          <dd><input type="radio" name="fellowRewardCheck" value="0" @{[ $pc{fellowRewardCheck}?'':'checked' ]}>不要</dd>
+        <dl><dt>報酬
+          <dd>@{[ radio "fellowRewardCheck","","1","要望" ]}
+          <dd>@{[ radio "fellowRewardCheck","","0","不要" ]}
         </dl>
       </div>
       <div class="box" id="f-profile">
@@ -1382,65 +1388,67 @@ print <<"HTML";
       <div class="box" id="f-actions">
         <h2>行動表</h2>
       <table>
+        <thead>
         <tr>
           <th>1d
-          <th>想定<br>出目
+          <th><span class="small">想定出目</span>
           <th>行動
           <th>台詞
           <th>達成値
           <th>効果
+        <tbody>
         <tr class="border-top">
           <td rowspan="2">⚀<br>⚁
           <td class="number">7
-          <td>@{[ input 'fellow1Action' ]}
+          <td>@{[ textarea 'fellow1Action','','rows="3"' ]}
           <td>@{[ input 'fellow1Words' ]}
           <td>@{[ input 'fellow1Num' ]}
-          <td>@{[ input 'fellow1Note' ]}
+          <td>@{[ textarea 'fellow1Note','','rows="3"' ]}
         <tr>
           <td class="number">6
-          <td>@{[ input 'fellow1-2Action' ]}
+          <td>@{[ textarea 'fellow1-2Action','','rows="3"' ]}
           <td>@{[ input 'fellow1-2Words' ]}
           <td>@{[ input 'fellow1-2Num' ]}
-          <td>@{[ input 'fellow1-2Note' ]}
+          <td>@{[ textarea 'fellow1-2Note','','rows="3"' ]}
         <tr class="border-top">
           <td rowspan="2">⚂<br>⚃
           <td class="number">8
-          <td>@{[ input 'fellow3Action' ]}
+          <td>@{[ textarea 'fellow3Action','','rows="3"' ]}
           <td>@{[ input 'fellow3Words' ]}
           <td>@{[ input 'fellow3Num' ]}
-          <td>@{[ input 'fellow3Note' ]}
+          <td>@{[ textarea 'fellow3Note','','rows="3"' ]}
         <tr>
           <td class="number">5
-          <td>@{[ input 'fellow3-2Action' ]}
+          <td>@{[ textarea 'fellow3-2Action','','rows="3"' ]}
           <td>@{[ input 'fellow3-2Words' ]}
           <td>@{[ input 'fellow3-2Num' ]}
-          <td>@{[ input 'fellow3-2Note' ]}
+          <td>@{[ textarea 'fellow3-2Note','','rows="3"' ]}
         <tr class="border-top">
           <td rowspan="2">⚄
           <td class="number">9
-          <td>@{[ input 'fellow5Action' ]}
+          <td>@{[ textarea 'fellow5Action','','rows="3"' ]}
           <td>@{[ input 'fellow5Words' ]}
           <td>@{[ input 'fellow5Num' ]}
-          <td>@{[ input 'fellow5Note' ]}
+          <td>@{[ textarea 'fellow5Note','','rows="3"' ]}
         <tr>
           <td class="number">4
-          <td>@{[ input 'fellow5-2Action' ]}
+          <td>@{[ textarea 'fellow5-2Action','','rows="3"' ]}
           <td>@{[ input 'fellow5-2Words' ]}
           <td>@{[ input 'fellow5-2Num' ]}
-          <td>@{[ input 'fellow5-2Note' ]}
+          <td>@{[ textarea 'fellow5-2Note','','rows="3"' ]}
         <tr class="border-top">
           <td rowspan="2">⚅
           <td class="number">10
-          <td>@{[ input 'fellow6Action' ]}
+          <td>@{[ textarea 'fellow6Action','','rows="3"' ]}
           <td>@{[ input 'fellow6Words' ]}
           <td>@{[ input 'fellow6Num' ]}
-          <td>@{[ input 'fellow6Note' ]}
+          <td>@{[ textarea 'fellow6Note','','rows="3"' ]}
         <tr>
           <td class="number">3
-          <td>@{[ input 'fellow6-2Action' ]}
+          <td>@{[ textarea 'fellow6-2Action','','rows="3"' ]}
           <td>@{[ input 'fellow6-2Words' ]}
           <td>@{[ input 'fellow6-2Num' ]}
-          <td>@{[ input 'fellow6-2Note' ]}
+          <td>@{[ textarea 'fellow6-2Note','','rows="3"' ]}
         </tr>
       </table>
       </div>
@@ -1590,6 +1598,11 @@ my $text_rule = <<"HTML";
         　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
         　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
         　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
+        　常時型　　：<code>[常]</code>：<i class="s-icon passive"><span class="raw">[常]</span></i><br>
+        　戦闘準備型：<code>[準]</code>：<i class="s-icon setup  "><span class="raw">[準]</span></i><br>
+        　主動作型　：<code>[主]</code>：<i class="s-icon major  "><span class="raw">[主]</span></i><br>
+        　補助動作型：<code>[補]</code>：<i class="s-icon minor  "><span class="raw">[補]</span></i><br>
+        　宣言型　　：<code>[宣]</code>：<i class="s-icon active "><span class="raw">[宣]</span></i><br>
 HTML
 print textRuleArea( $text_rule,'「容姿・経歴・その他メモ」「履歴（自由記入）」「所持品」「収支履歴」' );
 

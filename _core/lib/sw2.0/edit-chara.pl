@@ -78,9 +78,9 @@ elsif($mode eq 'blanksheet'){
 
 ## 画像
 $pc{imageFit} = $pc{imageFit} eq 'percent' ? 'percentX' : $pc{imageFit};
-$pc{imagePercent} = $pc{imagePercent} eq '' ? '200' : $pc{imagePercent};
-$pc{imagePositionX} = $pc{imagePositionX} eq '' ? '50' : $pc{imagePositionX};
-$pc{imagePositionY} = $pc{imagePositionY} eq '' ? '50' : $pc{imagePositionY};
+$pc{imagePercent}   //= '200';
+$pc{imagePositionX} //= '50';
+$pc{imagePositionY} //= '50';
 $pc{wordsX} ||= '右';
 $pc{wordsY} ||= '上';
 
@@ -106,6 +106,7 @@ $pc{freeNote}      =~ s/&lt;br&gt;/\n/g;
 $pc{freeHistory}   =~ s/&lt;br&gt;/\n/g;
 $pc{cashbook}      =~ s/&lt;br&gt;/\n/g;
 $pc{chatPalette}   =~ s/&lt;br&gt;/\n/g;
+$pc{'chatPaletteInsert'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..$pc{chatPaletteInsertNum});
 
 ### フォーム表示 #####################################################################################
 my $titlebarname = removeTags nameToPlain unescapeTags ($pc{characterName}||"“$pc{aka}”");
@@ -285,7 +286,7 @@ print <<"HTML";
               <dt>精神力<dd>@{[ input "sttPreGrowF",'number','calcStt' ]}
             </dl>
         </dl>
-        <div class="annotate">※経験点は、初期所有技能のぶんを含みます。</div>
+        <ul class="annotate"><li>経験点は、初期所有技能のぶんを含みます。</ul>
         <dl class="regulation-note"><dt>備考<dd>@{[ input "history0Note" ]}</dl>
       </details>
       <div id="area-status">
@@ -676,7 +677,7 @@ foreach my $class (@data::class_names){
   my $i;
   foreach my $p_id (sort{$data{$a}{stt} cmp $data{$b}{stt}} keys %data){
     (my $p_name = $data{$p_id}{name}) =~ s/(\(.+?\))/<small>$1<\/small>/;
-    print '<tr>';
+    print '<tr id="package-'.$c_en.'-'.lc($p_id).'-row">';
     print '<th rowspan="'.$rowspan.'">'.$class if !$i;
     print '<th>'. $p_name;
     print '<td id="package-'.$c_en.'-'.lc($p_id).'-auto" class="small">';
@@ -959,10 +960,10 @@ HTML
 print <<"HTML";
             </tbody>
           </table>
-          <div class="annotate">
-            ※Ｃ値は自動計算されません。<br>
-            <span id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>※備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。</span>
-          </div>
+          <ul class="annotate">
+            <li>Ｃ値は自動計算されません。
+            <li id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>※備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。
+          </ul>
           <div class="add-del-button"><a onclick="addWeapons()">▼</a><a onclick="delWeapons()">▲</a></div>
           @{[input('weaponNum','hidden')]}
         </div>
@@ -1153,16 +1154,20 @@ HTML
 print <<"HTML";
           </tbody>
           </table>
-        <div class="annotate">
-        ※左のボックスにチェックを入れると欄が一つ追加されます
-        </div>
+        <ul class="annotate">
+          <li>左のボックスにチェックを入れると欄が一つ追加されます
+        </ul>
         </div>
       </div>
       <div id="area-items">
         <div id="area-items-L">
           <dl class="box" id="money">
-            <dt class="in-toc">所持金<dd>@{[ input 'money' ]} G
-            <dt>預金／借金<dd>@{[ input 'deposit' ]} G
+            <dt class="in-toc">所持金
+            <dd>@{[ checkbox 'moneyAuto', '自動計算', 'calcCash' ]}
+            <dd>@{[ input 'money' ]} G
+            <dt>預金／借金
+            <dd>@{[ checkbox 'depositAuto', '自動計算', 'calcCash' ]}
+            <dd>@{[ input 'deposit' ]} G
           </dl>
           <div class="box" id="items">
             <h2 class="in-toc">所持品</h2>
@@ -1246,12 +1251,12 @@ print <<"HTML";
           　預金：<span id="cashbook-deposit-value">－</span> G
           　借金：<span id="cashbook-debt-value">－</span> G
         </p>
-        <div class="annotate">
-          ※<code>::+n</code> <code>::-n</code>の書式で入力すると加算・減算されます。（<code>n</code>には金額を入れてください）<br>
-          　預金は<code>:>+n</code>、借金は<code>:<+n</code>で増減できます。（それに応じて所持金も増減します）<br>
-          ※<span class="underline">セッション履歴に記入されたガメル報酬は自動的に加算されます。</span><br>
-          ※所持金欄、預金／借金欄に<code>自動</code>または<code>auto</code>と記入すると、収支の計算結果を反映します。
-        </div>
+        <ul class="annotate">
+          <li><code>::+n</code> <code>::-n</code>の書式で入力すると加算・減算されます。（<code>n</code>には金額を入れてください）<br>
+            預金は<code>:>+n</code>、借金は<code>:<+n</code>で増減できます。（それに応じて所持金も増減します）
+          <li><span class="underline">セッション履歴に記入されたガメル報酬は自動的に加算されます。</span>
+          <li>所持金欄、預金／借金欄に<code>自動</code>または<code>auto</code>と記入すると、収支の計算結果を反映します。
+        </ul>
       </details>
       
       <details class="box" id="free-note" @{[$pc{freeNote}?'open':'']}>
@@ -1372,12 +1377,12 @@ print <<"HTML";
             </tr>
           </tbody>
         </table>
-        <div class="annotate">
-        ※経験点欄は<code>1000+50*2</code>など四則演算が有効です（１ゾロの経験点などを分けて書けます）。<br>
-        ※成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
-        　また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
-        　<code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
-        </div>
+        <ul class="annotate">
+          <li>経験点欄は<code>1000+50*2</code>など四則演算が有効です（１ゾロの経験点などを分けて書けます）。
+          <li>成長は欄1つの欄に<code>敏捷生命知力</code>など複数書いても自動計算されます。<br>
+            また、<code>敏捷×2</code><code>知力*3</code>など同じ成長が複数ある場合は纏めて記述できます（×や*は省略できます）。<br>
+            <code>器敏2知3</code>と能力値の頭文字1つで記述することもできます。<br>
+        </ul>
         @{[ $::in{log} ? '<button type="button" class="set-newest" onclick="setNewestHistoryData()">最新のセッション履歴を適用する</button>' : '' ]}
       </div>
       </section>
@@ -1392,12 +1397,141 @@ print <<"HTML";
     @{[ deleteForm($mode) ]}
     </article>
 HTML
+sub chatPaletteFormOptional {
+  $pc{chatPaletteInsertNum} ||= 2;
+  $pc{paletteAttackNum} ||= 3;
+  $pc{paletteMagicNum} ||= 3;
+  my $html = <<"HTML";
+      <div class="box" id="palette-optional">
+        <h2>プリセットの追加オプション</h2>
+        <div id="palette-common-classes">
+          <h3>一般技能の判定の出力設定</h3>
+          <p>その行の技能のレベルと、選択したボーナスの組み合わせが追加されます</p>
+          <table class="edit-table side-margin">
+            <tbody class="highlight-hovered-row">
+HTML
+  foreach ('TMPL',1 .. $pc{commonClassNum}){
+    $html .= '<template id="palette-common-class-template">' if $_ eq 'TMPL';
+    $html .= '<tr id="palette-common-class-row'.$_.'"><td class="name">'.($pc{"commonClass$_"} =~ s/[(（].+?[）)]$//r).'</td>';
+    $html .= '<td class="left">';
+    $html .= checkbox("paletteCommonClass${_}Dex", '器用度B', 'setChatPalette');
+    $html .= checkbox("paletteCommonClass${_}Agi", '敏捷度B', 'setChatPalette');
+    $html .= checkbox("paletteCommonClass${_}Str", '筋力B'  , 'setChatPalette');
+    $html .= checkbox("paletteCommonClass${_}Vit", '生命力B', 'setChatPalette');
+    $html .= checkbox("paletteCommonClass${_}Int", '知力B'  , 'setChatPalette');
+    $html .= checkbox("paletteCommonClass${_}Mnd", '精神力B', 'setChatPalette');
+    $html .= '</template>' if $_ eq 'TMPL';
+  }
+  $html .= <<"HTML";
+          </table>
+        </div>
+        <details id="palette-insert" @{[ $pc{chatPaletteInsert1} ? 'open' : '' ]}>
+          <summary class="header2">追加挿入</summary>
+          <ul>
+HTML
+  foreach ('TMPL',1 .. $pc{chatPaletteInsertNum}){
+    $html .= '<template id="palette-insert-template">' if $_ eq 'TMPL';
+    $html .= "<li>"
+      . selectBox("chatPaletteInsert${_}Position", 'setChatPalette', 'def=|<先頭>','general|<非戦闘系の直後>','common|<一般技能の直後>','magic|<魔法系の直後>','attack|<武器攻撃系の直後>','defense|<抵抗回避の直後>')
+      . "に挿入"
+      . "<textarea name=\"chatPaletteInsert${_}\" onchange=\"setChatPalette()\">$pc{'chatPaletteInsert'.$_}</textarea>";
+    $html .= '</template>' if $_ eq 'TMPL';
+  }
+  $html .= <<"HTML";
+          </ul>
+          <div class="add-del-button"><a onclick="addChatPaletteInsert()">▼</a><a onclick="delChatPaletteInsert()">▲</a></div>
+          @{[ input "chatPaletteInsertNum","hidden" ]}
+        </details>
+        <details id="palette-attack" @{[ $pc{"paletteAttack1Name"} ? 'open' : '' ]}>
+          <summary class="header2">武器攻撃の追加オプション</summary>
+          <p>宣言特技などの名称と修正を入力すると、それにもとづいた命中判定および威力算出の行が追加されます。</p>
+          <table class="edit-table side-margin">
+            <thead>
+              <tr>
+                <th>
+                <th class="name  ">名称（宣言特技名など）
+                <th class="acc   ">命中修正
+                <th class="crit  ">C値修正
+                <th class="dmg   "><span class="small">ダメージ<br>修正</span>
+                <th class="roll  ">出目修正
+                <th class="target">対象の武器
+            <tbody class="highlight-hovered-row">
+HTML
+  foreach ('TMPL',1 .. $pc{paletteAttackNum}){
+    $html .= '<template id="palette-attack-template">' if $_ eq 'TMPL';
+    $html .= '<tr id="palette-attack-row'.$_.'">';
+    $html .= '<td class="handle">';
+    $html .= '<td>'.input("paletteAttack${_}Name",'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteAttack${_}Acc" ,'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteAttack${_}Crit",'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteAttack${_}Dmg" ,'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteAttack${_}Roll",'','','onchange="setChatPalette()"');
+    $html .= '<td class="palette-attack-checklist left">';
+    my %added;
+    foreach my $num (1 .. $pc{weaponNum}) {
+      my $name = $pc{"weapon${num}Name"}.$pc{"weapon${num}Usage"} || '―';
+      next if $added{$name};
+      $html .= checkbox("paletteAttack${_}CheckWeapon${num}",$name,'setChatPalette');
+      $added{$name} = 1;
+    }
+    $html .= '</template>' if $_ eq 'TMPL';
+  }
+  $html .= <<"HTML";
+          </table>
+          <div class="add-del-button"><a onclick="addPaletteAttack()">▼</a><a onclick="delPaletteAttack()">▲</a></div>
+          @{[ input "paletteAttackNum","hidden" ]}
+        </details>
+        <details id="palette-magic" @{[ $pc{"paletteMagic1Name"} ? 'open' : '' ]}>
+          <summary class="header2">魔法の追加オプション</summary>
+          <p>宣言特技などの名称と修正を入力すると、それにもとづいた、行使判定および威力算出の行が追加されます。</p>
+          <table class="edit-table side-margin">
+            <thead>
+              <tr>
+                <th>
+                <th class="name ">名称（宣言特技名など）
+                <th class="power">魔力修正
+                <th class="cast ">行使修正
+                <th class="crit ">C値修正
+                <th class="dmg  "><span class="small">ダメージ<br>修正</span>
+                <th class="target">対象の魔法
+            <tbody class="highlight-hovered-row">
+HTML
+  foreach ('TMPL',1 .. $pc{paletteMagicNum}){
+    $html .= '<template id="palette-magic-template">' if $_ eq 'TMPL';
+    $html .= '<tr id="palette-magic-row'.$_.'">';
+    $html .= '<td class="handle">';
+    $html .= '<td>'.input("paletteMagic${_}Name" ,'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteMagic${_}Power",'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteMagic${_}Cast" ,'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteMagic${_}Crit" ,'','','onchange="setChatPalette()"');
+    $html .= '<td>'.input("paletteMagic${_}Dmg"  ,'','','onchange="setChatPalette()"');
+    $html .= '<td class="palette-magic-checklist left">';
+    foreach my $name (@data::class_caster){
+      next if (!$data::class{$name}{magic}{jName});
+      my $id    = $data::class{$name}{id};
+      $html .= checkbox("paletteMagic${_}Check$id",$data::class{$name}{magic}{jName},'setChatPalette');
+    }
+    $html .= '</template>' if $_ eq 'TMPL';
+  }
+  $html .= <<"HTML";
+          </table>
+          <div class="add-del-button"><a onclick="addPaletteMagic()">▼</a><a onclick="delPaletteMagic()">▲</a></div>
+          @{[ input "paletteMagicNum","hidden" ]}
+        </details>
+HTML
+}
 # ヘルプ
 my $text_rule = <<"HTML";
         アイコン<br>
         　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
         　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
         　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
+        　常時型　　：<code>[常]</code>：<i class="s-icon passive  "><span class="raw">[常]</span></i><br>
+        　主動作型　：<code>[主]</code>：<i class="s-icon major0   "><span class="raw">[主]</span></i><br>
+        　補助動作型：<code>[補]</code>：<i class="s-icon minor0   "><span class="raw">[補]</span></i><br>
+        　宣言型　　：<code>[宣]</code>：<i class="s-icon active0  "><span class="raw">[宣]</span></i><br>
+        　条件型　　：<code>[条]</code>：<i class="s-icon condition"><span class="raw">[条]</span></i><br>
+        　条件選択型：<code>[選]</code>：<i class="s-icon selection"><span class="raw">[選]</span></i><br>
 HTML
 print textRuleArea( $text_rule,'「容姿・経歴・その他メモ」「履歴（自由記入）」「所持品」「収支履歴」' );
 

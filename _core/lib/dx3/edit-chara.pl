@@ -65,9 +65,9 @@ elsif($mode eq 'blanksheet'){
 
 ## 画像
 $pc{imageFit} = $pc{imageFit} eq 'percent' ? 'percentX' : $pc{imageFit};
-$pc{imagePercent} = $pc{imagePercent} eq '' ? '200' : $pc{imagePercent};
-$pc{imagePositionX} = $pc{imagePositionX} eq '' ? '50' : $pc{imagePositionX};
-$pc{imagePositionY} = $pc{imagePositionY} eq '' ? '50' : $pc{imagePositionY};
+$pc{imagePercent}   //= '200';
+$pc{imagePositionX} //= '50';
+$pc{imagePositionY} //= '50';
 $pc{wordsX} ||= '右';
 $pc{wordsY} ||= '上';
 
@@ -320,7 +320,7 @@ print <<"HTML";
           <dl class="box"><dt>血液型<dd>@{[input "blood",'','','list="list-blood"']}</dl>
         </div>
         <div class="box-union" id="works-cover">
-          <dl class="box"><dt>ワークス<dd>@{[input "works"]}</dl>
+          <dl class="box"><dt>ワークス<dd>@{[input "works",'','checkWorks']}</dl>
           <dl class="box"><dt>カヴァー<dd>@{[input "cover"]}</dl>
         </div>
 
@@ -487,11 +487,11 @@ print <<"HTML";
             <div class="add-del-button"><a onclick="addSkill('Info')">▼</a><a onclick="delSkill('Info')">▲</a></div>
           </dd>
         </dl>
-        <div class="annotate">
-        ※右側は、Dロイスなどによるレベル補正の欄です（経験点が計算されません）<br>
-        ※ワークスによる技能取得ぶんとして、無入力時は<span class="fullscratch-only">消費経験点の表示が「-9」</span><span class="construction-only">技能フリーポイントの表示が「-4.5」</span>になっています。<br>
-        （ワークスぶんを正しく入力すると「0」点になります（一部書籍収録のワークスを除く））<br>
-        </div>
+        <ul class="annotate">
+          <li>右側は、Dロイスなどによるレベル補正の欄です（経験点が計算されません）
+          <li>ワークスによる技能取得ぶんとして、無入力時は<span class="fullscratch-only">消費経験点の表示が「-9」</span><span class="construction-only">技能フリーポイントの表示が「-4.5」</span>になっています。<br>
+            ワークスぶんを正しく入力すると「0」点になります（一部書籍収録のワークスを除く）
+        </ul>
       </details>
       <details class="box" id="lifepath" $open{lifepath}>
         <summary class="in-toc">ライフパス</summary>
@@ -508,7 +508,7 @@ print <<"HTML";
               <td colspan="2" class="left">@{[input "lifepathExperienceNote",'','','placeholder="備考"']}
           <tbody>
             <tr>
-              <th>邂逅/欲望
+              <th id="encounter-or-desire">邂逅/欲望
               <td colspan="2">@{[input "lifepathEncounter"]}
               <td colspan="2" class="left">@{[input "lifepathEncounterNote",'','','placeholder="備考"']}
           <tbody>
@@ -620,7 +620,7 @@ HTML
 print <<"HTML";
           </tbody>
         </table>
-        <div class="annotate">※「関係」か「名前」を入力すると経験点が計算されます。</div>
+        <ul class="annotate"><li>「関係」か「名前」を入力すると経験点が計算されます。</ul>
       </details>
       <details class="box crc-only" id="insanity" $open{insanity}>
         <summary class="in-toc">永続的狂気</summary>
@@ -666,10 +666,10 @@ print <<"HTML";
             <tr><th><th>名称<th>LV<th>タイミング<th>技能<th>難易度<th>対象<th>射程<th>侵蝕値<th>制限
         </table>
         <div class="add-del-button"><a onclick="addEffect()">▼</a><a onclick="delEffect()">▲</a></div>
-        <div class="annotate">
-        ※種別「自動」「Dロイス」を選択した場合、取得時（1レベル）の経験点を0として計算します。<br>
-        　経験点修正の欄は、自動計算で対応しきれない例外的な取得・成長に使用してください（Dロイス転生者など）
-        </div>
+        <ul class="annotate">
+          <li>種別「自動」「Dロイス」を選択した場合、取得時（1レベル）の経験点を0として計算します。
+          <li>経験点修正の欄は、自動計算で対応しきれない例外的な取得・成長に使用してください（Dロイス転生者など）
+        </ul>
       </details>
       <div class="box trash-box" id="effect-trash">
         <h2><span class="material-symbols-outlined">delete</span><span class="shorten">削除エフェクト</span></h2>
@@ -771,17 +771,18 @@ HTML
   foreach my $i (1 .. 5) {
   print <<"HTML";
             <dd>@{[input "combo${num}Condition${i}"]}
-            <dd id="combo${num}Stt${i}">
+            <dd id="combo${num}Stt${i}"></dd>
             <dd>@{[input "combo${num}DiceAdd${i}"]}
             <dd>@{[input "combo${num}Crit${i}"]}
-            <dd id="combo${num}SkillLv${i}">
+            <dd id="combo${num}SkillLv${i}"></dd>
             <dd>@{[input "combo${num}FixedAdd${i}"]}
             <dd>@{[input "combo${num}Atk${i}"]}
 HTML
   }
 print <<"HTML";
           </dl>
-          <p class="combo-note"><textarea name="combo${num}Note" rows="3" placeholder="解説">$pc{"combo${num}Note"}</textarea></p>
+          <div class="combo-note"><textarea name="combo${num}Note" rows="3" placeholder="解説">$pc{"combo${num}Note"}</textarea></div>
+          <div class="combo-other">@{[ checkbox "combo${num}Manual",'技能レベル・能力値を自動挿入しない',"calcCombo(${num})" ]} <span class="button" onclick="addCombo($num)">コンボ複製</span></div>
         </div>
 HTML
   if($num eq 'TMPL'){ print '</template>' }
@@ -789,9 +790,6 @@ HTML
 print <<"HTML";
         </div>
         <div class="add-del-button"><a onclick="addCombo()">▼</a><a onclick="delCombo()">▲</a></div>
-        <div class="annotate">
-          @{[ input 'comboCalcOff','checkbox','calcComboAll' ]} 能力値・技能レベルを自動挿入しない（自分で計算する）
-        </div>
       </details>
       
       <details class="box box-union" id="items" $open{item}>
@@ -1014,10 +1012,10 @@ print <<"HTML";
             </tr>
           </tbody>
         </table>
-        <div class="annotate">
-        ※経験点欄は<code>10+5+1</code>など四則演算が有効です（獲得条件の違う経験点などを分けて書けます）。<br>
-        　経験点欄の右の適用チェックを入れると、その経験点が適用されます。
-        </div>
+        <ul class="annotate">
+          <li>経験点欄は<code>10+5+1</code>など四則演算が有効です（獲得条件の違う経験点などを分けて書けます）。<br>
+            経験点欄の右の適用チェックを入れると、その経験点が適用されます。
+        </ul>
         @{[ $::in{log} ? '<button type="button" class="set-newest" onclick="setNewestHistoryData()">最新のセッション履歴を適用する</button>' : '' ]}
       </div>
       
@@ -1256,6 +1254,7 @@ print <<"HTML";
     <option value="イニシアチブ">
     <option value="クリンナップ">
     <option value="常時">
+    <option value="効果参照">
   </datalist>
   <datalist id="list-combo-skill">
     <option value="―">
@@ -1340,9 +1339,11 @@ print <<"HTML";
     <option value="使い捨て">
     <option value="エンブレム／コネ">
     <option value="エンブレム／一般">
+    <option value="エンブレム／その他">
     <option value="エンブレム／使い捨て">
     <option value="リレーション／コネ">
     <option value="リレーション／一般">
+    <option value="リレーション／その他">
     <option value="リレーション／使い捨て">
   </datalist>
   <datalist id="list-dfclty">

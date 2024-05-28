@@ -9,7 +9,7 @@
     <h1><a href="./"><TMPL_VAR title></a></h1>
     <nav>
       <ul>
-        <TMPL_LOOP Menu><li class="<TMPL_VAR SIZE>"><a <TMPL_VAR TYPE>="<TMPL_VAR VALUE>"><TMPL_VAR TEXT></a>
+        <TMPL_LOOP Menu><li class="<TMPL_VAR SIZE> <TMPL_VAR CLASSES>"><a <TMPL_VAR TYPE>="<TMPL_VAR VALUE>"><TMPL_VAR TEXT></a>
         </TMPL_LOOP>
         <li><a onclick="nightModeChange()" class="nightmode-icon" title="ナイトモード"></a>
       </ul>
@@ -497,7 +497,7 @@
         <div id="area-items-L">
           <dl class="box" id="money">
             <dt>所持金<dd><TMPL_VAR money> G
-            <dt>預金／借金<dd><TMPL_VAR deposit> G
+            <dt>預金／借金<dd><TMPL_IF deposit><TMPL_VAR deposit> G<TMPL_ELSE>―</TMPL_IF>
           </dl>
           <section class="box" id="items">
             <h2><TMPL_IF head_items><TMPL_VAR head_items><TMPL_ELSE>所持品</TMPL_IF></h2>

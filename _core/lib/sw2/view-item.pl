@@ -11,7 +11,7 @@ require $set::data_items;
 
 ### テンプレート読み込み #############################################################################
 my $SHEET;
-$SHEET = HTML::Template->new( filename => $set::skin_item, utf8 => 1,
+$SHEET = HTML::Template->new( filename => $set::skin_sheet, utf8 => 1,
   path => ['./', $::core_dir."/skin/sw2", $::core_dir."/skin/_common", $::core_dir],
   search_path_on_include => 1,
   die_on_bad_params => 0, die_on_missing_include => 0, case_sensitive => 1, global_vars => 1);
@@ -69,9 +69,9 @@ $pc{effects} =~ s/<br>/\n/gi;
 $pc{effects} =~ s#(<p>|</p>|</details>)#$1\n#gi;
 $pc{effects} =~ s/^●(.*?)$/<\/p><h3>●$1<\/h3><p>/gim;
 if($::SW2_0){
-  $pc{effects} =~ s/^((?:[○◯〇＞▶〆☆≫»□☐☑🗨▽▼]|&gt;&gt;)+.*?)(　|$)/"<\/p><h5>".&textToIcon($1)."<\/h5><p>".$2;/egim;
+  $pc{effects} =~ s/^((?:\[[常主補宣条選]\]|[○◯〇＞▶〆☆≫»□☐☑🗨▽▼]|&gt;&gt;)+.*?)(　|$)/"<\/p><h5>".&textToIcon($1)."<\/h5><p>".$2;/egim;
 } else {
-  $pc{effects} =~ s/^((?:[○◯〇△＞▶〆☆≫»□☐☑🗨]|&gt;&gt;)+.*?)(　|$)/"<\/p><h5>".&textToIcon($1)."<\/h5><p>".$2;/egim;
+  $pc{effects} =~ s/^((?:\[[常準主補宣]\]|[○◯〇△＞▶〆☆≫»□☐☑🗨]|&gt;&gt;)+.*?)(　|$)/"<\/p><h5>".&textToIcon($1)."<\/h5><p>".$2;/egim;
 }
 $pc{effects} =~ s/\n+<\/p>/<\/p>/gi;
 $pc{effects} =~ s/(^|<p(?:.*?)>|<hr(?:.*?)>)\n/$1/gi;
@@ -157,7 +157,7 @@ $SHEET->param(Tags => \@tags);
 
 ### バックアップ --------------------------------------------------
 if($::in{id}){
-  my($selected, $list) = getLogList($set::item_dir, $main::file);
+  my($selected, $list) = getLogList($set::char_dir, $main::file);
   $SHEET->param(LogList => $list);
   $SHEET->param(selectedLogName => $selected);
   if($pc{yourAuthor} || $pc{protect} eq 'password'){

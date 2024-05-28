@@ -764,8 +764,8 @@ else {
       TYPE => $pc{'armour'.$_.'Type'},
       NAME => $pc{'armour'.$_.'Name'},
       REQD => $pc{'armour'.$_.'Reqd'},
-      EVA  => $pc{'armour'.$_.'Eva'},
-      DEF  => $pc{'armour'.$_.'Def'},
+      EVA  => $pc{'armour'.$_.'Eva'} // ($pc{'armour'.$_.'Category'} =~ /[鎧盾]/ ? '―' : ''),
+      DEF  => $pc{'armour'.$_.'Def'} // ($pc{'armour'.$_.'Category'} =~ /[鎧盾]/ ? '0' : ''),
       OWN  => $pc{'armour'.$_.'Own'},
       NOTE => $pc{'armour'.$_.'Note'},
     } );
@@ -828,6 +828,9 @@ else {
     next if (@$_[1] =~ /Other2/ &&  $pc{raceAbility} !~ /［見えざる手］/);
     next if (@$_[1] =~ /Other3/ && ($pc{raceAbility} !~ '［見えざる手］' || $pc{level} <  6));
     next if (@$_[1] =~ /Other4/ && ($pc{raceAbility} !~ '［見えざる手］' || $pc{level} < 16));
+    if (@$_[1] =~ /_$/) {
+      next unless $pc{'accessory'.substr(@$_[1],0,-1).'Add'};
+    }
     push(@accessories, {
       TYPE => @$_[0],
       NAME => $pc{'accessory'.@$_[1].'Name'},
@@ -875,10 +878,8 @@ foreach (0 .. $pc{historyNum}){
   }
   if   ($pc{"history${_}HonorType"} eq 'barbaros'){ $pc{"history${_}Honor"} = '蛮'.$pc{"history${_}Honor"}; }
   elsif($pc{"history${_}HonorType"} eq 'dragon'  ){ $pc{"history${_}Honor"} = '竜'.$pc{"history${_}Honor"}; }
-  $pc{'history'.$_.'Exp'}   =~ s/([0-9]+)/$1<wbr>/g;
-  $pc{'history'.$_.'Exp'}   =~ s/([0-9]+)/commify($1);/ge;
-  $pc{'history'.$_.'Money'} =~ s/([0-9]+)/$1<wbr>/g;
-  $pc{'history'.$_.'Money'} =~ s/([0-9]+)/commify($1);/ge;
+  $pc{'history'.$_.'Exp'}   = formatHistoryFigures($pc{'history'.$_.'Exp'});
+  $pc{'history'.$_.'Money'} = formatHistoryFigures($pc{'history'.$_.'Money'});
   push(@history, {
     NUM    => ($pc{'history'.$_.'Gm'} ? $h_num : ''),
     DATE   => $pc{'history'.$_.'Date'},
@@ -950,11 +951,11 @@ else {
 }
 
 ### ガメル --------------------------------------------------
-if($pc{money} =~ /^(?:自動|auto)$/i){
+if($pc{moneyAuto}){
   $SHEET->param(money => commify($pc{moneyTotal}));
 }
-if($pc{deposit} =~ /^(?:自動|auto)$/i){
-  $SHEET->param(deposit => commify($pc{depositTotal}).' G ／ '.commify($pc{debtTotal}));
+if($pc{depositAuto}){
+  $SHEET->param(deposit => $pc{depositTotal} || $pc{debtTotal} ? commify($pc{depositTotal}).' G ／ '.commify($pc{debtTotal}) : '');
 }
 $pc{cashbook} =~ s/(:(?:\:|&lt;|&gt;))((?:[\+\-\*\/]?[0-9,]+)+)/$1.cashCheck($2)/eg;
   $SHEET->param(cashbook => $pc{cashbook});
@@ -992,7 +993,10 @@ if($::in{id}){
 }
 
 ### フェロー --------------------------------------------------
-$SHEET->param(FellowMode => $::in{f});
+if($::in{f}){
+  $SHEET->param(FellowMode => 1);
+  $SHEET->param($_ => $pc{$_} =~ s{[0-9]+|[^0-9]+}{$&<wbr>}gr) foreach (grep {/^fellow[-0-9]+Num$/} keys %pc);
+}
 
 ### タイトル --------------------------------------------------
 $SHEET->param(title => $set::title);
@@ -1025,15 +1029,15 @@ if(!$pc{modeDownload}){
   }
   else {
     if($pc{logId}){
-      if   ($::in{f}         ){ push(@menu, { TEXT => '通常'    , TYPE => "href", VALUE => "./?id=$::in{id}&log=$pc{logId}" }); }
-      elsif($pc{fellowPublic}){ push(@menu, { TEXT => 'フェロー', TYPE => "href", VALUE => "./?id=$::in{id}&log=$pc{logId}&f=1" }); }
+      if   ($::in{f}         ){ push(@menu, { TEXT => 'ＰＣ',     TYPE => "href", VALUE => "./?id=$::in{id}&log=$pc{logId}",     CLASSES => 'character-format', }); }
+      elsif($pc{fellowPublic}){ push(@menu, { TEXT => 'フェロー', TYPE => "href", VALUE => "./?id=$::in{id}&log=$pc{logId}&f=1", CLASSES => 'character-format', }); }
       push(@menu, { TEXT => '過去ログ', TYPE => "onclick", VALUE => 'loglistOn()', });
       if($pc{reqdPassword}){ push(@menu, { TEXT => '復元', TYPE => "onclick", VALUE => "editOn()", }); }
       else                 { push(@menu, { TEXT => '復元', TYPE => "href"   , VALUE => "./?mode=edit&id=$::in{id}&log=$pc{logId}", }); }
     }
     else {
-      if   ($::in{f}         ){ push(@menu, { TEXT => '通常'    , TYPE => "href", VALUE => "./?id=$::in{id}" }); }
-      elsif($pc{fellowPublic}){ push(@menu, { TEXT => 'フェロー', TYPE => "href", VALUE => "./?id=$::in{id}&f=1" }); }
+      if   ($::in{f}         ){ push(@menu, { TEXT => 'ＰＣ',     TYPE => "href", VALUE => "./?id=$::in{id}",     CLASSES => 'character-format', }); }
+      elsif($pc{fellowPublic}){ push(@menu, { TEXT => 'フェロー', TYPE => "href", VALUE => "./?id=$::in{id}&f=1", CLASSES => 'character-format', }); }
       if(!$pc{forbiddenMode}){
         push(@menu, { TEXT => 'パレット', TYPE => "onclick", VALUE => "chatPaletteOn()",   });
         push(@menu, { TEXT => '出力'    , TYPE => "onclick", VALUE => "downloadListOn()",  });

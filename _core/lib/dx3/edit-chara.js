@@ -12,6 +12,7 @@ window.onload = function() {
   setName();
   checkCreateType();
   checkStage();
+  checkWorks();
   checkSyndrome();
   calcStt();
   calcEffect();
@@ -83,6 +84,10 @@ function changeRegu(){
 function checkStage(){
   document.body.classList.toggle('mode-crc', form.stage.value.match('クロウリングケイオス'));
   calcMagic();
+}
+// ワークス ----------------------------------------
+function checkWorks() {
+  document.getElementById('encounter-or-desire').textContent = /[FＦ][HＨ]/i.test(form.works.value) ? '欲望' : '邂逅';
 }
 // シンドローム変更 ----------------------------------------
 function changeSyndrome(num,syn){
@@ -710,7 +715,7 @@ function calcCombo(num){
   const name = form[`combo${num}Skill`].value;
   
   const [lv, stt] = (() => {
-    if(form['comboCalcOff'].checked){ return ['',''] }
+    if(form[`combo${num}Manual`].checked){ return ['',''] }
     const id = skillNameToId[name];
     const sttname = form[`combo${num}Stt`].value
     let [lv, stt] = ['',''];
@@ -737,10 +742,31 @@ function calcCombo(num){
   }
 }
 // 追加
-function addCombo(){
+function addCombo(copyBaseNum){
   const row = createRow('combo','comboNum');
-  document.querySelector("#combo-list").append(row);
+  const num = form.comboNum.value;
+  document.querySelector(`#combo-list > div:nth-of-type(${copyBaseNum||num-1})`).after(row);
 
+  if(copyBaseNum){
+    row.querySelectorAll('[name]').forEach(node => {
+      const copyBaseName = node.getAttribute('name').replace(/^(combo)\d+(.+)$/, `$1${copyBaseNum}$2`)
+      if(node.type === 'checkbox'){
+        node.checked = form[copyBaseName].checked;
+      }
+      else { node.value = form[copyBaseName].value; }
+    });
+    calcCombo(form.comboNum.value);
+    row.classList.add('slide-once');
+
+    let i = 1;
+    document.querySelectorAll(`#combo-list > div`).forEach(obj => {
+      replaceSortedNames(obj,i,/^(combo)[0-9]+(.*)$/);
+      replaceSortedNames(obj,i,/^(combo)[0-9]+((?:Stt|SkillLv)[0-9])$/,'id');
+      replaceSortedNames(obj,i,/^(calcCombo\()[0-9]+(\))$/,'oninput');
+      replaceSortedNames(obj,i,/^(addCombo\()[0-9]+(\))$/,'onclick');
+      i++;
+    })
+  }
   comboSkillSet(form.comboNum.value);
   makeComboConditionUtility(row);
 }
@@ -752,6 +778,7 @@ function delCombo(){
 setSortable('combo', '#combo-list', 'div', (row, num) => {
   replaceSortedNames(row,num,/^(combo)[0-9]+((?:Stt|SkillLv)[0-9])$/,'id');
   replaceSortedNames(row,num,/^(calcCombo\()[0-9]+(\))$/,'oninput');
+  replaceSortedNames(row,num,/^(addCombo\()[0-9]+(\))$/,'onclick');
 })
 // 条件
 function makeComboConditionUtility(comboNode) {

@@ -631,12 +631,25 @@ body:not(.mode-crc) .crc-only {
     "HNDL NAME COMB COMB"
     "HNDL   IN   IN  OUT"
     "HNDL NOTE NOTE  OUT"
+    "HNDL NOTE NOTE OTHR"
   ;
 }
 #combo .combo-table .handle {
   grid-area: HNDL;
   display: grid;
   place-items: center;
+}
+#combo .combo-table .combo-other {
+  grid-area: OTHR;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1px 2px .4rem;
+  
+  > .button {
+    font-size: 88%;
+    padding: 3px 4px 1px;
+    font-family: var(--font-proportional);
+  }
 }
 #combo .combo-table .combo-combo,
 #combo .combo-table .combo-in,
@@ -757,6 +770,7 @@ body:not(.mode-crc) .crc-only {
       "  IN   IN"
       " OUT  OUT"
       "NOTE NOTE"
+      "OTHR OTHR"
     ;
   }
   #combo .combo-table .combo-name {
@@ -777,7 +791,7 @@ body:not(.mode-crc) .crc-only {
   position: absolute;
   width: auto;
   height: auto;
-  background-color: var(--input-bg-color);
+  background-color: var(--bg-color);
   border: 1px solid var(--text-color);
   font-size: 80%;
   padding: 1.0rem;
