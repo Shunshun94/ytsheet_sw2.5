@@ -741,6 +741,14 @@ function checkFeats(){
       else if (feat.match(/楽素転換/)){
         if(lv['Bar'] < 3){ cL.add("error"); }
       }
+      else if (feat.match(/カニングキャスト/)){
+        if(feat.match(/Ⅰ$/)){
+          if (f2 && level >= 13) { (auto) ? box.value = "カニングキャストⅡ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if(!f2 || level < 13) { (auto) ? box.value = "カニングキャストⅠ" : cL.add("error") }
+        }
+      }
       else if (feat.match(/かばう/)){
         if(feat.match(/Ⅰ$/)){
           if (f2 && level >= 7) { (auto) ? box.value = "かばうⅡ" : cL.add("mark") }
@@ -851,6 +859,15 @@ function checkFeats(){
         }
         else if(feat.match(/Ⅱ$/)){
           if(!f2 || (lv['Fen'] <  7 &&  lv['Bat'] < 7)) { (auto) ? box.value = "挑発攻撃Ⅰ" : cL.add("error") }
+        }
+      }
+      else if (feat.match(/抵抗強化/)){
+        if(level < 3){ cL.add("error"); }
+        if(feat.match(/Ⅰ$/)){
+          if (f2 && level >= 11) { (auto) ? box.value = "抵抗強化Ⅱ" : cL.add("mark") }
+        }
+        else if(feat.match(/Ⅱ$/)){
+          if(!f2 || level < 11) { (auto) ? box.value = "抵抗強化Ⅰ" : cL.add("error") }
         }
       }
       else if (feat.match(/テイルスイング/)){
@@ -1242,7 +1259,7 @@ function calcAttack() {
   document.getElementById("attack-enhancer-acc"  ).textContent = lv['Enh'] + bonus.Dex;
   document.getElementById("attack-enhancer-dmg"  ).textContent = lv['Enh'] + bonus.Str;
 
-  document.getElementById("attack-demonruler").style.display = lv['Dem'] >= 10 ? "" : modeZero && lv['Dem'] > 0 ? "" :"none";
+  document.getElementById("attack-demonruler").style.display = lv['Dem'] >= 11 ? "" : modeZero && lv['Dem'] > 0 ? "" :"none";
   document.getElementById("attack-demonruler-str").textContent = reqdStr;
   document.getElementById("attack-demonruler-acc").textContent = lv['Dem'] + bonus.Dex;
   document.getElementById("attack-demonruler-dmg").textContent = modeZero ? lv['Dem'] + bonus.Str : '―';

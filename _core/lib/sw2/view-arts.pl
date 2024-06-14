@@ -172,10 +172,10 @@ $SHEET->param(Tags => \@tags);
 {
   my $icon;
   my $class = $pc{magicClass};
-  if($pc{magicActionTypePassive}){ $icon .= '<i class="s-icon passive">○</i>' }
-  if($pc{magicActionTypeMajor}  ){ $icon .= '<i class="s-icon major">▶</i>' }
-  if($pc{magicActionTypeMinor}  ){ $icon .= '<i class="s-icon minor">≫</i>' }
-  if($pc{magicActionTypeSetup}  ){ $icon .= '<i class="s-icon setup">△</i>' }
+  if($pc{magicActionTypePassive}){ $icon .= '<i class="s-icon passive"><span class="raw">[常]</span></i>' }
+  if($pc{magicActionTypeMajor}  ){ $icon .= '<i class="s-icon major"><span class="raw">[主]</span></i>' }
+  if($pc{magicActionTypeMinor}  ){ $icon .= '<i class="s-icon minor"><span class="raw">[補]</span></i>' }
+  if($pc{magicActionTypeSetup}  ){ $icon .= '<i class="s-icon setup"><span class="raw">[準]</span></i>' }
   $SHEET->param(magicIcon => $icon);
   $SHEET->param(magicTarget   => textMagic($pc{magicTarget}));
   $SHEET->param(magicDuration => textMagic($pc{magicDuration}));
@@ -395,14 +395,18 @@ if($pc{image}) { $SHEET->param(ogImg => url()."/".$imgsrc); }
   my $sub; my $category;
   if($pc{category} eq 'magic'){
     $category = '魔法';
-    $sub = $pc{magicClass}.'／'.$pc{magicLevel};
-    if($pc{magicMinor}){ $sub .= '／小魔法'; }
+    $sub = "／$pc{magicClass}／$pc{magicLevel}";
+    $sub .= '／小魔法' if $pc{magicMinor};
   }
   if($pc{category} eq 'god'){
     $category = '神格';
-    $sub = ($pc{godClass}||'―').'／'.($pc{godRank}||'―');
+    $sub = '／'.($pc{godClass}||'―').'／'.($pc{godRank}||'―');
   }
-  $SHEET->param(ogDescript => removeTags "カテゴリ:${category}／${sub}");
+  if ($pc{category} eq 'school') {
+    $category = '流派';
+    $sub = "　地域:$pc{schoolArea}" if $pc{schoolArea};
+  }
+  $SHEET->param(ogDescript => removeTags "カテゴリ:${category}${sub}");
 }
 
 ### バージョン等 --------------------------------------------------

@@ -584,7 +584,6 @@ header nav ul li.very-small {
 }
 
 header nav ul li.head {
-  margin-right: -.5rem;
   width: 5rem;
   height: 5rem;
   font-size: 1.4rem;
@@ -592,6 +591,7 @@ header nav ul li.head {
   background: #fff;
   outline-width: 1px;
   outline-style: solid;
+  cursor: inherit;
   & b {
     color: #000;
     text-shadow: none;
