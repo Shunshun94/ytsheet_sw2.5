@@ -284,9 +284,7 @@ else {
 ### 血威 --------------------------------------------------
 my @bloodarts;
 foreach (1 .. 3){
-  next if(
-    !$pc{'bloodarts'.$_.'Name'}  && !$pc{'bloodarts'.$_.'Timing'}  && !$pc{'bloodarts'.$_.'Target'} && !$pc{'bloodarts'.$_.'Note'}
-  );
+  next if !existsRow "bloodarts$_",'Name','Timing','Target','Note';
   push(@bloodarts, {
     NAME   => $pc{'bloodarts'.$_.'Name'},
     LV     => $pc{'bloodarts'.$_.'Lv'},
@@ -300,10 +298,7 @@ $SHEET->param(Bloodarts => \@bloodarts);
 ### 特技 --------------------------------------------------
 my @arts;
 foreach (1 .. $pc{artsNum}){
-  next if(
-    !$pc{'arts'.$_.'Name'}  && !$pc{'arts'.$_.'Timing'}  && !$pc{'arts'.$_.'Target'} && 
-    !$pc{'arts'.$_.'Cost'}  && !$pc{'arts'.$_.'Limited'} && !$pc{'arts'.$_.'Note'}
-  );
+  next if !existsRow "arts$_",'Name','Timing','Target','Cost','Limited','Note';
   push(@arts, {
     NAME    => $pc{'arts'.$_.'Name'},
     LV      => $pc{'arts'.$_.'Lv'},
@@ -341,9 +336,13 @@ sub textCost {
 ### 履歴 --------------------------------------------------
 my @history;
 my $h_num = 0;
-$pc{history0Title} = 'キャラクター作成';
+if($pc{endurancePreGrow }){ $pc{history0Grow} .= "耐久値+$pc{endurancePreGrow }" }
+if($pc{initiativePreGrow}){ $pc{history0Grow} .= "先制値+$pc{initiativePreGrow}" }
+if($pc{history0Grow}){
+  $pc{history0Title} = 'キャラクター作成';
+}
 foreach (0 .. $pc{historyNum}){
-  #next if !$pc{'history'.$_.'Title'};
+  next if(!existsRow "history${_}",'Date','Title','Grow','Gm','Member','Note');
   $h_num++ if $pc{'history'.$_.'Gm'};
   if ($set::log_dir && $pc{'history'.$_.'Date'} =~ s/([^0-9]*?_[0-9]+(?:#[0-9a-zA-Z]+?)?)$//){
     my $room = $1;
@@ -364,7 +363,7 @@ foreach (0 .. $pc{historyNum}){
     TITLE  => $pc{'history'.$_.'Title'},
     GROW   => ($pc{'history'.$_.'Grow'} eq 'endurance'  ? '耐久値+5'
              : $pc{'history'.$_.'Grow'} eq 'initiative' ? '先制値+2'
-             : ''),
+             : $pc{'history'.$_.'Grow'}),
     GM     => $pc{'history'.$_.'Gm'},
     MEMBER => $members,
     NOTE   => $pc{'history'.$_.'Note'},

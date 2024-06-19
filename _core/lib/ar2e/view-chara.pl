@@ -295,7 +295,7 @@ if($data::class{$pc{classMain}}{type} eq 'fate'){
 ### コネクション --------------------------------------------------
 my @connections;
 foreach (1 .. $pc{connectionsNum}){
-  next if(!$pc{'connection'.$_.'Name'}  && !$pc{'connection'.$_.'Relation'});
+  next if !existsRow "connection$_",'Name','Relation','Note';
   push(@connections, {
     NAME     => $pc{'connection'.$_.'Name'},
     RELATION => $pc{'connection'.$_.'Relation'},
@@ -307,7 +307,7 @@ $SHEET->param(Connections => \@connections);
 ### 誓約 --------------------------------------------------
 my @geises;
 foreach (1 .. $pc{geisesNum}){
-  next if(!$pc{'geis'.$_.'Name'}  && !$pc{'geis'.$_.'Cost'}  && !$pc{'geis'.$_.'Note'});
+  next if !existsRow "geis$_",'Name','Cost','Note';
   push(@geises, {
     NAME => $pc{'geis'.$_.'Name'},
     COST => $pc{'geis'.$_.'Cost'},
@@ -398,11 +398,7 @@ $SHEET->param(Armours => \@armours);
 ### スキル --------------------------------------------------
 my @skills; my $skillCount = 0;
 foreach (1 .. $pc{skillsNum}){
-  next if(
-    !$pc{'skill'.$_.'Name'}  && !$pc{'skill'.$_.'Lv'}     && !$pc{'skill'.$_.'Timing'} &&
-    !$pc{'skill'.$_.'Skill'} && !$pc{'skill'.$_.'Target'} && !$pc{'skill'.$_.'Range'}  &&
-    !$pc{'skill'.$_.'Cost'}  && !$pc{'skill'.$_.'Reqd'}   && !$pc{'skill'.$_.'Note'}
-  );
+  next if !existsRow "skill$_",'Name','Lv','Timing','Skill','Target','Range','Cost','Reqd','Note';
   push(@skills, {
     TYPE     => checkType($pc{'skill'.$_.'Type'}),
     CATEGORY => checkCategory($pc{'skill'.$_.'Category'}),
@@ -521,7 +517,7 @@ my @history;
 my $h_num = 0;
 $pc{history0Title} = 'キャラクター作成';
 foreach (0 .. $pc{historyNum}){
-  #next if !$pc{'history'.$_.'Title'};
+  next if(!existsRow "history${_}",'Date','Title','Exp','Payment','Money','Gm','Member','Note');
   $h_num++ if $pc{'history'.$_.'Gm'};
   if ($set::log_dir && $pc{'history'.$_.'Date'} =~ s/([^0-9]*?_[0-9]+(?:#[0-9a-zA-Z]+?)?)$//){
     my $room = $1;
@@ -543,9 +539,7 @@ foreach (0 .. $pc{historyNum}){
     TITLE   => $pc{'history'.$_.'Title'},
     EXP     => $pc{'history'.$_.'Exp'},
     PAYMENT => $pc{'history'.$_.'Payment'},
-    HONOR   => $pc{'history'.$_.'Honor'},
     MONEY   => $pc{'history'.$_.'Money'},
-    GROW    => $pc{'history'.$_.'Grow'},
     GM      => $pc{'history'.$_.'Gm'},
     MEMBER  => $members,
     NOTE    => $pc{'history'.$_.'Note'},
