@@ -670,17 +670,19 @@ $SHEET->param(Weapons => \@weapons);
 ### 回避技能／特技 --------------------------------------------------
 if(!$pc{forbiddenMode}){
   my @evasion;
-  if($pc{evasionClass}){
-    my $id = $data::class{$pc{evasionClass}}{id};
-    if($pc{'lv'.$id}){
-      push(@evasion, {
-        NAME => $pc{evasionClass}."<span class=\"small\">技能レベル</span>".$pc{'lv'.$id},
-        STR  => ($id eq 'Fen' ? $pc{reqdStrF} : $pc{reqdStr}),
-        EVA  => $pc{'lv'.$id}+$pc{bonusAgi},
-      } );
-    }
+  foreach my $name (@data::class_names){
+    my $id    = $data::class{$name}{id};
+    next if !$pc{'lv'.$id};
+    next if !($data::class{$name}{type} eq 'weapon-user' || $id =~ /Enh|Dem/);
+    next if $id eq 'Enh' && !$enhance_attack_on;
+    next if $id eq 'Dem' && (!$::SW2_0 && $pc{'lv'.$id} < 2) || ($::SW2_0 && $pc{'lv'.$id} < 7);
+    push(@evasion, {
+      NAME => $name."<span class=\"small\">技能レベル</span>".$pc{'lv'.$id},
+      STR  => ($id eq 'Fen' ? $pc{reqdStrF} : $pc{reqdStr}),
+      EVA  => $pc{'lv'.$id}+$pc{bonusAgi},
+    } );
   }
-  else{
+  if(!@evasion){
     push(@evasion, {
       NAME => '技能なし',
       STR  => $pc{reqdStr},
@@ -769,8 +771,9 @@ else {
   $SHEET->param(Armours => \@armours);
   
   my @total;
-  foreach my $i (1..3){
+  foreach my $i (1..$pc{defenseNum}){
     my @ths;
+    my $class = $pc{"evasionClass$i"};
     foreach (1 .. $pc{armourNum}){
       my $cate = $pc{'armour'.$_.'Category'};
       if ($pc{"defTotal${i}CheckArmour$_"} && (
@@ -782,9 +785,12 @@ else {
         push(@ths, $pc{'armour'.$_.'Type'});
       }
     }
-    next if !@ths && !$pc{"defenseTotal${i}Note"};
+    next if !$class && !@ths && !$pc{"defenseTotal${i}Note"};
+    my $th = 
+      ($class ? "${class}／" : '')
+      .(@ths == @armours ? 'すべての防具' : join('＋', @ths) || '防具なし');
     push(@total, {
-      TH   => (@ths == @armours ? 'すべて' : join('＋', @ths)) || 'なし',
+      TH   => $th,
       EVA  => $pc{"defenseTotal${i}Eva"},
       DEF  => $pc{"defenseTotal${i}Def"},
       NOTE => $pc{"defenseTotal${i}Note"},
