@@ -66,8 +66,11 @@ body {
 #weapons table,
 #evasion-classes table,
 #armours table,
+#parts table,
 #accessories table,
-.honor-items table {
+.honor-items table,
+#honor dd,
+#dishonor dd {
   font-family: var(--font-proportional);
 }
 #history table {
@@ -788,6 +791,11 @@ dl#level {
     margin: 0 -6%;
     transform:scaleX(0.88);
   }
+  & .part-name {
+    float: right;
+    margin-top: .15em;
+    font-size: 85%;
+  }
 }
 
 /* Attack-Status */
@@ -864,7 +872,11 @@ dl#level {
     border-style: solid dotted;
   }
   & td:is(.eva, .def) {
-    font-size: 1.15em;
+    padding: .2em 0;
+    font-weight: bold;
+  }
+  &:nth-child(even) td {
+    background-color: var(--box-even-rows-bg-color);
   }
 }
 
@@ -882,6 +894,13 @@ dl#level {
   font-size: 90%;
 }
 
+/* Parts */
+#parts thead th {
+  &.name  { width: 10em; }
+  &.def   { width: 5.2em; }
+  &.hp    { width: 5.2em; }
+  &.mp    { width: 5.2em; }
+}
 
 /* // Area-Items
 ---------------------------------------------------------------------------------------------------- */
@@ -998,20 +1017,28 @@ dl#level {
 /* Honor */
 #honor,
 #dishonor {
+  margin-top: var(--box-v-gap);
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto;
-
-  & dt {
-    grid-row: 1;
+  grid-template-columns: 1fr 1.5fr;
+  @media screen and (width <= 735px){
+    grid-template-columns: 4.5em auto;
   }
-  & dd {
-    grid-row: 2;
+  grid-template-rows: auto;
+  gap: 3px;
+  align-items: start;
+  #adventurer-rank { grid-column: 2; }
+  #barbaros-rank   { grid-column: 2; }
+  #barbaros-rank   {
+    border-top-width: 1px;
+    border-top-style: solid;
   }
 }
 #honor.zero-data {
   grid-template-columns: 1fr 1fr 1fr;
-
+  align-items: normal;
+  gap: 0px;
+  > dt { grid-row: 1; }
+  > dd { grid-row: 2; }
   > *:not(:last-of-type){
     border-right-width: 1px;
     border-right-style: solid;
@@ -1027,7 +1054,11 @@ dl#level {
 
 #honor    + #honor-items,
 #dishonor + #dishonor-items {
-  margin-top: .3rem;
+  margin-top: 3px;
+}
+
+#dishonor dd > span {
+  display: inline-block;
 }
 
 /* // Free-Memo

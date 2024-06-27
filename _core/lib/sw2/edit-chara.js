@@ -215,6 +215,7 @@ function calcLv(){
 
 // 種族変更 ----------------------------------------
 function changeRace(value){
+  const before = race;
   race = value;
   
   document.getElementById('race-ability-select').innerHTML = '';
@@ -244,6 +245,30 @@ function changeRace(value){
   }
   if(form.mode.value === 'make'){
     form.sin.value = SET.races[race]?.sin || 0;
+    
+    if(SET.races[race]?.parts){
+      let num = 1;
+      for(const name of SET.races[race].parts){
+        if(!form[`part${num}Name`]){ addPart(); }
+        form[`part${num}Name`].value = name;
+        num++;
+      }
+      for(let i = num; i <= form.partNum.value; i++){
+        if(form[`part${i}Name`]){
+          form[`part${i}Name`].closest('tr').remove();
+        }
+      }
+      form.partNum.value = num - 1;
+      form.partCore.value = 1;
+      document.getElementById('parts').open = true;
+    }
+    else {
+      for(let i = 1; i <= form.partNum.value; i++){
+        form[`part${i}Name`].value = '';
+      }
+      document.getElementById('parts').open = false;
+    }
+    calcParts();
   }
   checkRace();
   calcStt();
@@ -277,6 +302,12 @@ function checkRace(){
     }
   }
 
+  const raceBase = race.replace(/（.+?）/, '');
+  document.querySelectorAll('[data-race-only]').forEach(node => {
+    if(!SET.races[race] || node.dataset.raceOnly == raceBase){ node.style.display = '' }
+    else { node.style.display = 'none' }
+  });
+
   raceAbilities = [];
   if(SET.races[race]?.ability){
     raceAbilities = SET.races[race].ability.concat();
@@ -296,6 +327,12 @@ function checkRace(){
           selectCount++;
         }
         else {
+          while(SET.races[race]?.abilityReplace?.[ability]
+            && level >= SET.races[race]?.abilityReplace[ability].lv
+          ){
+            if(SET.races[race]?.abilityReplace[ability].before == ability){ break; }
+            ability = SET.races[race]?.abilityReplace[ability].before;
+          }
           document.getElementById('race-ability-value').innerHTML += `［${ability}］`;
           raceAbilities.push(ability);
         }
@@ -307,7 +344,6 @@ function checkRace(){
     ability.replace(/［(.+?)］/g, (all, match) => {
       raceAbilities.push(match);
     });
-    console.log(raceAbilities)
   }
   
   if(raceAbilities.includes('鱗の皮膚')){
@@ -383,6 +419,7 @@ function checkRace(){
   checkLanguage();
   setLanguageDefault();
 }
+
 function setLanguageDefault(){
   if (!form.languageAutoOff.checked) {
     let text = '';
@@ -494,6 +531,7 @@ function calcStt() {
   calcMobility();
   calcPackage();
   calcMagic();
+  calcParts();
   calcAttack();
   calcDefense();
   calcPointBuy();
@@ -549,7 +587,6 @@ function checkFeats(){
         }
       }
       else if (feat.match(/超頑強/)){
-        console.log(feat)
         if((lv['Fig'] < 7 && lv['Gra'] < 7)|| !acquire.match('頑強')){ cL.add("error"); }
       }
       else if (feat.match(/^頑強/)){
@@ -945,8 +982,7 @@ function checkFeats(){
       acquire += feat + ',';
       
       const weaponsRegex = new RegExp('武器習熟(Ａ|Ｓ)／(' + SET.weapons.map(d => d[0]).join('|') + ')');
-      if     (feat === "足さばき"){ feats['足さばき'] = 1; }
-      else if(feat === "回避行動Ⅰ"){ feats['回避行動'] = 1; }
+      if     (feat === "回避行動Ⅰ"){ feats['回避行動'] = 1; }
       else if(feat === "回避行動Ⅱ"){ feats['回避行動'] = 2; }
       else if(feat === "命中強化Ⅰ"){ feats['命中強化'] = 1; }
       else if(feat === "命中強化Ⅱ"){ feats['命中強化'] = 2; }
@@ -957,7 +993,6 @@ function checkFeats(){
       else if(feat === "頑強")  { feats['頑強'] = (feats['頑強']||0) +15; }
       else if(feat === "超頑強"){ feats['頑強'] = (feats['頑強']||0) +15; }
       else if(feat === "キャパシティ"){ feats['キャパシティ'] = 15; }
-      else if(feat === "射手の体術"){ feats['射手の体術'] = 1; }
       else if(feat.match(weaponsRegex)){
         feats['武器習熟／'+RegExp.$2] ||= 0;
         if     (RegExp.$1 === 'Ａ'){ feats['武器習熟／'+RegExp.$2] += 1; }
@@ -981,6 +1016,7 @@ function checkFeats(){
       else if(feat === "鼓咆陣率追加Ⅲ"){ feats['鼓咆陣率追加'] = 3; }
       else if(feat === "抵抗強化Ⅰ"){ feats['抵抗強化'] = 1; }
       else if(feat === "抵抗強化Ⅱ"){ feats['抵抗強化'] = 2; }
+      else { feats[feat] = true; }
       
       cL.remove("fail","hidden");
     }
@@ -993,13 +1029,16 @@ function checkFeats(){
   calcSubStt();
   calcMobility();
   calcMagic();
+  calcParts();
   calcAttack();
   calcDefense();
   checkCraft();
 }
 
 // 技芸 ----------------------------------------
+let crafts = {};
 function checkCraft() {
+  crafts = {};
   for(const key in SET.class){
     const cId  = SET.class[key].id;
     const cLv = lv[cId];
@@ -1018,6 +1057,8 @@ function checkCraft() {
         let objCL = document.getElementById("craft-"+eName+i).classList;
         if (i <= rows){
           objCL.remove("fail","hidden");
+          const craftName = form["craft"+ucfirst(eName)+i].value;
+          if(craftName){ crafts[craftName] = true }
         }
         else {
           objCL.add("fail");
@@ -1044,7 +1085,9 @@ function checkCraft() {
 }
 
 // ＨＰＭＰ抵抗力計算 ----------------------------------------
+let subStt = {};
 function calcSubStt() {
+  subStt = {};
   const seekerHpMpAdd = (lvSeeker && checkSeekerAbility('ＨＰ、ＭＰ上昇')) ? 10 : 0;
   const seekerResistAdd = (lvSeeker && checkSeekerAbility('抵抗力上昇')) ? 3 : 0;
   
@@ -1059,28 +1102,29 @@ function calcSubStt() {
   document.getElementById("vit-resist-total").textContent = vitResistBase + Number(form.vitResistAdd.value) + vitResistAutoAdd;
   document.getElementById("mnd-resist-total").textContent = mndResistBase + Number(form.mndResistAdd.value) + mndResistAutoAdd;
   
-  let hpAccessory = 0;
-  let mpAccessory = 0;
+  subStt.hpBase = level * 3 + stt.Vit + stt.addD;
+  subStt.mpBase = 
+    (raceAbilities.includes('溢れるマナ')) ? (level * 3 + stt.Mnd + stt.addF)
+    : ( levelCasters.reduce((a,x) => a+x,0) * 3 + stt.Mnd + stt.addF );
+  subStt.hpAutoAdd = (feats['頑強'] || 0) + (lv['Fig'] >= 7 ? 15 : 0) + seekerHpMpAdd;
+  subStt.mpAutoAdd = (feats['キャパシティ'] || 0) + raceAbilityMp     + seekerHpMpAdd;
+  subStt.hpAccessory = 0;
+  subStt.mpAccessory = 0;
   for (let type of ["Head", "Face",  "Ear", "Neck", "Back", "HandR", "HandL", "Waist", "Leg", "Other", "Other2", "Other3", "Other4"]){
     for (let add of ['','_','__']){
       const name = type + add;
-      if(form["accessory"+name+"Own"].options[form["accessory"+name+"Own"].selectedIndex].value === "HP"){ hpAccessory = 2 }
-      if(form["accessory"+name+"Own"].options[form["accessory"+name+"Own"].selectedIndex].value === "MP"){ mpAccessory = 2 }
+      if(form["accessory"+name+"Own"].value === "HP"){ subStt.hpAccessory = 2 }
+      if(form["accessory"+name+"Own"].value === "MP"){ subStt.mpAccessory = 2 }
     }
   }
-  
-  const hpBase = level * 3 + stt.Vit + stt.addD;
-  const mpBase = 
-    (raceAbilities.includes('溢れるマナ')) ? (level * 3 + stt.Mnd + stt.addF)
-    : ( levelCasters.reduce((a,x) => a+x,0) * 3 + stt.Mnd + stt.addF );
-  const hpAutoAdd = (feats['頑強'] || 0) + hpAccessory + (lv['Fig'] >= 7 ? 15 : 0) + seekerHpMpAdd;
-  const mpAutoAdd = (feats['キャパシティ'] || 0) + raceAbilityMp + mpAccessory + seekerHpMpAdd;
-  document.getElementById("hp-base").textContent = hpBase;
-  document.getElementById("mp-base").textContent = raceAbilities.includes('マナ不干渉') ? '0' : mpBase;
-  document.getElementById("hp-auto-add").textContent = hpAutoAdd;
-  document.getElementById("mp-auto-add").textContent = mpAutoAdd;
-  document.getElementById("hp-total").textContent = hpBase + Number(form.hpAdd.value) + hpAutoAdd;
-  document.getElementById("mp-total").textContent = raceAbilities.includes('マナ不干渉') ? 'なし' : (mpBase + Number(form.mpAdd.value) + mpAutoAdd);
+  subStt.hpTotal = subStt.hpBase + Number(form.hpAdd.value) + subStt.hpAutoAdd + subStt.hpAccessory;
+  subStt.mpTotal = subStt.mpBase + Number(form.mpAdd.value) + subStt.mpAutoAdd + subStt.mpAccessory;
+  document.getElementById("hp-base").textContent = subStt.hpBase;
+  document.getElementById("mp-base").textContent = raceAbilities.includes('マナ不干渉') ? '0' : subStt.mpBase;
+  document.getElementById("hp-auto-add").textContent = subStt.hpAutoAdd;
+  document.getElementById("mp-auto-add").textContent = subStt.mpAutoAdd;
+  document.getElementById("hp-total").textContent = subStt.hpTotal
+  document.getElementById("mp-total").textContent = raceAbilities.includes('マナ不干渉') ? 'なし' : subStt.mpTotal;
 }
 
 // 移動力計算 ----------------------------------------
@@ -1095,7 +1139,7 @@ function calcMobility() {
     }
   }
   const mobility = mobilityBase + Number(form.mobilityAdd.value) + mobilityOwn;
-  document.getElementById("mobility-limited").textContent = feats['足さばき'] ? 10 : 3;
+  document.getElementById("mobility-limited").textContent = Math.min(feats['足さばき'] ? 10 : 3, mobility);
   document.getElementById("mobility-base").textContent = mobilityBase + mobilityOwn;
   document.getElementById("mobility-total").textContent = mobility;
   document.getElementById("mobility-full").textContent = mobility * 3;
@@ -1119,24 +1163,18 @@ function calcPackage() {
       const cId   = SET.class[key].id
       const pData = SET.class[key].package;
       const cLv = lv[cId];
-
-      document.getElementById(`package-${eName}`).style.display = cLv > 0 ? "" :"none";
       
+      let rows = 0;
       for(const pId in pData){
         let autoBonus = 0;
         let disabled = false;
-        if(cId === 'War' && pId === 'Int'){
+        if(pData[pId].unlockCraft && !crafts[pData[pId].unlockCraft]){
           disabled = true;
-          for(let i = 1; i <= lv.War+(feats['鼓咆陣率追加']||0); i++){
-            if(form[`craftCommand${i}`].value.match(/軍師の知略$/)){ disabled = false; autoBonus += form[`craftCommand${i}`].value.match(/^陣率/) ? 1 : 0; break; }
-          }
         }
-        else if(cId === 'Rid' && pId === 'Obs'){
-          disabled = true;
-          for(let i = 1; i <= lv.Rid; i++){
-            if(form[`craftRiding${i}`].value.match(/探索指令$/)){ disabled = false; break; }
-          }
+        if(cId === 'War' && pId === 'Int' && crafts['陣率：軍師の知略']){
+          autoBonus += 1;
         }
+        if(!disabled){ rows++; }
         
         let value = disabled ? 0 : (cLv + bonus[alphabetToStt[pData[pId].stt]] + Number(form[`pack${cId}${pId}Add`].value) + autoBonus);
         document.getElementById(`package-${eName}-${pId.toLowerCase()}-auto`).textContent = autoBonus ? '+'+autoBonus : '';
@@ -1146,6 +1184,7 @@ function calcPackage() {
         if(pData[pId].monsterLore){ lore.push(cLv > 0 ? value : 0); }
         if(pData[pId].initiative ){ init.push(cLv > 0 ? value : 0); }
       }
+      document.getElementById(`package-${eName}`).style.display = cLv > 0 && rows ? '' : 'none';
     }
   }
 
@@ -1243,79 +1282,197 @@ function calcFairy() {
   document.getElementById('fairy-rank').textContent = result;
 }
 
+// 部位データ計算 ----------------------------------------
+let partStt = {};
+function changeParts(){
+  calcParts();
+  calcAttack();
+  calcDefense();
+}
+function calcParts(){
+  let options = '<option value="">';
+  for (let num = 1; num <= form.partNum.value; num++){
+    const partName = form[`part${num}Name`].value;
+    const partData = SET.partsData[ partName ] || {};
+
+    if(partName){ options += `<option value="${num}">${partName}` }
+
+    let def = (partData?.def?.[lv.Phy] || 0);
+    let hp  = 0;
+    let mp  = 0;
+    let defMod = 0;
+    let hpMod  = 0;
+    let mpMod  = 0;
+
+    if(raceAbilities.includes('蠍人の身体')){
+      if(form.partCore.value == num){ def = 0; }
+      form.sttPartA.value = form.sttAddA.value;
+      form.sttPartB.value = form.sttAddB.value;
+      form.sttPartC.value = form.sttAddC.value;
+      form.sttPartD.value = form.sttAddD.value;
+      form.sttPartE.value = form.sttAddE.value;
+      form.sttPartF.value = form.sttAddF.value;
+      document.getElementById('parts-stt-add').style.display = 'none';
+    }
+    else {
+      document.getElementById('parts-stt-add').style.display = '';
+    }
+    // コア
+    if(form.partCore.value == num){
+      hp += subStt.hpBase + subStt.hpAutoAdd - stt.addD + Number(form.sttPartD.value||0);
+      mp += subStt.mpBase + subStt.mpAutoAdd - stt.addF + Number(form.sttPartF.value||0);
+      if(raceAbilities.includes('蠍人の身体')){
+        def = 0;
+        hp += subStt.hpAccessory;
+        mp += subStt.mpAccessory;
+      }
+      else {
+        let hpAccessory = 0;
+        let mpAccessory = 0;
+        for (let add of ['','_','__']){
+          if(form["accessoryEar"+add+"Own"].value === "HP"){ hpAccessory = 2 }
+          if(form["accessoryEar"+add+"Own"].value === "MP"){ mpAccessory = 2 }
+        }
+        hp += hpAccessory;
+        mp += mpAccessory;
+      }
+      
+      if(crafts['コア耐久増強'  ]){ defMod += 1; hpMod += 5; }
+      if(crafts['コア耐久超増強']){ defMod += 1; hpMod += 5; }
+      if(crafts['コア耐久極増強']){ defMod += 2; hpMod += 10; }
+    }
+    // その他
+    else {
+      hp += (partData?.hp?.[lv.Phy] || 0);
+      mp += (partData?.mp?.[lv.Phy] || 0);
+      if(crafts['部位耐久増強'  ]){ defMod += 1; hpMod += 5; }
+      if(crafts['部位耐久超増強']){ defMod += 1; hpMod += 5; }
+      if(crafts['部位耐久極増強']){ defMod += 2; hpMod += 10; }
+    }
+    //
+    def += Number(form[`part${num}Def`].value || 0);
+    hp  += Number(form[`part${num}Hp`].value || 0);
+    mp  += Number(form[`part${num}Mp`].value || 0);
+
+    partStt[num] = {};
+    document.querySelector(`#part-row${num} .def .auto-mod`).textContent = defMod? `+${defMod}` : '';
+    document.querySelector(`#part-row${num} .hp  .auto-mod`).textContent = hpMod ? `+${hpMod }` : '';
+    document.querySelector(`#part-row${num} .mp  .auto-mod`).textContent = mpMod ? `+${mpMod }` : '';
+    document.querySelector(`#part-row${num} .def b`).textContent = partStt[num].def = def + defMod;
+    document.querySelector(`#part-row${num} .hp  b`).textContent = partStt[num].hp  = hp  + hpMod;
+    document.querySelector(`#part-row${num} .mp  b`).textContent = partStt[num].mp  = mp  + mpMod;
+  }
+
+  document.querySelectorAll('.defense-total select[name^="evasionPart"],#weapons-table select[name$="Part"]').forEach(node => {
+    const selected = node.value
+    node.innerHTML = options;
+    node.value = selected;
+    node.disabled = SET.races[race]?.parts ? false : true;
+    node.parentNode.parentNode.style.display = SET.races[race]?.parts ? '' : 'none';
+  });
+  document.getElementById('parts').style.display
+    = SET.races[race]?.parts || !SET.races[race] ? '' : 'none';
+}
+
 // 攻撃計算 ----------------------------------------
+let errorAccClass = {};
 function calcAttack() {
+  errorAccClass = {};
   for(const name in SET.class){
-    if(SET.class[name].type !== 'weapon-user'){ continue; }
+    if(SET.class[name].type !== 'weapon-user' && !SET.class[name].accUnlock){ continue; }
     const id    = SET.class[name].id;
     const eName = SET.class[name].eName;
-    document.getElementById(`attack-${eName}`).style.display = lv[id] > 0 ? "" :"none";
+    const unlockLv = SET.class[name]?.accUnlock?.lv || 1;
+    const unlockFeat = SET.class[name]?.accUnlock?.feat || '';
+    const unlockCraft = SET.class[name]?.accUnlock?.craft || '';
+    let display = '';
+    if (lv[id] < unlockLv){ display = 'none' }
+    if(unlockFeat){
+      let isUnlock = false;
+      for(const feat of unlockFeat.split('|')){
+        if(feats[feat]){ isUnlock = true; break; }
+      }
+      if(!isUnlock){ display = 'none' }
+    }
+    if(unlockCraft){
+      let isUnlock = false;
+      for(const craft of unlockCraft.split('|')){
+        if(crafts[craft]){ isUnlock = true; break; }
+      }
+      if(!isUnlock){ display = 'none' }
+    }
+    if(display == 'none'){ errorAccClass[name] = true; }
+    document.getElementById(`attack-${eName}`).style.display = display;
     document.getElementById(`attack-${eName}-str`).textContent = id == 'Fen' ? reqdStrHalf : reqdStr;
     document.getElementById(`attack-${eName}-acc`).textContent = lv[id] + bonus.Dex;
     document.getElementById(`attack-${eName}-dmg`).textContent = lv[id] + bonus.Str;
   }
-  document.getElementById("attack-enhancer"  ).style.display = lv['Enh'] >= 10 ? "" :"none";
-  document.getElementById("attack-enhancer-str").textContent   = reqdStr;
-  document.getElementById("attack-enhancer-acc"  ).textContent = lv['Enh'] + bonus.Dex;
-  document.getElementById("attack-enhancer-dmg"  ).textContent = lv['Enh'] + bonus.Str;
-
-  document.getElementById("attack-demonruler").style.display = lv['Dem'] >= 11 ? "" : modeZero && lv['Dem'] > 0 ? "" :"none";
-  document.getElementById("attack-demonruler-str").textContent = reqdStr;
-  document.getElementById("attack-demonruler-acc").textContent = lv['Dem'] + bonus.Dex;
-  document.getElementById("attack-demonruler-dmg").textContent = modeZero ? lv['Dem'] + bonus.Str : '―';
+  
+  if(!modeZero){
+    document.getElementById("attack-demonruler-dmg").textContent = '―';
+  }
 
   for(let i = 0; i < SET.weapons.length; i++){
     document.getElementById(`attack-${SET.weapons[i][1]}-mastery`).style.display = feats['武器習熟／'+SET.weapons[i][0]] ? '' : 'none';
     document.getElementById(`attack-${SET.weapons[i][1]}-mastery-dmg`).textContent = feats['武器習熟／'+SET.weapons[i][0]] || 0;
   }
-  document.getElementById("attack-artisan-mastery").style.display  = feats['魔器習熟'] ? '' : 'none';
-  document.getElementById("attack-artisan-mastery-dmg").textContent  = feats['魔器習熟'] || 0 ;
-  document.getElementById("artisan-annotate").style.display        = feats['魔器習熟'] ? '' : 'none'; 
-  document.getElementById("accuracy-enhance").style.display        = feats['命中強化'] ? '' : 'none';
-  document.getElementById("accuracy-enhance-acc").textContent        = feats['命中強化'] || 0;
-  document.getElementById("throwing").style.display                = feats['スローイング'] ? '' : 'none';
+  document.getElementById("attack-artisan-mastery").style.display   = feats['魔器習熟'] ? '' : 'none';
+  document.getElementById("attack-artisan-mastery-dmg").textContent = feats['魔器習熟'] || 0 ;
+  document.getElementById("artisan-annotate").style.display         = feats['魔器習熟'] ? '' : 'none'; 
+  document.getElementById("accuracy-enhance").style.display   = feats['命中強化'] ? '' : 'none';
+  document.getElementById("accuracy-enhance-acc").textContent = feats['命中強化'] || 0;
+  document.getElementById("throwing").style.display = feats['スローイング'] ? '' : 'none';
+  document.getElementById("parts-enhance").style.display = crafts['部位極強化'] || crafts['部位超強化'] || crafts['部位即応＆強化'] ? '' : 'none';
+  document.getElementById("parts-enhance-acc").textContent = (crafts['部位極強化']?1:0)+(crafts['部位超強化']?1:0)+(crafts['部位即応＆強化']?1:0);
 
   calcWeapon();
 }
 function calcWeapon() {
   for (let i = 1; i <= form.weaponNum.value; i++){
     const className = form["weapon"+i+"Class"].value;
+    const partNum = form["weapon"+i+"Part"].value;
     const category = form["weapon"+i+"Category"].value;
     const ownDex = form["weapon"+i+"Own"].checked ? 2 : 0;
     const note = form["weapon"+i+"Note"].value;
     const weaponReqd = safeEval(form["weapon"+i+"Reqd"].value) || 0;
-    let attackClass = 0;
+    const classLv = lv[ SET.class[className]?.id ] || 0;
+    let dex = stt.Dex + (partNum ? Number(form.sttPartA.value || 0) : stt.addA);
+    let str = stt.Str + (partNum ? Number(form.sttPartC.value || 0) : stt.addC);
     let accBase = 0;
     let dmgBase = 0;
-    let maxReqd = reqdStr;
-    accBase += feats['命中強化'] || 0; //命中強化
-    // 使用技能
-    if(SET.class[className]?.type == 'weapon-user'){
-      attackClass = lv[ SET.class[className].id ];
-      if(className === "フェンサー"){ maxReqd = reqdStrHalf; }
-    }
-    else if(className === "エンハンサー")     { attackClass = lv['Enh']; }
-    else if(className === "デーモンルーラー") { attackClass = lv['Dem']; }
+    // 技能選択のエラーチェック
+    form["weapon"+i+"Class"].classList.toggle('error', errorAccClass[className] == true); 
     // 必筋チェック
+    const maxReqd = (className === "フェンサー") ? reqdStrHalf : reqdStr;
     form["weapon"+i+"Reqd"].classList.toggle('error', weaponReqd > maxReqd);
-    // 武器カテゴリ
-    if(attackClass) {
-      // 基礎命中
-      accBase += attackClass + parseInt((stt.Dex + stt.addA + ownDex) / 6);
+    // 基礎命中
+    if(classLv) {
+      accBase += classLv + parseInt((dex + ownDex) / 6);
     }
     // 基礎ダメージ
-    if     (category === 'クロスボウ')                  { dmgBase = attackClass; }
-    else if(category === 'ガン')                        { dmgBase = magicPowers['Mag']; }
-    else if(!modeZero && className === "デーモンルーラー"){ dmgBase = magicPowers['Dem']; }
-    else if(attackClass)                                { dmgBase = attackClass + bonus.Str; }
-    form["weapon"+i+"Category"].classList.remove('fail');
+    if     (category === 'クロスボウ'){ dmgBase = classLv; }
+    else if(category === 'ガン')      { dmgBase = magicPowers['Mag']; }
+    else if(!modeZero && className === "デーモンルーラー")
+                                      { dmgBase = magicPowers['Dem']; }
+    else if(classLv)                  { dmgBase = classLv + parseInt(str / 6); }
 
-    // 習熟
-    if(category === 'ガン（物理）') { dmgBase += feats['武器習熟／ガン'] || 0; }
-    else if(category) { dmgBase += feats['武器習熟／'+category] || 0; }
+    // 戦闘特技
+    if(!partNum || partNum == form.partCore.value) {
+      accBase += feats['命中強化'] || 0;
+      if(category === '投擲') { accBase += feats['スローイング'] ? 1 : 0; }
 
-    if(category === '投擲') { accBase += feats['スローイング'] ? 1 : 0; }
-    if(note.match(/〈魔器〉/)){ dmgBase += feats['魔器習熟'] || 0; }
+      if(category === 'ガン（物理）') { dmgBase += feats['武器習熟／ガン'] || 0; }
+      else if(category) { dmgBase += feats['武器習熟／'+category] || 0; }
+      if(note.match(/〈魔器〉/)){ dmgBase += feats['魔器習熟'] || 0; }
+    }
+    else {
+      if(crafts['部位極強化'    ]){ accBase += 1; }
+      if(crafts['部位超強化'    ]){ accBase += 1; }
+      if(crafts['部位即応＆強化']){ accBase += 1; }
+
+      if(category == '格闘') { dmgBase += feats['武器習熟／格闘'] || 0; }
+      else if(category && race == 'ディアボロ' && level >= 6) { dmgBase += feats['武器習熟／'+category] || 0; }
+    }
     // 命中追加D出力
     if(className === "自動計算しない"){
       document.getElementById("weapon"+i+"-acc-total").textContent = Number(form["weapon"+i+"Acc"].value);
@@ -1329,15 +1486,37 @@ function calcWeapon() {
 }
 
 // 防御計算 ----------------------------------------
+let errorEvaClass = {};
 function calcDefense() {
   let defBase = 0;
   let evaAdd = 0;
+  errorEvaClass = {};
   // 技能
   for(const name in SET.class){
-    if(SET.class[name].type !== 'weapon-user'){ continue; }
+    if(SET.class[name].type !== 'weapon-user' && !SET.class[name].evaUnlock){ continue; }
     const id    = SET.class[name].id;
     const eName = SET.class[name].eName;
-    document.getElementById(`evasion-${eName}`).style.display = lv[id] > 0 ? "" :"none";
+    const unlockLv = SET.class[name]?.evaUnlock?.lv || 1;
+    const unlockFeat = SET.class[name]?.evaUnlock?.feat || '';
+    const unlockCraft = SET.class[name]?.evaUnlock?.craft || '';
+    let display = '';
+    if (lv[id] < unlockLv){ display = 'none' }
+    if(unlockFeat){
+      let hasUnlockFeat = false;
+      for(const feat of unlockFeat.split('|')){
+        if(feats[feat]){ hasUnlockFeat = true; break; }
+      }
+      if(!hasUnlockFeat){ display = 'none' }
+    }
+    if(unlockCraft){
+      let hasUnlockCraft = false;
+      for(const craft of unlockCraft.split('|')){
+        if(crafts[craft]){ hasUnlockCraft = true; break; }
+      }
+      if(!hasUnlockCraft){ display = 'none' }
+    }
+    if(display == 'none'){ errorEvaClass[name] = true; }
+    document.getElementById(`evasion-${eName}`).style.display = display;
     document.getElementById(`evasion-${eName}-str`).textContent = id == 'Fen' ? reqdStrHalf : reqdStr;
     document.getElementById(`evasion-${eName}-eva`).textContent = lv[id] + bonus.Agi;
   }
@@ -1376,6 +1555,9 @@ function calcDefense() {
   evaAdd += feats['心眼'] || 0;
   document.getElementById("minds-eye").style.display = feats['心眼'] > 0 ? "" :"none";
   document.getElementById("minds-eye-value").textContent = feats['心眼'] || 0;
+  // 部位即応
+  document.getElementById("parts-enhance-def").style.display = crafts['部位極強化'] || crafts['部位超強化'] || crafts['部位即応＆強化'] ? '' : 'none';
+  document.getElementById("parts-enhance-eva").textContent = (crafts['部位極強化']?1:0)+(crafts['部位超強化']?1:0)+(crafts['部位即応＆強化']?1:0);
   
   calcArmour(evaAdd,defBase);
 }
@@ -1421,26 +1603,39 @@ function calcArmour(evaAdd,defBase) {
   }
   
   for (let i = 1; i <= form.defenseNum.value; i++){
-    const classForm = form['evasionClass'+i];
-    const className = classForm.value;
-
-    // 技能選択のエラー表示
-    if(  (className === "シューター" && !feats['射手の体術'])
-      || (className === "デーモンルーラー" && lv['Dem'] < 2)
-    ){ 
-      classForm.classList.add('error');
-    }
-    else { classForm.classList.remove('error'); }
+    const className = form['evasionClass'+i].value;
+    const partNum   = form['evasionPart'+i].value;
+    const partName  = form[`part${partNum}Name`]?.value || '';
+    
+    // 技能選択のエラーチェック
+    form['evasionClass'+i].classList.toggle('error', errorEvaClass[className] == true); 
 
     // 最大必筋
     const maxReqd = (className === "フェンサー") ? reqdStrHalf : reqdStr;
 
     // 計算
-    let evaClassLv = lv[ SET.class[className]?.id ] || 0;
-    let evaBase = evaClassLv || 0;
+    const classLv = lv[SET.class[className]?.id] || 0;
 
-    let eva = evaAdd;
-    let def = defBase;
+    let eva = 0;
+    let def = 0;
+    let agi = stt.Agi + (partNum ? Number(form.sttPartB.value || 0) : stt.addB);
+    if(!partNum || partNum == form.partCore.value) {
+      def += defBase;
+      eva += evaAdd;
+      if(feats['回避行動'] == 2 && className != 'フェンサー' && className != 'バトルダンサー'){ eva -= 1 }
+      if(feats['心眼'] && className != 'フェンサー'){ eva -= feats['心眼'] }
+    }
+    if(partNum){
+      def += partStt[partNum].def;
+      if(partNum != form.partCore.value){
+        if(crafts['部位極強化'    ]){ eva += 1; }
+        if(crafts['部位超強化'    ]){ eva += 1; }
+        if(crafts['部位即応＆強化']){ eva += 1; }
+      }
+      if(partName == '邪眼'){
+        eva += 2;
+      }
+    }
     let ownAgi = 0;
     let artisanDef = 0;
     for (let num = 1; num <= form.armourNum.value; num++){
@@ -1455,16 +1650,19 @@ function calcArmour(evaAdd,defBase) {
 
       const category = form[`armour${num}Category`].value;
       eva += Number(form[`armour${num}Eva`].value);
-      def += Number(form[`armour${num}Def`].value) + (feats['防具習熟／'+category] || 0);
+      def += Number(form[`armour${num}Def`].value);
+      if(!partNum || partNum == form.partCore.value){
+        def += (feats['防具習熟／'+category] || 0);
+        if(form[`armour${num}Note`].value.match(/〈魔器〉/)){ artisanDef = feats['魔器習熟']; }
+      }
       if(category == '盾' && form[`armour${num}Own`].checked){ ownAgi = 2 }
-      if(form[`armour${num}Note`].value.match(/〈魔器〉/)){ artisanDef = feats['魔器習熟']; }
       
       let matches = category.match(/(鎧|盾)/);
       if (matches && checkedCount[matches[1]][i] > 1){
         checkObj.parentNode.classList.add('error')
       }
     }
-    eva += ( evaBase ? evaBase + parseInt((stt.Agi + stt.addB + ownAgi) / 6) : 0 );
+    eva += ( classLv ? classLv + parseInt((agi + ownAgi) / 6) : 0 );
     def += artisanDef;
  
     document.getElementById(`defense-total${i}-eva`).textContent = eva;
@@ -1531,14 +1729,20 @@ function calcHonor(){
   }
   document.getElementById("history-honor-total").textContent = commify(pointTotal);
   // ランク
-  const rank = form["rank"].options[form["rank"].selectedIndex].value;
-  const topRank = rank.match(/★$/) ? 1 : 0;
-  const rankStar = topRank ? Number(form.rankStar.value||1)-1 : 0;
-  form.rankStar.style.display = topRank ? '' : 'none';
+  let free = 0;
+  for(const type of ['','Barbaros']){
+    const rank = form["rank"+type].value;
+    const topRank = rank.match(/★$/) ? 1 : 0;
+    const rankStar = topRank ? Number(form["rankStar"+type].value||1)-1 : 0;
+    form["rankStar"+type].style.display = topRank ? '' : 'none';
+    const rankData = type == 'Barbaros' ? SET.bRank[rank] : SET.aRank[rank];
+    const rankNum  = (rankData) ? rankData.num  + rankStar*500 : 0;
+    const rankFree = (rankData) ? rankData.free + rankStar*50  : 0;
+    pointTotal -= rankNum;
+    if(rankFree > free){ free = rankFree }
+    document.getElementById(`rank${type}-honor-value`).textContent = rankNum;
+  }
   
-  const rankNum = (SET.aRank[rank]) ? SET.aRank[rank].num  + rankStar*500 : 0;
-  const free    = (SET.aRank[rank]) ? SET.aRank[rank].free + rankStar*50  : 0;
-  pointTotal -= rankNum;
   // 名誉アイテム
   const honorItemsNum = form.honorItemsNum.value;
   for (let i = 1; i <= honorItemsNum; i++){
@@ -1561,27 +1765,43 @@ function calcHonor(){
   }
   pointTotal -= mysticArtsPt;
   //
-  pointTotal -= Number(form.honorOffset.value);
+  pointTotal -= Number(form.honorOffset.value) + Number(form.honorOffsetBarbaros.value);
   document.getElementById("honor-value"   ).textContent = pointTotal;
   document.getElementById("honor-value-MA").textContent = pointTotal;
-  document.getElementById("rank-honor-value").textContent = rankNum;
   document.getElementById("mystic-arts-honor-value").textContent = mysticArtsPt;
   document.getElementById('honor-items-mystic-arts').style.display = mysticArtsPt ? '' : 'none';
 }
 // 不名誉点計算
 function calcDishonor(){
   if(modeZero){ return; }
-  let pointTotal = 0;
+  let pointTotal = { 'human':0, 'barbaros':0 };
   const dishonorItemsNum = form.dishonorItemsNum.value;
   for (let i = 1; i <= dishonorItemsNum; i++){
     let point = safeEval(form['dishonorItem'+i+'Pt'].value) || 0;
-    pointTotal += point;
+    let type  = form['dishonorItem'+i+'PtType'].value || 'human';
+    form['dishonorItem'+i+'PtType'].dataset.type = type;
+    if(type == 'both'){
+      for(let t in pointTotal){ pointTotal[t] += point }
+    }
+    else {
+      pointTotal[type] += point;
+    }
   }
-  pointTotal -= Number(form.honorOffset.value);
-  document.getElementById("dishonor-value").textContent = pointTotal;
+  pointTotal.human    -= Number(form.honorOffset.value);
+  pointTotal.barbaros -= Number(form.honorOffsetBarbaros.value);
+  let pointTotalText = pointTotal.human;
+  if(pointTotal.barbaros){ pointTotalText += `／<small>蛮</small>${pointTotal.barbaros}`; }
+  document.getElementById("dishonor-value").innerHTML = pointTotalText;
+
+  let notoriety = '';
   for(const data of SET.nRank){
-    if(pointTotal >= data[1]) { document.getElementById("notoriety").textContent = data[0]; }
+    if(pointTotal.human >= data[1]) { notoriety = `<span>“${data[0]}”</span>` }
   }
+  let notorietyB = '';
+  for(const data of SET.nBRank){
+    if(pointTotal.barbaros >= data[1]) { notorietyB = `<span>“${data[0]}”</span>` }
+  }
+  document.getElementById("notoriety").innerHTML = notoriety+notorietyB || '―';
 }
 
 // 収支履歴計算 ----------------------------------------
@@ -1788,6 +2008,7 @@ function addWeapons(copyBaseNum){
     });
     calcWeapon();
   }
+  calcParts();
   generatePaletteWeaponCheckbox();
 }
 // 削除
@@ -1894,11 +2115,24 @@ setSortable('armour', '#armours tbody', 'tr',
 // 追加
 function addDefense(){
   document.querySelector("#armours tfoot").append(createRow('defense-total','defenseNum'));
+  calcParts();
   calcDefense();
 }
 // 削除
 function delDefense(){
   delRow('defenseNum', '#armours tfoot tr:last-of-type');
+}
+
+// 部位 ----------------------------------------
+// 追加
+function addPart(){
+  document.querySelector("#parts tbody").append(createRow('part','partNum'));
+  calcParts();
+}
+// 削除
+function delPart(){
+  delRow('partNum', '#parts tbody tr:last-of-type');
+  calcParts();
 }
 // 名誉アイテム欄 ----------------------------------------
 // 追加
