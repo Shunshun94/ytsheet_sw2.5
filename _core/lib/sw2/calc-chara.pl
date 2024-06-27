@@ -98,8 +98,17 @@ sub data_calc {
     }
     foreach (@set::adventurer_rank){
       my ($name, $num, undef) = @$_;
-      $pc{honor} -= $num if ($pc{rank} eq $name);
+      if ($pc{rank} eq $name) {
+        $pc{honorRank} = $num;
+      }
     }
+    foreach (@set::barbaros_rank){
+      my ($name, $num, undef) = @$_;
+      if ($pc{rankBarbaros} eq $name) {
+        $pc{honorRankBarbaros} = $num;
+      }
+    }
+    $pc{honor} -= $pc{honorRank} + $pc{honorRankBarbaros};
     foreach (1 .. $pc{mysticArtsNum}){
       $pc{honor} -= $pc{'mysticArts'.$_.'Pt'};
     }
@@ -107,14 +116,19 @@ sub data_calc {
       $pc{honor} -= $pc{'mysticMagic'.$_.'Pt'};
     }
     foreach (1 .. $pc{dishonorItemsNum}){
-      $pc{dishonor} += $pc{'dishonorItem'.$_.'Pt'};
+      if($pc{'dishonorItem'.$_.'PtType'} eq 'barbaros'){
+        $pc{dishonorBarbaros} += $pc{'dishonorItem'.$_.'Pt'};
+      }
+      else { $pc{dishonor} += $pc{'dishonorItem'.$_.'Pt'}; }
     }
     $pc{honor}    -= $pc{honorOffset};
-    $pc{dishonor} -= $pc{honorOffset};
+    $pc{dishonor} -= $pc{honorOffsetBarbaros};
   }
   ## 冒険者ランク
-  if($pc{rank} !~ /★$/ || $pc{rankStar} <= 1){ $pc{rankStar} = '' }
-  if($pc{rank} =~ /★$/ && $pc{rankStar} >= 2){ $pc{honor} -= 500 * ($pc{rankStar}-1) }
+  if('','Barbaros'){
+    if($pc{"rank$_"} !~ /★$/ || $pc{"rankStar$_"} <= 1){ $pc{"rankStar$_"} = '' }
+    if($pc{"rank$_"} =~ /★$/ && $pc{"rankStar$_"} >= 2){ $pc{honor} -= 500 * ($pc{"rankStar$_"}-1) }
+  }
 
   ## 経験点消費
   my @expA = ( 0, 1000, 2000, 3500, 5000, 7000, 9500, 12500, 16500, 21500, 27500, 35000, 44000, 54500, 66500, 80000, 95000, 125000 );
@@ -195,7 +209,7 @@ sub data_calc {
   }
   else {
     my $i = 1;
-    sub abilitySet {
+    sub setAbility {
       my $lv = shift;
       my @output;
       foreach (@{ $data::races{$pc{race}}{'ability'.$lv} }){
@@ -204,16 +218,24 @@ sub data_calc {
           $i++;
         }
         else {
+          if(exists $data::races{$pc{race}}{abilityReplace}){
+            while(exists $data::races{$pc{race}}{abilityReplace}{$_}
+              && $pc{level} >= $data::races{$pc{race}}{abilityReplace}{$_}{lv}
+            ){
+              last if $data::races{$pc{race}}{abilityReplace}{$_}{before} eq $_; #ループ事故防止
+              $_ = $data::races{$pc{race}}{abilityReplace}{$_}{before};
+            }
+          }
           push(@output, $_);
         }
       }
       return @output;
     }
-    my @abilities = abilitySet('');
-    if($pc{level} >=  6){ push @abilities, abilitySet('Lv6'); }
-    if($pc{level} >= 11){ push @abilities, abilitySet('Lv11'); }
-    if($pc{level} >= 16){ push @abilities, abilitySet('Lv16'); unshift @abilities, '剣の託宣／運命凌駕' }
-    elsif($pc{seekerAbilityRaceA}){ push @abilities, abilitySet('Lv16'); }
+    my @abilities = setAbility('');
+    if($pc{level} >=  6){ push @abilities, setAbility('Lv6'); }
+    if($pc{level} >= 11){ push @abilities, setAbility('Lv11'); }
+    if($pc{level} >= 16){ push @abilities, setAbility('Lv16'); unshift @abilities, '剣の託宣／運命凌駕' }
+    elsif($pc{seekerAbilityRaceA}){ push @abilities, setAbility('Lv16'); }
     my %unique;
     @abilities = grep { ! $unique{$_}++ } @abilities;
     $_ .= ($unique{$_} >= 2 ? '＋' : '') foreach(@abilities);
@@ -394,6 +416,14 @@ sub data_calc {
       elsif($feat eq '抵抗強化Ⅱ')  { $pc{resistEnhance} = 2; }
     }
   }
+  ### 魔装 --------------------------------------------------
+  foreach my $num (1..$pc{lvPhy}){
+    if   ($pc{"craftPotential$num"} =~ /^部位.+強化$/     ){ $pc{partEnhance} += 1 }
+    elsif($pc{"craftPotential$num"} =~ /^部位耐久超?増強$/){ $pc{partEnduranceEnhance} += 1 }
+    elsif($pc{"craftPotential$num"} =~ /^部位耐久極増強$/ ){ $pc{partEnduranceEnhance} += 2 }
+    elsif($pc{"craftPotential$num"} =~ /^コア耐久超?増強$/){ $pc{coreEnduranceEnhance} += 1 }
+    elsif($pc{"craftPotential$num"} =~ /^コア耐久極増強$/ ){ $pc{coreEnduranceEnhance} += 2 }
+  }
 
   ### サブステータス --------------------------------------------------
   ## 生命抵抗力
@@ -435,7 +465,7 @@ sub data_calc {
   $pc{mobilityBase} = $pc{mobilityBase} * 2 + $own_mobility  if ($pc{raceAbility} =~ /［半馬半人］/);
   $pc{mobilityTotal} = $pc{mobilityBase} + s_eval($pc{mobilityAdd});
   $pc{mobilityFull} = $pc{mobilityTotal} * 3;
-  $pc{mobilityLimited} = $pc{footwork} ? 10 : 3;
+  $pc{mobilityLimited} = min($pc{footwork} ? 10 : 3, $pc{mobilityTotal});
 
   ## 判定パッケージ
   my @pack_lore;
@@ -444,21 +474,24 @@ sub data_calc {
     next if !$data::class{$class}{package};
     my $c_id = $data::class{$class}{id};
     my $c_en = $data::class{$class}{eName};
+    my $craftName = ucfirst $data::class{$class}{craft}{eName};
     my %data = %{$data::class{$class}{package}};
     
     foreach my $p_id (keys %data){
       my $auto = 0;
       my $disabled = 0;
-      if($c_id eq 'War' && $p_id eq 'Int'){ # 軍師の知略
+      my $addAcuire = $pc{ $data::class{$class}{craft}{eName}.'Addition' }
+          + $pc{ 'buildupAdd'.ucfirst($data::class{$class}{craft}{eName}) };
+      if(exists $data{$p_id}{unlockCraft}){
         $disabled = 1;
-        foreach(1 .. $pc{lvWar}+$pc{commandAddition}){
-          if($pc{'craftCommand'.$_} =~ /軍師の知略$/){ $disabled = 0; $auto += $pc{'craftCommand'.$_} =~ /^陣率/ ? 1 : 0; last; }
+        foreach(1 .. $pc{'lv'.$c_id}+$addAcuire){
+          if($pc{'craft'.$craftName.$_} eq $data{$p_id}{unlockCraft}){ $disabled = 0; last; }
         }
       }
-      elsif($c_id eq 'Rid' && $p_id eq 'Obs'){ # 探索指令
-        $disabled = 1;
-        foreach(1 .. $pc{lvRid}){
-          if($pc{'craftRiding'.$_} =~ /探索指令$/){ $disabled = 0; last; }
+      # 陣率：軍師の知略
+      if($c_id eq 'War' && $p_id eq 'Int'){ 
+        foreach(1 .. $pc{'lv'.$c_id}+$addAcuire){
+          if($pc{'craftCommand'.$_} =~ /^陣率/){ $auto +=1; last; }
         }
       }
       next if $disabled;
@@ -508,48 +541,111 @@ sub data_calc {
   ### 装備 --------------------------------------------------
   ## 武器
   foreach (1 .. $pc{weaponNum}){
-    my $name = $pc{'weapon'.$_.'Class'};
-    my $id   = $data::class{$name}{id};
+    my $class = $pc{"weapon${_}Class"};
+    my $id = $data::class{$class}{id};
+    my $lv = $pc{'lv'.$id} || 0;
+    my $category = $pc{"weapon${_}Category"};
+    my $partNum = $pc{"weapon${_}Part"};
     ## 命中
-    my $own_dex = $pc{'weapon'.$_.'Own'} ? 2 : 0; # 専用化補正
-    $pc{'weapon'.$_.'AccTotal'} = 0;
-    $pc{'weapon'.$_.'AccTotal'} = $pc{'lv'.$id} + int( ($pc{sttDex} + $pc{sttAddA} + $own_dex) / 6 ) if $pc{'lv'.$id};
-    $pc{'weapon'.$_.'AccTotal'} += $pc{accuracyEnhance}; # 命中強化
-    $pc{'weapon'.$_.'AccTotal'} += 1 if $pc{throwing} && $pc{'weapon'.$_.'Category'} eq '投擲'; # スローイング
-    $pc{'weapon'.$_.'AccTotal'} += $pc{'weapon'.$_.'Acc'}; # 武器の修正値
+    my $dex = $pc{sttDex} + ($partNum ? $pc{sttPartA} : $pc{sttAddA});
+    my $own_dex = $pc{"weapon${_}Own"} ? 2 : 0; # 専用化補正
+    my $acc = 0;
+    if($lv){ $acc = $lv + int(($dex+$own_dex) / 6) }
+    ## 人orコア部位
+    if(!$partNum || $partNum eq $pc{partCore}) {
+      $acc += $pc{accuracyEnhance}; # 命中強化
+      $acc += 1 if $pc{throwing} && $category eq '投擲'; # スローイング
+    }
+    ## その他部位
+    else {
+      # 部位強化
+      $acc += $pc{partEnhance};
+    }
+    $acc += $pc{"weapon${_}Acc"}; # 武器の修正値
     ## ダメージ
-    $pc{'weapon'.$_.'DmgTotal'} = $pc{'weapon'.$_.'Dmg'};
-    if   ($pc{'weapon'.$_.'Category'} eq 'クロスボウ'){
-      $pc{'weapon'.$_.'DmgTotal'} += $pc{lvSho};
+    my $str = $pc{sttStr} + ($partNum ? $pc{sttPartC} : $pc{sttAddC});
+    my $dmg = 0;
+    $dmg = $pc{"weapon${_}Dmg"};
+    if   ($category eq 'クロスボウ'){
+      $dmg += $pc{lvSho};
     }
-    elsif($pc{'weapon'.$_.'Category'} eq 'ガン'      ){
-      $pc{'weapon'.$_.'DmgTotal'} += $pc{magicPowerMag};
+    elsif($category eq 'ガン'){
+      $dmg += $pc{magicPowerMag};
     }
-    elsif(!$::SW2_0 && $pc{'weapon'.$_.'Class'} eq "デーモンルーラー"){
-      $pc{'weapon'.$_.'DmgTotal'} += $pc{magicPowerDem};
+    elsif(!$::SW2_0 && $class eq "デーモンルーラー"){
+      $dmg += $pc{magicPowerDem};
     }
     else {
-      $pc{'weapon'.$_.'DmgTotal'} += $st{$id.'C'};
+      $dmg += $lv + int($str / 6);
     }
 
-    $pc{'weapon'.$_.'DmgTotal'} += $pc{'mastery' . ucfirst($data::weapon_id{ $pc{'weapon'.$_.'Category'} }) };
-    if($pc{'weapon'.$_.'Category'} eq 'ガン（物理）'){ $pc{'weapon'.$_.'DmgTotal'} += $pc{masteryGun}; }
-    if($pc{'weapon'.$_.'Note'} =~ /〈魔器〉/){ $pc{'weapon'.$_.'DmgTotal'} += $pc{masteryArtisan}; }
-
-    if($pc{'weapon'.$_.'Class'} eq "自動計算しない"){
-      $pc{'weapon'.$_.'AccTotal'} = $pc{'weapon'.$_.'Acc'};
-      $pc{'weapon'.$_.'DmgTotal'} = $pc{'weapon'.$_.'Dmg'};
+    if(!$partNum || $partNum eq $pc{partCore}) {
+      $dmg += $pc{'mastery' . ucfirst($data::weapon_id{ $category }) };
+      if($category eq 'ガン（物理）'){ $dmg += $pc{masteryGun}; }
+      if($pc{"weapon${_}Note"} =~ /〈魔器〉/){ $dmg += $pc{masteryArtisan}; }
+    }
+    else {
+      if($category eq '格闘'){ $dmg += $pc{masteryGrapple}; }
+      elsif($category && $pc{race} eq 'ディアボロ' && $pc{level} >= 6){
+         $dmg += $pc{'mastery' . ucfirst($data::weapon_id{$category}) };
+      }
+    }
+    ##
+    if($class eq "自動計算しない"){
+      $pc{"weapon${_}AccTotal"} = $pc{"weapon${_}Acc"};
+      $pc{"weapon${_}DmgTotal"} = $pc{"weapon${_}Dmg"};
+    }
+    else {
+      $pc{"weapon${_}AccTotal"} = $acc;
+      $pc{"weapon${_}DmgTotal"} = $dmg;
     }
   }
 
   
   ## 回避力・防護点
   foreach my $i (1..$pc{defenseNum}){
-    my $name = $pc{"evasionClass$i"};
-    my $id   = $data::class{$name}{id};
+    my $class = $pc{"evasionClass$i"};
+    my $id = $data::class{$class}{id};
     my $lv = $pc{'lv'.$id} || 0;
-    my $eva = $pc{evasiveManeuver} + $pc{mindsEye};
-    my $def = $pc{raceAbilityDef} + $pc{defenseSeeker};
+    my $partNum = $pc{"evasionPart$i"};
+    my $partName = $pc{"evasionPart${i}Name"} = $pc{"part${partNum}Name"};
+
+    ## 基礎値
+    my $agi = $pc{sttAgi} + ($partNum ? $pc{sttPartB} : $pc{sttAddB});
+    my $eva = 0;
+    my $def = 0;
+    ## 部位（コア含）
+    if($partNum){
+      unless($pc{raceAbility} =~ /［蠍人の身体］/ && $partNum eq $pc{partCore}){
+        $def += $data::partsData{$partName}{def}[$pc{lvPhy}||0]; # 部位基礎値
+      }
+      $def += $pc{"part${partNum}Def"}; # 手動補正
+    }
+    ## 人orコア部位
+    if(!$partNum || $partNum eq $pc{partCore}) {
+      # 種族特徴
+      $def += $pc{raceAbilityDef} + $pc{defenseSeeker};
+      # 戦闘特技
+      $eva += $pc{evasiveManeuver} + $pc{mindsEye};
+      if($pc{evasiveManeuver} == 2 && $id ne 'Fen' && $id ne 'Bat'){ $eva -= 1 }
+      if($pc{mindsEye} && $id ne 'Fen'){ $eva -= $pc{mindsEye} }
+    }
+    ## 部位全般
+    if($partNum){
+      # コア部位
+      if($partNum eq $pc{partCore}) {
+        $def += $pc{coreEnduranceEnhance};
+      }
+      # その他部位
+      else {
+        $eva += $pc{partEnhance};
+        $def += $pc{partEnduranceEnhance};
+      }
+      if($partName eq '邪眼'){
+        $eva += 2;
+      }
+    }
+    ## 装備
     my $own_agi = 0;
     my $artisan = 0;
     foreach my $num (1 .. $pc{armourNum}){
@@ -558,12 +654,55 @@ sub data_calc {
       my $category = $pc{"armour${num}Category"};
       $eva += $pc{"armour${num}Eva"};
       $def += $pc{"armour${num}Def"};
-      if   ($category eq   '金属鎧'){ $def += $pc{masteryMetalArmour} }
-      elsif($category eq '非金属鎧'){ $def += $pc{masteryNonMetalArmour} }
-      elsif($category eq       '盾'){ $def += $pc{masteryShield} }
+      if(!$partNum || $partNum eq $pc{partCore}) {
+        if   ($category eq   '金属鎧'){ $def += $pc{masteryMetalArmour} }
+        elsif($category eq '非金属鎧'){ $def += $pc{masteryNonMetalArmour} }
+        elsif($category eq       '盾'){ $def += $pc{masteryShield} }
+        if($pc{"armour${num}Note"} =~ /〈魔器〉/){ $artisan = $pc{masteryArtisan}; }
+      }
       
       if($category eq '盾' && $pc{"armour${num}Own"}){ $own_agi = 2 }
-      if($pc{"armour${num}Note"} =~ /〈魔器〉/){ $artisan = $pc{masteryArtisan}; }
+    }
+    $eva += $lv ? $lv + int(($agi+$own_agi)/6) : 0;
+    $def += $artisan;
+    
+    $pc{"defenseTotal${i}Eva"} = $eva;
+    $pc{"defenseTotal${i}Def"} = $def;
+  }
+  ### 部位 --------------------------------------------------
+  $pc{coreDefAuto} = $pc{coreEnduranceEnhance};
+  $pc{coreHpAuto}  = $pc{coreEnduranceEnhance} * 5;
+  $pc{partDefAuto} = $pc{partEnduranceEnhance};
+  $pc{partHpAuto}  = $pc{partEnduranceEnhance} * 5;
+  foreach (1 .. $pc{partNum}) {
+    my $name = $pc{"part${_}Name"};
+    my $lv = $pc{lvPhy} || 0;
+    ## コア
+    if($pc{partCore} eq $_){
+      $pc{"part${_}DefTotal"} = $data::partsData{$name}{def}[$lv] + $pc{"part${_}Def"} + $pc{coreDefAuto};
+      if($pc{raceAbility} =~ /蠍人の身体/){
+        $pc{"part${_}DefTotal"} = 0;
+        $pc{"part${_}HpTotal" } = $pc{hpTotal} + $pc{coreHpAuto};
+        $pc{"part${_}MpTotal" } = $pc{mpTotal};
+      }
+      else {
+        $pc{"part${_}HpTotal" } = $pc{hpTotal}-$pc{sttAddD}-$pc{hpAdd}-$pc{hpAccessory} +$pc{sttPartD} + $pc{coreHpAuto};
+        $pc{"part${_}MpTotal" } = $pc{mpTotal}-$pc{sttAddF}-$pc{mpAdd}-$pc{mpAccessory} +$pc{sttPartF};
+        my $hpAccessory = 0;
+        my $mpAccessory = 0;
+        foreach my $add ('','_','__'){
+          if($pc{"accessoryEar$add".'Own'} eq 'HP'){ $hpAccessory =2; }
+          if($pc{"accessoryEar$add".'Own'} eq 'MP'){ $mpAccessory =2; }
+        }
+        $pc{"part${_}HpTotal" } += $hpAccessory;
+        $pc{"part${_}MpTotal" } += $mpAccessory;
+      }
+    }
+    ## その他
+    else {
+      $pc{"part${_}DefTotal"} = $data::partsData{$name}{def}[$lv] + $pc{"part${_}Def"} + $pc{partDefAuto};
+      $pc{"part${_}HpTotal" } = $data::partsData{$name}{hp }[$lv] + $pc{"part${_}Hp" } + $pc{partHpAuto};
+      $pc{"part${_}MpTotal" } = $data::partsData{$name}{mp }[$lv] + $pc{"part${_}Mp" };
     }
     $eva += $lv ? $lv + int(($pc{sttAgi}+$pc{sttAddB}+$own_agi)/6) : 0;
     $def += $artisan;
@@ -587,20 +726,17 @@ sub data_calc {
 
   ### 0を消去 --------------------------------------------------
   foreach (
-  'lvFig','lvGra','lvFen','lvSho',
-  'lvSor','lvCon','lvPri','lvFai','lvMag',
-  'lvSco','lvRan','lvSag',
-  'lvEnh','lvBar','lvRid','lvAlc',
-  'lvDru','lvDem',
-  'lvWar','lvMys','lvPhy',
-  'lvGri','lvArt','lvAri',
   'cardRedB','cardRedA','cardRedS','cardRedSS',
   'cardGreB','cardGreA','cardGreS','cardGreSS',
   'cardBlaB','cardBlaA','cardBlaS','cardBlaSS',
   'cardWhiB','cardWhiA','cardWhiS','cardWhiSS',
   'cardGolB','cardGolA','cardGolS','cardGolSS',
+  'sttAddA','sttAddB','sttAddC','sttAddD','sttAddE','sttAddF',
   ){
     delete $pc{$_} if !$pc{$_};
+  }
+  foreach my $data (values %data::class){
+    delete $pc{'lv'.$data->{id}} if !$pc{'lv'.$data->{id}};
   }
 
   #### 改行を<br>に変換 --------------------------------------------------
@@ -634,13 +770,14 @@ sub data_calc {
   foreach my $class (@data::class_list){
     $classlv .= $pc{'lv'.$data::class{$class}{id}}.'/';
   }
+  my $rank = $pc{honorRank} >= $pc{honorRankBarbaros} ? $pc{rank} : $pc{rankBarbaros};
   my $race = (exists $data::races{$pc{race}}) ? $pc{race}
            : $pc{race} ? "その他:$pc{race}"
            : '';
   my $faith = $pc{faith} eq 'その他の信仰' ? ($pc{faithOther} || $pc{faith}) : $pc{faith}; 
   $::newline = "$pc{id}<>$::file<>".
                "$pc{birthTime}<>$::now<>$charactername<>$pc{playerName}<>$pc{group}<>".
-               "$pc{expTotal}<>$pc{rank}<>$race<>$pc{gender}<>$pc{age}<>$pc{faith}<>".
+               "$pc{expTotal}<>$rank<>$race<>$pc{gender}<>$pc{age}<>$pc{faith}<>".
                "$classlv<>".
                "$pc{lastSession}<>$pc{image}<> $pc{tags} <>$pc{hide}<>$pc{fellowPublic}<>";
 

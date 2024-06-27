@@ -129,7 +129,7 @@
             <dt>信仰<dd><TMPL_VAR faith>
           </dl>
           <dl class="box" id="rank">
-            <dt>ランク<dd><TMPL_VAR rank>
+            <dt>ランク<dd><TMPL_VAR rankAll>
           </dl>
           <dl class="box" id="sin">
             <dt>穢れ<dd><TMPL_VAR sin>
@@ -382,7 +382,9 @@
             </thead>
             <tbody><TMPL_LOOP Weapons><TMPL_IF CLOSE></tbody><tbody></TMPL_IF>
               <tr>
-                <TMPL_UNLESS NAMEOFF><td rowspan="<TMPL_VAR ROWSPAN>"><span class="item-name"><TMPL_VAR NAME></span></TMPL_UNLESS>
+                <TMPL_UNLESS NAMEOFF><td rowspan="<TMPL_VAR ROWSPAN>">
+                  <span class="item-name"><TMPL_VAR NAME><TMPL_IF PART><span class="part-name">（<TMPL_VAR PART>）</span></TMPL_IF></span>
+                </TMPL_UNLESS>
                 <td><TMPL_VAR USAGE>
                 <td><TMPL_VAR REQD>
                 <td><TMPL_IF ACC><TMPL_VAR ACC>=</TMPL_IF><b><TMPL_VAR ACCTOTAL></b>
@@ -390,7 +392,9 @@
                 <td><TMPL_VAR CRIT>
                 <td><TMPL_IF DMG><TMPL_VAR DMG>=</TMPL_IF><b><TMPL_VAR DMGTOTAL></b>
                 <td><TMPL_IF OWN>✔</TMPL_IF>
-                <td><span class="item-name"><TMPL_VAR NOTE></span>
+                <TMPL_UNLESS NOTEOFF><td rowspan="<TMPL_VAR NOTESPAN>">
+                  <span class="item-name"><TMPL_VAR NOTE></span>
+                </TMPL_UNLESS>
             </TMPL_LOOP></tbody>
           </table>
         </section>
@@ -440,12 +444,33 @@
             </tbody>
             <tfoot>
               <TMPL_LOOP ArmourTotals><tr class="defense-total">
-                <th colspan="3">合計: <TMPL_VAR TH>
+                <th colspan="3">合計:<span class="small"><TMPL_VAR TH></span>
                 <td class="eva "><TMPL_VAR EVA>
                 <td class="def "><TMPL_VAR DEF>
                 <td class="note" colspan="2"><TMPL_VAR NOTE>
               </TMPL_LOOP>
             </tfoot>
+          </table>
+        </section></TMPL_IF>
+        <TMPL_IF Parts><section class="box" id="parts">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="name">部位
+                <th class="def ">防護点
+                <th class="hp  ">ＨＰ
+                <th class="mp  ">ＭＰ
+                <th class="note">備考
+              </tr>
+            <tbody>
+              <TMPL_LOOP Parts><tr>
+                <td class="name"><TMPL_VAR NAME>
+                <td class="def "><TMPL_IF DEFMOD><span class="small">+<TMPL_VAR DEFMOD>=</span></TMPL_IF><TMPL_VAR DEF>
+                <td class="hp  "><TMPL_IF HPMOD ><span class="small">+<TMPL_VAR HPMOD >=</span></TMPL_IF><TMPL_VAR HP >
+                <td class="mp  "><TMPL_IF MPMOD ><span class="small">+<TMPL_VAR MPMOD >=</span></TMPL_IF><TMPL_VAR MP >
+                <td class="note left"><TMPL_VAR NOTE>
+              </TMPL_LOOP>
+            </tbody>
           </table>
         </section></TMPL_IF>
         <TMPL_IF Accessories><section class="box" id="accessories">
@@ -502,10 +527,14 @@
             <ul class="data-table side-margin"><TMPL_LOOP BattleItems><li><TMPL_VAR ITEM DEFAULT="&nbsp;"></TMPL_LOOP></ul>
           </section>
           </TMPL_IF>
-          <dl class="box" id="honor">
-            <dt>名誉点<dd><TMPL_VAR honor>
-            <dt>ランク<dd><TMPL_VAR rank>
-          </dl>
+          <div id="honor">
+            <dl class="box"><dt>名誉点<dd><TMPL_VAR honor></dl>
+            <div class="box-union">
+              <TMPL_IF rankHonorValue><dl class="box" id="adventurer-rank"><dt>冒険者ランク<dd><TMPL_VAR rank></dl></TMPL_IF>
+              <TMPL_IF rankBarbarosValue><dl class="box" id="barbaros-rank"><dt>バルバロス栄光ランク<dd><TMPL_VAR rankBarbaros></dl></TMPL_IF>
+              <TMPL_UNLESS rankHonorValue><TMPL_UNLESS rankBarbarosValue><dl class="box" id="adventurer-rank><dt">ランク<dd>―</dl></TMPL_UNLESS></TMPL_UNLESS>
+            </div>
+          </div>
           <section class="box honor-items" id="honor-items">
             <h2>名誉アイテム</h2>
             <table class="data-table side-margin">
@@ -514,17 +543,19 @@
               </thead>
               <tbody>
                 <TMPL_IF rankHonorValue><tr><td>冒険者ランク<td><TMPL_VAR rankHonorValue></TMPL_IF>
+                <TMPL_IF rankBarbarosValue><tr><td>バルバロス栄光ランク<td><TMPL_VAR rankBarbarosValue></TMPL_IF>
                 <TMPL_IF MysticArtsHonor><tr><td>秘伝<td><TMPL_VAR MysticArtsHonor></TMPL_IF>
                 <TMPL_LOOP HonorItems><tr><td class="left"><TMPL_VAR NAME><td><TMPL_VAR PT></TMPL_LOOP>
                 <TMPL_IF honorOffset><tr><td>不名誉点相殺<td><TMPL_VAR honorOffset></TMPL_IF>
+                <TMPL_IF honorOffsetBarbaros><tr><td>不名誉点相殺（蛮族）<td><TMPL_VAR honorOffsetBarbaros></TMPL_IF>
               </tbody>
             </table>
           </section>
           <TMPL_IF DishonorItems>
-          <dl class="box" id="dishonor">
-            <dt>不名誉点<dd><TMPL_VAR dishonor>
-            <dt>不名誉称号<dd><TMPL_VAR notoriety>
-          </dl>
+          <div id="dishonor">
+            <dl class="box"><dt>不名誉点<dd><TMPL_VAR dishonor></dl>
+            <dl class="box"><dt>不名誉称号<dd><TMPL_VAR notoriety></dl>
+          </div>
           <section class="box honor-items" id="dishonor-items">
             <h2>不名誉詳細</h2>
             <table class="data-table side-margin">
