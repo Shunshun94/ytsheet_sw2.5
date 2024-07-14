@@ -704,11 +704,6 @@ sub data_calc {
       $pc{"part${_}HpTotal" } = $data::partsData{$name}{hp }[$lv] + $pc{"part${_}Hp" } + $pc{partHpAuto};
       $pc{"part${_}MpTotal" } = $data::partsData{$name}{mp }[$lv] + $pc{"part${_}Mp" };
     }
-    $eva += $lv ? $lv + int(($pc{sttAgi}+$pc{sttAddB}+$own_agi)/6) : 0;
-    $def += $artisan;
-    
-    $pc{"defenseTotal${i}Eva"} = $eva;
-    $pc{"defenseTotal${i}Def"} = $def;
   }
 
   ### グレード自動変更 --------------------------------------------------
