@@ -117,10 +117,10 @@ foreach (1 .. $pc{weaponNum}){
   push(@weapons, {
     USAGE => $pc{'weapon'.$_.'Usage'},
     REQD  => $pc{'weapon'.$_.'Reqd'},
-    ACC   => $pc{'weapon'.$_.'Acc'},
+    ACC   => $pc{'weapon'.$_.'Acc'} // '―',
     RATE  => $pc{'weapon'.$_.'Rate'},
     CRIT  => $pc{'weapon'.$_.'Crit'},
-    DMG   => $pc{'weapon'.$_.'Dmg'},
+    DMG   => $pc{'weapon'.$_.'Dmg'} // '―',
     NOTE  => $pc{'weapon'.$_.'Note'},
   } );
 }
@@ -133,8 +133,8 @@ foreach (1 .. $pc{armourNum}){
   push(@armours, {
     USAGE => $pc{'armour'.$_.'Usage'},
     REQD  => $pc{'armour'.$_.'Reqd'},
-    EVA   => $pc{'armour'.$_.'Eva'},
-    DEF   => $pc{'armour'.$_.'Def'},
+    EVA   => $pc{'armour'.$_.'Eva'} // '―',
+    DEF   => $pc{'armour'.$_.'Def'} // 0,
     NOTE  => $pc{'armour'.$_.'Note'},
   } );
 }

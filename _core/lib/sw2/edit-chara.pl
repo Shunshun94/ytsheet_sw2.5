@@ -17,11 +17,6 @@ require $set::data_races;
 require $set::data_items;
 require $set::data_faith;
 
-# ドレイク例外処理
-my @raceOptions = @data::race_list;
-foreach (@raceOptions){
-  if($_ eq 'ドレイク（ナイト）'){ $_ = 'ドレイク（ナイト）|<ドレイク>' }
-}
 ### データ読み込み ###################################################################################
 my ($data, $mode, $file, $message) = getSheetData($::in{mode});
 our %pc = %{ $data };
@@ -72,6 +67,14 @@ elsif($mode eq 'blanksheet'){
     $pc{sin} = $data::races{$pc{race}}{sin} || 0;
     if($::in{making_num}){
       $pc{history0Note} = "能力値作成履歴#$::in{making_num}";
+      if($pc{race} eq '魔動天使'){ $pc{raceAbilitySelect1} = '新たな契約の絆' }
+    }
+    if($data::races{$pc{race}}{parts}){
+      foreach my $name (@{$data::races{$pc{race}}{parts}}){
+        $pc{partNum}++;
+        $pc{"part$pc{partNum}Name"} = $name;
+      }
+      $pc{partCore} = 1;
     }
     if($data::races{$pc{race}}{parts}){
       foreach my $name (@{$data::races{$pc{race}}{parts}}){
@@ -314,7 +317,7 @@ print <<"HTML";
 
         <div id="personal" class="in-toc" data-content-title="種族・年齢・性別・穢れ・生まれ・信仰">
           <dl class="box" id="race">
-            <dt>種族<dd>@{[ selectInput 'race', 'changeRace(this.value)', @raceOptions,'label=その他' ]}
+            <dt>種族<dd>@{[ selectInput 'race', 'changeRace(this.value)', @data::race_list,'label=その他' ]}
           </dl>
           <dl class="box" id="age">
             <dt>年齢<dd>@{[input('age')]}
@@ -975,7 +978,7 @@ print <<"HTML";
                 <td rowspan="2">@{[input("weapon${num}Crit")]}
                 <td rowspan="2">+@{[input("weapon${num}Dmg",'number','calcWeapon')]}<b id="weapon${num}-dmg-total">0</b>
                 <td>@{[input("weapon${num}Own",'checkbox','calcWeapon')]}
-                <td><select name="weapon${num}Category" oninput="calcWeapon()">@{[option("weapon${num}Category",@data::weapon_names,'ガン（物理）','盾')]}</select>
+                <td><select name="weapon${num}Category" oninput="calcWeapon()">@{[option("weapon${num}Category",@data::weapon_names,'ガン（物理）','その他|<その他（盾など）>')]}</select>
                 <td><select name="weapon${num}Class" oninput="calcWeapon()">@{[option("weapon${num}Class",@weapon_users,'自動計算しない')]}</select>
                 <td rowspan="2"><span class="button" onclick="addWeapons(${num});">複<br>製</span>
               <tr>
@@ -1088,12 +1091,12 @@ foreach my $num ('TMPL',1 .. $pc{armourNum}) {
   print <<"HTML";
               <tr id="armour-row${num}" data-type="">
                 <th class="type handle">
-                <td><select name="armour${num}Category" oninput="calcDefense()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
-                <td>@{[ input "armour${num}Name",'','calcDefense','list="list-item-name"' ]}
+                <td><select name="armour${num}Category" oninput="setArmourType();generateArmourCheckbox();calcDefense();calcMobility()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
+                <td>@{[ input "armour${num}Name",'','generateArmourCheckbox','list="list-item-name"' ]}
                 <td>@{[ input "armour${num}Reqd",'','calcDefense' ]}
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
-                <td>@{[ input "armour${num}Own",'checkbox','calcDefense','disabled' ]}
+                <td>@{[ input "armour${num}Own",'checkbox','calcDefense();calcMobility','disabled' ]}
                 <td>@{[ input "armour${num}Note" ]}
 HTML
   if($num eq 'TMPL'){ print '</template>' }
@@ -1309,7 +1312,7 @@ print <<"HTML";
 HTML
 foreach my $num ('TMPL',1 .. $pc{honorItemsNum}){
   if($num eq 'TMPL'){ print '<template id="honor-item-template">' }
-  print '<tr id="honor-item-row'.$num.'"><td class="handle"><td>'.(input "honorItem${num}", "text").'<td>'.(input "honorItem${num}Pt", "number", "calcHonor");
+  print '<tr id="honor-item-row'.$num.'"><td class="handle"><td>'.(input "honorItem${num}", "text", '', 'list="list-honor-item"').'<td>'.(input "honorItem${num}Pt", "number", "calcHonor");
   if($num eq 'TMPL'){ print '</template>' }
 }
 print <<"HTML";

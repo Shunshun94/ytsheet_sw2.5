@@ -1086,14 +1086,14 @@ HTML
 foreach my $num ('TMPL',1 .. $pc{armourNum}) {
   if($num eq 'TMPL'){ print '<template id="armour-template">' }
   print <<"HTML";
-              <tr id="armour${num}" data-type="">
+              <tr id="armour-row${num}" data-type="">
                 <th class="type handle">
-                <td><select name="armour${num}Category" oninput="calcDefense()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
-                <td>@{[ input "armour${num}Name",'','calcDefense','list="list-item-name"' ]}
+                <td><select name="armour${num}Category" oninput="setArmourType();generateArmourCheckbox();calcDefense();calcMobility()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
+                <td>@{[ input "armour${num}Name",'','generateArmourCheckbox','list="list-item-name"' ]}
                 <td>@{[ input "armour${num}Reqd",'','calcDefense' ]}
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
-                <td>@{[ input "armour${num}Own",'checkbox','calcDefense','style="display:none"' ]}
+                <td>@{[ input "armour${num}Own",'checkbox','calcDefense();calcMobility','disabled' ]}
                 <td>@{[ input "armour${num}Note" ]}
 HTML
   if($num eq 'TMPL'){ print '</template>' }
@@ -1300,7 +1300,7 @@ print <<"HTML";
 HTML
 foreach my $num ('TMPL',1 .. $pc{honorItemsNum}){
   if($num eq 'TMPL'){ print '<template id="honor-item-template">' }
-  print '<tr id="honor-item'.$num.'"><td class="handle"><td>'.(input "honorItem${num}", "text").'<td><span class="honor-pt"><select name="honorItem'.$num.'PtType" oninput="calcHonor()" data-type="human">'.(option "honorItem${num}PtType",@honortypes).'</select><span class="honor-select-view"></span>'.(input "honorItem${num}Pt", "number", "calcHonor").'</span>';
+  print '<tr id="honor-item'.$num.'"><td class="handle"><td>'.(input "honorItem${num}", "text", '', 'list="list-honor-item"').'<td><span class="honor-pt"><select name="honorItem'.$num.'PtType" oninput="calcHonor()" data-type="human">'.(option "honorItem${num}PtType",@honortypes).'</select><span class="honor-select-view"></span>'.(input "honorItem${num}Pt", "number", "calcHonor").'</span>';
   if($num eq 'TMPL'){ print '</template>' }
 }
 print <<"HTML";
