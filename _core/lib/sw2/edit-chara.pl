@@ -76,13 +76,6 @@ elsif($mode eq 'blanksheet'){
       }
       $pc{partCore} = 1;
     }
-    if($data::races{$pc{race}}{parts}){
-      foreach my $name (@{$data::races{$pc{race}}{parts}}){
-        $pc{partNum}++;
-        $pc{"part$pc{partNum}Name"} = $name;
-      }
-      $pc{partCore} = 1;
-    }
   }
   
   $pc{defTotal1CheckArmour1} = $pc{defTotal1CheckArmour2} = $pc{defTotal1CheckArmour3} = 1;
