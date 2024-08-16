@@ -63,4 +63,21 @@ if(io.github.shunshun94.ytsheet.addSkin.param.appendTextLeftBottom) {
 	}
 });
 
+const markdownLink = document.createElement('li');
+markdownLink.setAttribute('class', 'link-tag');
+
+const markdownLinkBase = document.createElement('span');
+markdownLinkBase.appendChild(document.createTextNode('Discord共有用リンク'));
+markdownLinkBase.appendChild(document.createElement('br'));
+
+const markdownLinkInput = document.createElement('input');
+markdownLinkInput.type = 'text';
+markdownLinkInput.value = `[${document.getElementById('character-name').textContent}](${location.href})`;
+markdownLinkInput.onclick = (e) => { e.target.select(); };
+
+markdownLinkBase.appendChild(markdownLinkInput);
+
+markdownLink.appendChild(markdownLinkBase);
+document.getElementById('downloadlist').getElementsByTagName('ul')[0].appendChild(markdownLink);
+
 </script>
