@@ -258,6 +258,10 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         content: '|アウェイクポーション|1本|',
         cost: '100*1'
     }, {
+        name: 'ヒーリングポーション1本',
+        content: '|ヒーリングポーション|1本|',
+        cost: '100*1'
+    }, {
         name: '3点魔晶石1つ',
         content: '|魔晶石（3点）|1つ|',
         cost: '300*1'
@@ -269,8 +273,20 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
         name: 'マギスフィア（小）',
         cost: '200'
     }, {
+        name: '矢筒',
+        cost: '20'
+    }, {
+        name: 'えびら',
+        cost: '100'
+    }, {
         name: 'ガンベルト',
         cost: '20'
+    }, {
+        name: 'バレットスリンガー',
+        cost: '40'
+    }, {
+        name: 'バレットポーチ',
+        cost: '100'
     }, {
         name: '銃弾（12発）',
         content: '|銃弾|12発|',
@@ -291,6 +307,18 @@ io.github.shunshun94.trpg.ytsheet.QuickInsertion.CONSTS.CommonItems = [
     }, {
         name: 'スカウト用ツール',
         cost: '100'
+    }, {
+        name: '陽光の魔符1 3枚',
+        content: '|陽光の魔符1|3枚|',
+        cost: '500*3'
+    }, {
+        name: '月光の魔符1 3枚',
+        content: '|月光の魔符1|3枚|',
+        cost: '500*3'
+    }, {
+        name: '消魔の守護石1 5つ',
+        content: '|消魔の守護石1|5つ|',
+        cost: '100*5'
     }, {
         name: '【フレーバーアイテム】',
         content: '',
