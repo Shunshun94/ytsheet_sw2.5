@@ -17,7 +17,7 @@ const isTargetUser = ['302451274706583553', '413974037501313024', '4585924338658
 });
 const isTargetDomain = ! location.href.includes('hiyo-hitsu.sakura.ne.jp');
 
-if(isTargetDomain || isTargetUser) {
+if((isTargetDomain || isTargetUser) && (generateType === 'SwordWorld2PC')) {
 	const navUl = document.getElementsByTagName('nav')[0].getElementsByTagName('ul')[0];
 	const lastLi = Array.from(navUl.children).at(-1);
 	const newMenu = document.createElement('li');
