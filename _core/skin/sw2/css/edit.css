@@ -8,6 +8,16 @@
   #sw2\.0 & {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 5fr;
   }
+
+  > dt.grow[data-total] {
+    &:not([data-total="0"]) {
+      &::after {
+        content: "(小計: " attr(data-total) " 回)";
+        font-size: 80%;
+        font-weight: normal;
+      }
+    }
+  }
 }
 #regulation dl.regulation-grow {
   display: grid;
@@ -96,6 +106,20 @@
   }
 }
 
+#status dl[id^="stt-base-"] {
+  dt[data-range] {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    &::after {
+      content: "(" attr(data-range) ")";
+      font-size: 70%;
+      font-weight: normal;
+    }
+  }
+}
 #status dl[id^="stt-add"]::before {
   left: -.6rem;
 }
@@ -1575,6 +1599,12 @@ form#item .input-arms-data {
   & td { width: 5em; }
   & td:first-child { width: 1.5em; }
   & td:last-child { width: auto; }
+
+  #section-common:not(.is-ranged-weapon) & {
+    :is(th, td).range {
+      display: none;
+    }
+  }
 }
 
 form#item .input-data label {
