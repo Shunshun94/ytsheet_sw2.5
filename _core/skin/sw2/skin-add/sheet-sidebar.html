@@ -25,6 +25,14 @@ if((isTargetDomain || isTargetUser) && (generateType === 'SwordWorld2PC')) {
 	navUl.insertBefore(newMenu, lastLi);
 }
 
+if( generateType === 'SwordWorld2PC') {
+	const navUl = document.getElementsByTagName('nav')[0].getElementsByTagName('ul')[0];
+	const lastLi = Array.from(navUl.children).at(-1);
+	const newMenu = document.createElement('li');
+	newMenu.innerHTML = `<a target="_blank" href="https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/sw2/ytsheet/validation/index.html?target=${ encodeURIComponent(location.href) }"><span>チェック</span></a>`;
+	navUl.insertBefore(newMenu, lastLi);
+}
+
 const eroColumns = [
 	{"columnId":"fPart","columnName":"%E5%88%9D%E4%BD%93%E9%A8%93%E3%81%AE%E7%9B%B8%E6%89%8B","flexBasis":"85%","default":"未経験", "type":"text"},
 	{"columnId":"fExp","columnName":"%E5%88%9D%E4%BD%93%E9%A8%93%E3%81%AE%E7%8A%B6%E6%B3%81","flexBasis":"100%","ddStyle":"text-align:left; padding: 8px;","default":"未経験", "type":"text"},
