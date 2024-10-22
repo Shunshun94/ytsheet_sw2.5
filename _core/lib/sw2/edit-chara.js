@@ -1274,6 +1274,10 @@ function calcMagic() {
       
       if(id === 'Alc'){ power += feats['賦術強化'] || 0 }
       document.getElementById("magic-cast-"+eName+"-value").textContent = power + Number(form["magicCastAdd"+id].value);
+      
+      if(SET.class[key].craft?.power){
+        magicPowers[id] = cLv ? power : 0;
+      }
     }
   }
   // 全体／その他の開閉
@@ -1428,13 +1432,19 @@ function calcAttack() {
     }
     if(display == 'none'){ errorAccClass[name] = true; }
     document.getElementById(`attack-${eName}`).style.display = display;
-    document.getElementById(`attack-${eName}-str`).textContent = id == 'Fen' ? reqdStrHalf : reqdStr;
-    document.getElementById(`attack-${eName}-acc`).textContent = lv[id] + bonus.Dex;
-    document.getElementById(`attack-${eName}-dmg`).textContent = lv[id] + bonus.Str;
-  }
-  
-  if(!modeZero){
-    document.getElementById("attack-demonruler-dmg").textContent = '―';
+
+    document.getElementById(`attack-${eName}-str`).textContent
+      = id == 'Fen' ? reqdStrHalf
+      : SET.class[name]?.accUnlock?.reqd ? stt[SET.class[name]?.accUnlock?.reqd]
+      : reqdStr;
+    
+    document.getElementById(`attack-${eName}-acc`).textContent
+      = SET.class[name]?.accUnlock?.acc === 'power' ? magicPowers[id]
+      : lv[id] + bonus.Dex;
+    
+    document.getElementById(`attack-${eName}-dmg`).textContent
+      = SET.class[name]?.accUnlock?.dmg === 'power' ? magicPowers[id]
+      : lv[id] + bonus.Str;
   }
 
   for(let i = 0; i < SET.weapons.length; i++){
@@ -1468,17 +1478,23 @@ function calcWeapon() {
     // 技能選択のエラーチェック
     form["weapon"+i+"Class"].classList.toggle('error', errorAccClass[className] == true); 
     // 必筋チェック
-    const maxReqd = (className === "フェンサー") ? reqdStrHalf : reqdStr;
+    const maxReqd
+      = (className === "フェンサー") ? reqdStrHalf
+      : SET.class[className]?.accUnlock?.reqd ? stt[SET.class[className]?.accUnlock?.reqd]
+      : reqdStr;
     form["weapon"+i+"Reqd"].classList.toggle('error', weaponReqd > maxReqd);
     // 基礎命中
-    if(classLv) {
+    if(SET.class[className]?.accUnlock?.acc === 'power'){
+      accBase = magicPowers[SET.class[className].id];
+    }
+    else if(classLv) {
       accBase += classLv + parseInt((dex + ownDex) / 6);
     }
     // 基礎ダメージ
     if     (category === 'クロスボウ'){ dmgBase = modeZero ? 0 : classLv; }
     else if(category === 'ガン')      { dmgBase = magicPowers['Mag']; }
-    else if(!modeZero && className === "デーモンルーラー")
-                                      { dmgBase = magicPowers['Dem']; }
+    else if(SET.class[className]?.accUnlock?.dmg === 'power')
+                                      { dmgBase = magicPowers[SET.class[className].id] }
     else if(classLv)                  { dmgBase = classLv + parseInt(str / 6); }
 
     // 戦闘特技
@@ -2127,17 +2143,23 @@ function setArmourType (){
       = type ? type+count[type] : '';
   }
 }
+// 名前変更
+function changeArmourName(){
+  generateArmourCheckbox('num')
+}
 // 合計欄チェックボックス
-function generateArmourCheckbox (){
+function generateArmourCheckbox(checkListType = 'name'){
   let checkList = {};
   let rowNum = 0;
   const rows = document.querySelectorAll(`#armours tfoot .defense-total-checklist`);
   rows.forEach(row => {
     rowNum++;
     checkList[rowNum] = {};
+    let num = 0;
     row.querySelectorAll(`label input`).forEach(checkbox => {
-      const name = checkbox.nextElementSibling.textContent || '';
-      checkList[rowNum][name] = checkbox.checked ? 'checked' : '';
+      num++;
+      const id = checkListType == 'num' ? num : (checkbox.nextElementSibling.textContent || '');
+      checkList[rowNum][id] = checkbox.checked ? 'checked' : '';
     })
   });
   rowNum = 1;
@@ -2151,10 +2173,10 @@ function generateArmourCheckbox (){
             .replace(/[|｜](.+?)《(.+?)》/g, "$1")
             .replace(/\[([^\[\]]+?)#[0-9a-zA-z\-]+\]/g, "$1")
         : type || '―';
-
+      const id = checkListType == 'num' ? num : name;
       let checkbox = document.createElement('label');
       checkbox.classList.add('check-button');
-      checkbox.innerHTML = `<input type="checkbox" name="defTotal${rowNum}CheckArmour${num}" value="1" oninput="calcDefense()" ${checkList[rowNum][name]}><span>${name||'―'}</span>`;
+      checkbox.innerHTML = `<input type="checkbox" name="defTotal${rowNum}CheckArmour${num}" value="1" oninput="calcDefense()" ${checkList[rowNum][id]}><span>${name||'―'}</span>`;
       row.append(checkbox);
 
       document.querySelector(`input[name="defTotal${rowNum}CheckArmour${num}"]`).parentNode.style.display

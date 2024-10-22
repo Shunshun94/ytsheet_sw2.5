@@ -1084,8 +1084,8 @@ foreach my $num ('TMPL',1 .. $pc{armourNum}) {
   print <<"HTML";
               <tr id="armour-row${num}" data-type="">
                 <th class="type handle">
-                <td><select name="armour${num}Category" oninput="setArmourType();generateArmourCheckbox();calcDefense();calcMobility()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
-                <td>@{[ input "armour${num}Name",'','generateArmourCheckbox','list="list-item-name"' ]}
+                <td><select name="armour${num}Category" oninput="setArmourType();changeArmourName();calcDefense();calcMobility()">@{[ option "armour${num}Category",'金属鎧','非金属鎧','盾','その他' ]}</select>
+                <td>@{[ input "armour${num}Name",'','changeArmourName','list="list-item-name"' ]}
                 <td>@{[ input "armour${num}Reqd",'','calcDefense' ]}
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
@@ -1115,7 +1115,12 @@ foreach my $i ('TMPL',1..$pc{defenseNum}){
                 <td colspan="2" class="defense-total-checklist">
 HTML
   foreach my $num (1 .. $pc{armourNum}) {
-    print checkbox("defTotal${i}CheckArmour${num}",($pc{"armour${num}Name"}||'―'),'calcDefense',"data-id='armour-row${num}'");
+    print checkbox(
+      "defTotal${i}CheckArmour${num}",
+      ($pc{"armour${num}Name"} =~ s/[|｜](.+?)《(.+?)》/$1/gr =~ s/\[([^\[\]]+?)#[0-9a-zA-z\-]+\]/$1/gr || '―'),
+      'calcDefense',
+      "data-id='armour-row${num}'"
+    );
   }
   print "</td>";
   print <<"HTML";
@@ -1705,6 +1710,7 @@ HTML
           <div class="add-del-button"><a onclick="addPaletteMagic()">▼</a><a onclick="delPaletteMagic()">▲</a></div>
           @{[ input "paletteMagicNum","hidden" ]}
         </details>
+      </div>
 HTML
 }
 

@@ -219,10 +219,11 @@ sub palettePreset {
       last;
     }
 
-    foreach my $name (@class_names){
-      next if !($data::class{$name}{magic}{jName} || $data::class{$name}{craft}{stt});
-      my $id   = $data::class{$name}{id};
-      my $name = $data::class{$name}{magic}{jName} || $data::class{$name}{craft}{jName};
+    foreach my $class (@class_names){
+      next if !($data::class{$class}{magic}{jName} || $data::class{$class}{craft}{stt});
+      my $id   = $data::class{$class}{id};
+      my $name = $data::class{$class}{magic}{jName} || $data::class{$class}{craft}{jName};
+      my $power = $data::class{$class}{craft}{power} || $name;
       next if !$::pc{'lv'.$id};
       
       my %dmgTexts;
@@ -237,7 +238,7 @@ sub palettePreset {
         my $activeDmg   = $::pc{'paletteMagic'.$paNum.'Dmg'  } ? optimizeOperatorFirst("+$::pc{'paletteMagic'.$paNum.'Dmg'  }") : '';
         my $activeRoll  = $::pc{'paletteMagic'.$paNum.'Roll' } ? '#'.optimizeOperatorFirst("+$::pc{'paletteMagic'.$paNum.'Roll' }") : '';
 
-        my $magicPower = "{$name}" . ($name =~ /魔/ ? $activePower :"");
+        my $magicPower = "{$power}" . ($name =~ /魔/ ? $activePower :"");
         
         my $half;
         foreach my $pow (sort {$a <=> $b} keys %{$pows{$id}}) {
@@ -296,7 +297,7 @@ sub palettePreset {
         my $activePower = $::pc{'paletteMagic'.$paNum.'Power'} ? optimizeOperatorFirst("+$::pc{'paletteMagic'.$paNum.'Power'}") : '';
         my $activeCast  = $::pc{'paletteMagic'.$paNum.'Cast' } ? optimizeOperatorFirst("+$::pc{'paletteMagic'.$paNum.'Cast' }") : '';
 
-        $text .= "2d+{$name}";
+        $text .= "2d+{$power}";
         if   ($name =~ /魔/){ $text .= "$activePower+{行使修正}$activeCast ${name}行使$activeName\n"; }
         elsif($name =~ /歌/){ $text .= " 呪歌演奏\n"; }
         else                { $text .= " ${name}\n"; }
@@ -345,9 +346,14 @@ sub palettePreset {
         $::pc{'weapon'.$_.'Acc'}   eq $::pc{'weapon'.($_-1).'Acc'}   &&
         $::pc{'weapon'.$_.'Rate'}  eq $::pc{'weapon'.($_-1).'Rate'}  &&
         $::pc{'weapon'.$_.'Crit'}  eq $::pc{'weapon'.($_-1).'Crit'}  &&
-        $::pc{'weapon'.$_.'Dmg'}   eq $::pc{'weapon'.($_-1).'Dmg'}
+        $::pc{'weapon'.$_.'Dmg'}   eq $::pc{'weapon'.($_-1).'Dmg'}   &&
+        $::pc{'weapon'.$_.'Class'} eq $::pc{'weapon'.($_-1).'Class'} &&
+        $::pc{'weapon'.$_.'Category'} eq $::pc{'weapon'.($_-1).'Category'}
       );
       $::pc{'weapon'.$_.'Name'} ||= $::pc{'weapon'.($_-1).'Name'};
+      if($::pc{'weapon'.$_.'Name'} eq $::pc{'weapon'.($_-1).'Name'}){
+        $::pc{'weapon'.$_.'Note'} ||= $::pc{'weapon'.($_-1).'Note'}
+      }
       $::pc{'weapon'.$_.'Crit'} = normalizeCrit $::pc{'weapon'.$_.'Crit'};
       my $partName = $::pc{'part'.$::pc{'weapon'.$_.'Part'}.'Name'};
       
@@ -702,15 +708,15 @@ sub paletteProperties {
     }
     push @propaties, '';
     
-    foreach my $name (@class_names){
-      next if !($data::class{$name}{magic}{jName} || $data::class{$name}{craft}{stt});
-      my $id = $data::class{$name}{id};
+    foreach my $class (@class_names){
+      next if !($data::class{$class}{magic}{jName} || $data::class{$class}{craft}{stt});
+      my $id = $data::class{$class}{id};
       next if !$::pc{'lv'.$id};
-      my $magic = $data::class{$name}{magic}{jName} || $data::class{$name}{craft}{jName};
-      my $stt = $data::class{$name}{craft}{stt} || '知力';
+      my $name = $data::class{$class}{craft}{power} || $data::class{$class}{magic}{jName} || $data::class{$class}{craft}{jName};
+      my $stt = $data::class{$class}{craft}{stt} || '知力';
       my $own = $::pc{'magicPowerOwn'.$id} ? "+2" : "";
       my $add;
-      if($data::class{$name}{magic}{jName}){
+      if($data::class{$class}{magic}{jName}){
         $add .= addNum $::pc{magicPowerEnhance};
         $add .= addNum $::pc{'magicPowerAdd'.$id};
         $add .= addNum $::pc{raceAbilityMagicPower};
@@ -720,7 +726,7 @@ sub paletteProperties {
       elsif($id eq 'Alc') {
         $add .= addNum($::pc{alchemyEnhance});
       }
-      push @propaties, "//$magic=({$name}+({$stt}+{$stt\増強}$own)/6)$add";
+      push @propaties, "//$name=({$class}+({$stt}+{$stt\増強}$own)/6)$add";
     }
     push @propaties, '';
     
@@ -750,12 +756,21 @@ sub paletteProperties {
         else {
           $accMod += $::pc{partEnhance};
         }
-        push @propaties,
-        "//命中$_=({$::pc{'weapon'.$_.'Class'}}+({器用}+{器用増強}"
-        .($::pc{'weapon'.$_.'Own'}?"+2":"")
-        .")/6+"
-        .( ($::pc{'weapon'.$_.'Acc'}||0) + $accMod )
-        .")";
+        if($data::class{$class}{accUnlock}{acc} eq 'power'){
+          push @propaties,
+            "//命中$_=({".($data::class{$class}{craft}{power} || $data::class{$class}{craft}{power}).'}'
+            ."+"
+            .( ($::pc{'weapon'.$_.'Acc'}||0) + $accMod )
+            .")";
+        }
+        else {
+          push @propaties,
+            "//命中$_=({$::pc{'weapon'.$_.'Class'}}+({器用}+{器用増強}"
+            .($::pc{'weapon'.$_.'Own'}?"+2":"")
+            .")/6+"
+            .( ($::pc{'weapon'.$_.'Acc'}||0) + $accMod )
+            .")";
+        }
       }
       # 威力・C値
       push @propaties, "//威力$_=$::pc{'weapon'.$_.'Rate'}";
@@ -776,8 +791,9 @@ sub paletteProperties {
           }
         }
         my $basetext;
-        if   ($category eq 'クロスボウ'){ $basetext = "{$::pc{'weapon'.$_.'Class'}}"; }
+        if   ($category eq 'クロスボウ'){ $basetext = $::SW2_0 ? '' : "{$::pc{'weapon'.$_.'Class'}}"; }
         elsif($category eq 'ガン'      ){ $basetext = "{魔動機術}"; }
+        elsif($data::class{$class}{accUnlock}{dmg} eq 'power'){ $basetext = '{'.($data::class{$class}{craft}{power} || $data::class{$class}{craft}{power}).'}' }
         else { $basetext = "{$::pc{'weapon'.$_.'Class'}}+({筋力}+{筋力増強})/6"; }
         $basetext .= addNum($dmgMod);
         push @propaties, "//追加D$_=(${basetext}+".($::pc{'weapon'.$_.'Dmg'}||0).")";
