@@ -757,11 +757,7 @@ sub paletteProperties {
     }
     push @propaties, '';
     
-<<<<<<< HEAD
-    foreach my $class (@class_names){
-=======
     foreach my $class (@classNames){
->>>>>>> ca85d684e21097307431de8061d9243d5a4381ee
       next if !($data::class{$class}{magic}{jName} || $data::class{$class}{craft}{stt});
       my $id = $data::class{$class}{id};
       next if !$::pc{'lv'.$id};
