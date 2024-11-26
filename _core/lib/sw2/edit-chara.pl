@@ -973,7 +973,7 @@ print <<"HTML";
                 <td>@{[input("weapon${num}Own",'checkbox','calcWeapon')]}
                 <td><select name="weapon${num}Category" oninput="calcWeapon()">@{[option("weapon${num}Category",@data::weapon_names,'ガン（物理）','その他|<その他（盾など）>')]}</select>
                 <td><select name="weapon${num}Class" oninput="calcWeapon()">@{[option("weapon${num}Class",@weapon_users,'自動計算しない')]}</select>
-                <td rowspan="2"><span class="button" onclick="addWeapons(${num});">複<br>製</span>
+                <td rowspan="2"><span class="button" onclick="addWeapons(${num});setupBracketInputCompletion()">複<br>製</span>
               <tr>
                 <td colspan="3">@{[input("weapon${num}Note",'','calcWeapon','placeholder="備考"')]}
 HTML
@@ -981,9 +981,10 @@ HTML
 }
 print <<"HTML";
           </table>
-          <div class="add-del-button"><a onclick="addWeapons()">▼</a><a onclick="delWeapons()">▲</a></div>
+          <div class="add-del-button"><a onclick="addWeapons();setupBracketInputCompletion()">▼</a><a onclick="delWeapons()">▲</a></div>
           <ul class="annotate">
             <li>Ｃ値は自動計算されません。
+            <li><code>\@防護点+1</code>や<code>\@回避力+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。
             <li id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。
           </ul>
           @{[input('weaponNum','hidden')]}
@@ -1099,7 +1100,7 @@ HTML
             @{[ input 'armourNum','hidden' ]}
             <tfoot>
               <tr><td colspan="8">
-                <div class="add-del-button"><a onclick="addArmour()">▼</a><a onclick="delArmour()">▲</a></div>
+                <div class="add-del-button"><a onclick="addArmour();setupBracketInputCompletion()">▼</a><a onclick="delArmour()">▲</a></div>
               <tr>
                 <th colspan="2">使用技能
                 <th colspan="2" class="small" style="vertical-align:bottom">チェックを入れた防具の数値で合算▼
@@ -1237,13 +1238,16 @@ foreach (
         <option value="HP" @{[ $pc{"accessory@$_[1]Own"} eq 'HP' ? 'selected':'']}>HP</option>
         <option value="MP" @{[ $pc{"accessory@$_[1]Own"} eq 'MP' ? 'selected':'' ]}>MP</option>
       </select>
-    <td>@{[input('accessory'.@$_[1].'Note')]}
+    <td>@{[input('accessory'.@$_[1].'Note','','calcDefense')]}
 HTML
 }
 print <<"HTML";
           </tbody>
           </table>
-          <ul class="annotate"><li>左のボックスにチェックを入れると欄が一つ追加されます</ul>
+          <ul class="annotate">
+            <li>左のボックスにチェックを入れると欄が一つ追加されます
+            <li><code>\@防護点+1</code>のように記述すると、<span class="text-em">常時</span>有効な防護点の上昇が自動計算されます
+          </ul>
         </div>
       </div>
       <div id="area-items">
