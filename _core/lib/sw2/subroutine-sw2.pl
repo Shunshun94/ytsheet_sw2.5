@@ -130,7 +130,7 @@ sub class_color {
   return $text;
 }
 
-### タグ変換 --------------------------------------------------
+### 分類マーク --------------------------------------------------
 sub checkSkillName {
   my $text = shift;
   my $markList = $::SW2_0 ? "[○◯〇＞▶〆☆≫»□☐☑🗨▽▼]|&gt;&gt;" : "[○◯〇△＞▶〆☆≫»□☐☑🗨]|&gt;&gt;";
@@ -170,7 +170,7 @@ sub textToIcon {
 sub checkArtsName {
   my $text = checkSkillName($_[0]);
   my $mark;
-  while($text =~ s#^<i class="s-icon [a-z0-9]+">.+?</i>##){
+  while($text =~ s#^<i class="s-icon [^>]+?">.+?</i>##){
     $mark .= $&;
   }
   return $text, $mark;
@@ -188,6 +188,83 @@ sub fairyRank {
     '6' => ['×','×','×','2&1','3&1','4&1','4&2','5&2','6&2','6&3','7&3','8&3','8&4','9&4','10&4','10&5'],
   );
   return $rank{$i}[$lv] || '×';
+}
+
+### 補正値記法の解釈 --------------------------------------------------
+sub extractModifications {
+  my %pc = %{shift;};
+
+  my @modifications = ();
+
+  sub extractModification {
+    my $name = shift;
+    my $note = shift;
+
+    my $evasion;
+    my $defense;
+
+    if ($note =~ s/[\@＠]回避力?[+＋](\d+)//) {
+      $evasion = $1;
+    }
+
+    if ($note =~ s/[\@＠]防(?:護点?)?[+＋](\d+)//) {
+      $defense = $1;
+    }
+
+    unless ($evasion || $defense) {
+      return {};
+    }
+
+    return {
+        name    => $name,
+        evasion => $evasion // 0,
+        defense => $defense // 0,
+    };
+  }
+
+  foreach (1 .. $pc{weaponNum}) {
+    my $nameKey = "weapon${_}Name";
+    my $noteKey = "weapon${_}Note";
+
+    my $name = $pc{$nameKey} // '';
+    my $note = $pc{$noteKey} // '';
+
+    $name = $name ne '' ? $name : '武器';
+
+    my %modification = %{extractModification($name, $note)};
+    next unless %modification;
+
+    push(@modifications, \%modification);
+  }
+
+  for my $slot ('Head', 'Face', 'Ear', 'Neck', 'Back', 'HandR', 'HandL', 'Waist', 'Leg', 'Other', 'Other2', 'Other3', 'Other4') {
+    for my $suffix ('', '_', '__') {
+      my $nameKey = "accessory${slot}${suffix}Name";
+      my $noteKey = "accessory${slot}${suffix}Note";
+
+      if ($suffix ne '') {
+        # 拡張枠は有効化されていなければ無視する
+
+        my $addingKey = "accessory${slot}${suffix}";
+        $addingKey =~ s/_$//;
+        $addingKey .= 'Add';
+
+        next unless $pc{$addingKey};
+      }
+
+      my $name = $pc{$nameKey} // '';
+      my $note = $pc{$noteKey} // '';
+
+      $name = $name ne '' ? $name : '装飾品';
+
+      my %modification = %{extractModification($name, $note)};
+      next unless %modification;
+
+      push(@modifications, \%modification);
+    }
+  }
+
+  return \@modifications;
 }
 
 ### バージョンアップデート --------------------------------------------------
