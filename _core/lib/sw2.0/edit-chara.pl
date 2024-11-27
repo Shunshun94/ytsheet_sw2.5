@@ -449,6 +449,10 @@ print <<"HTML";
           <div class="box" id="classes">
             <h2>技能</h2>
             <div>使用経験点：<span id="exp-use"></span></div>
+            <h2>
+              技能
+              <small class="notes">使用経験点：<b id="exp-use"></b></small>
+            </h2>
 HTML
 print '<div class="classes-group" id="classes-weapon-user"><h3>戦士系技能</h3><dl class="edit-table side-margin">';
 foreach my $name (@data::class_names){ print classInputBox($name) if $data::class{$name}{type} eq 'weapon-user'; }
@@ -496,8 +500,10 @@ print <<"HTML";
             </dl>
           </div>
           <div class="box" id="common-classes">
-            <h2>一般技能</h2>
-            <div>合計レベル：<span id="cc-total-lv"></span></div>
+            <h2>
+              一般技能
+              <small class="notes">合計レベル：<b id="cc-total-lv"></b></small>
+            </h2>
             @{[ input 'commonClassNum','hidden' ]}
             <table id="common-classes-table" class="edit-table side-margin">
             <tbody>
@@ -559,7 +565,10 @@ print <<"HTML";
             </ul>
           </div>
           <div class="box in-toc" id="mystic-arts" data-content-title="秘伝・秘伝魔法">
-            <h2>秘伝</h2>
+            <h2>
+              秘伝
+              <small class="notes">所持名誉点：<b id="honor-value-MA"></b></small>
+            </h2>
             <div>所持名誉点：<span id="honor-value-MA"></span></div>
             <ul id="mystic-arts-list" class="edit-table side-margin">
 HTML
@@ -1065,6 +1074,11 @@ print <<"HTML";
                 <td>―
                 <td id="parts-enhance-eva">1
                 <td>―
+              <tr>
+                <td>武器や装飾品による修正
+                <td>―
+                <td id="equip-mod-eva">0
+                <td id="equip-mod-def">0
               </tr>
             </tbody>
           </table>
