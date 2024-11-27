@@ -269,12 +269,15 @@ if($pc{lvSeeker}){
 
 ### 一般技能 --------------------------------------------------
 my @common_classes;
+my $commonClassTotalLevel = 0;
 foreach (1..10){
   next if !$pc{'commonClass'.$_};
   $pc{'commonClass'.$_} =~ s#([（\(].+?[\)）])#<span class="small">$1</span>#g;
   push(@common_classes, { "NAME" => $pc{'commonClass'.$_}, "LV" => $pc{'lvCommon'.$_} } );
+  $commonClassTotalLevel += $pc{'lvCommon'.$_};
 }
 $SHEET->param(CommonClasses => \@common_classes);
+$SHEET->param(CommonClassTotalLevel => $commonClassTotalLevel);
 
 ### 戦闘特技 --------------------------------------------------
 my %acquired;
@@ -385,7 +388,7 @@ foreach my $class (@data::class_names){
     my $craft = $_->[1];
     my $notes = $_->[2];
     if($class eq 'アルケミスト'){
-      if($notes =~ /\[([赤緑黒白金])\]/){ $craftType{$craft} .= '<i class="s-icon m-card" data-color="'.$1.'"></i>' }
+      while($notes =~ s/\[([赤緑黒白金])\]//){ $craftType{$craft} .= '<i class="s-icon m-card" data-color="'.$1.'"></i>' }
     }
     if($notes =~ /(\[[常主補準宣]\])+/){ $craftType{$craft} .= textToIcon $&; }
   }
