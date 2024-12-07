@@ -132,7 +132,7 @@ foreach (keys %pc) {
   }
   $pc{$_} = unescapeTags($pc{$_});
 }
-$pc{magicEffect} =~ s#<h2>(.+?)</h2>#</dd><dt>$1</dt><dd class="box">#gi;
+$pc{magicEffect} =~ s#<h2>(.+?)</h2>#</dd><dt><span class="center">$1</span></dt><dd class="box">#gi;
 
 ### アップデート --------------------------------------------------
 if($pc{ver}){
@@ -227,7 +227,17 @@ $SHEET->param(Tags => \@tags);
   }
   elsif   ($class eq '魔装'){
     $SHEET->param(magicClassEn => 'potential');
-    magicItemViewOn('Premise','Part');
+    $SHEET->param(magicApplyHumanForm =>
+      ($pc{magicApplyHumanForm} eq 'available')   ? '有効' :
+      ($pc{magicApplyHumanForm} eq 'unavailable') ? '無効' :
+      '―'
+    );
+    magicItemViewOn('Premise','Part','HumanForm');
+  }
+  elsif   ($class eq '操気'){
+    $SHEET->param(magicClassEn => 'psychokinesis');
+    if($pc{magicActionTypePassive}){ magicItemViewOn('Cost','Premise') }
+    else { magicItemViewOn('Cost','Premise','Target','Range','Duration','Resist') }
   }
   elsif   ($class eq '呪印'){
     $SHEET->param(magicClassEn => 'seal');
@@ -260,7 +270,7 @@ foreach my $lv (2,4,7,10,13){
   my $icon;
   if($pc{'godMagic'.$lv.'ActionTypeMinor'}){ $icon .= '<i class="s-icon minor">≫</i>' }
   if($pc{'godMagic'.$lv.'ActionTypeSetup'}){ $icon .= '<i class="s-icon setup">△</i>' }
-  $pc{'godMagic'.$lv.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt>$1</dt><dd class="box">#gi;
+  $pc{'godMagic'.$lv.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt><span class="center">$1</span></dt><dd class="box">#gi;
   push(@magics, {
     "NAME"     => $pc{'godMagic'.$lv.'Name'},
     "LEVEL"    => $lv,
@@ -311,7 +321,7 @@ foreach my $num (1..$pc{schoolArtsNum}){
   next if !($pc{'schoolArts'.$num.'Name'});
   my $icon;
   if($pc{'schoolArts'.$num.'ActionTypeSetup'}){ $icon .= '<i class="s-icon setup">△</i>' }
-  $pc{'schoolArts'.$num.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt>$1</dt><dd class="box">#gi;
+  $pc{'schoolArts'.$num.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt><span class="center">$1</span></dt><dd class="box">#gi;
   push(@arts, {
     "NAME"     => $pc{'schoolArts'.$num.'Name'},
     "ICON"     => $icon,
@@ -336,7 +346,7 @@ foreach my $num (1..$pc{schoolMagicNum}){
   my $icon;
   if($pc{'schoolMagic'.$num.'ActionTypeMinor'}){ $icon .= '<i class="s-icon minor">≫</i>' }
   if($pc{'schoolMagic'.$num.'ActionTypeSetup'}){ $icon .= '<i class="s-icon setup">△</i>' }
-  $pc{'schoolMagic'.$num.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt>$1</dt><dd class="box">#gi;
+  $pc{'schoolMagic'.$num.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt><span class="center">$1</span></dt><dd class="box">#gi;
   push(@schoolmagics, {
     "NAME"     => $pc{'schoolMagic'.$num.'Name'},
     "LEVEL"    => $pc{'schoolMagic'.$num.'Lv'},
@@ -419,7 +429,7 @@ $SHEET->param(sheetType => 'arts');
 ### メニュー --------------------------------------------------
 my @menu = ();
 if(!$pc{modeDownload}){
-  push(@menu, { TEXT => '⏎', TYPE => "href", VALUE => './?type=i', });
+  push(@menu, { TEXT => '⏎', TYPE => "href", VALUE => './?type=a', });
   if($::in{url}){
     push(@menu, { TEXT => 'コンバート', TYPE => "href", VALUE => "./?mode=convert&url=$::in{url}" });
   }
