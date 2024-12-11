@@ -57,6 +57,8 @@ elsif($mode eq 'blanksheet'){
   
   $pc{paletteUseVar} = 1;
   $pc{paletteUseBuff} = 1;
+
+  %pc = applyCustomizedInitialValues(\%pc;
 }
 
 ## 画像
@@ -403,8 +405,6 @@ HTML
               <th>魔防値
               <th>行動値
               <th>耐久値
-              <th>
-              <th>
             </tr>
           <tbody>
             <tr>

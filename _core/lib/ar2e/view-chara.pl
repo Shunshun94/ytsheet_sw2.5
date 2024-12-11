@@ -220,10 +220,8 @@ if($::in{url}){
 }
 
 ### キャラクター名 --------------------------------------------------
-$SHEET->param(characterName => "<ruby>$pc{characterName}<rp>(</rp><rt>$pc{characterNameRuby}</rt><rp>)</rp></ruby>") if $pc{characterNameRuby};
-
-### 二つ名 --------------------------------------------------
-$SHEET->param(aka => "<ruby>$pc{aka}<rp>(</rp><rt>$pc{akaRuby}</rt><rp>)</rp></ruby>") if $pc{akaRuby};
+$SHEET->param(characterName => stylizeCharacterName $pc{characterName},$pc{characterNameRuby});
+$SHEET->param(aka => stylizeCharacterName $pc{aka},$pc{akaRuby});
 
 ### プレイヤー名 --------------------------------------------------
 if($set::playerlist){
@@ -336,7 +334,7 @@ foreach (
     $note .= $pc{'armament'.$id.'Type'};
     $note .= '／' if $pc{'armament'.$id.'Type'} && $pc{'armament'.$id.'Usage'};
     $note .= $pc{'armament'.$id.'Usage'};
-    $note = '<i class="type">'.$note.'</i>' if $note;
+    $note = '<b class="term-em type">'.$note.'</b>' if $note;
   }
   $note .= $pc{'armament'.$id.'Note'};
   if($id =~ /Hand/){
@@ -552,7 +550,7 @@ $SHEET->param(payment           => commify $pc{payment}           );
 $SHEET->param(historyMoneyTotal => commify $pc{historyMoneyTotal} );
 
 ### 携帯品 --------------------------------------------------
-$pc{items} =~ s/[@＠]\[\s*?((?:[\+\-\*\/]?[0-9]+)+)\s*?\]/<i class="weight">$1<\/i>/g;
+$pc{items} =~ s/[@＠]\[\s*?((?:[\+\-\*\/]?[0-9]+)+)\s*?\]/<i class="weight term-em">$1<\/i>/g;
 $SHEET->param(items => $pc{items});
 
 ### ゴールド --------------------------------------------------
