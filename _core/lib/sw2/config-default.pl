@@ -175,7 +175,7 @@ our @effects = (
     pointName => '穢れ度',
     calc => [1],
     type => ['text','number'],
-    header => ['影響','穢れの増加'],
+    header => ['理由や影響','穢れの増加'],
   },
   { name => 'アビス侵蝕',
     pointName => 'アビス汚染度',
@@ -329,5 +329,32 @@ our @effects = (
       sheetType => 'arts',
     },
   );
+
+# シート初期値の変更
+our %customizedInitialValues = (
+    # キャラクターデータ
+    '' => {
+        # 例：「キャラクター名」の初期値を「unnamed」にする
+        # 'characterName' => 'unnamed',
+    },
+
+    # 魔物データ
+    m => {
+        # 例：「発言者色」の初期値を「#CCCCCC」にする
+        # 'nameColor' => '#CCCCCC',
+    },
+
+    # アイテムデータ
+    i => {
+        # 例：「価格」のデフォルト値を「取引不可」にする
+        # 'price' => '取引不可',
+    },
+
+    # 魔法・神格・流派データ
+    a => {
+        # 例：「カテゴリ」のデフォルト値を「魔法／練技・呪歌など」にする
+        # 'category' => 'magic',
+    },
+);
 
 1;

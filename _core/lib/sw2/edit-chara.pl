@@ -83,6 +83,8 @@ elsif($mode eq 'blanksheet'){
   $pc{armour3Category} = 'その他';
   
   $pc{paletteUseBuff} = 1;
+
+  %pc = applyCustomizedInitialValues(\%pc, '');
 }
 
 ## 画像
@@ -388,12 +390,12 @@ print <<"HTML";
           <dl class="box" id="stt-int"><dt>知力  <dd id="stt-int-value">$pc{sttInt}</dl>
           <dl class="box" id="stt-mnd"><dt>精神力<dd id="stt-mnd-value">$pc{sttMnd}</dl>
           
-          <dl class="box" id="stt-add-A"><dt>増強<dd>@{[input('sttAddA','number','calcStt')]}</dl>
-          <dl class="box" id="stt-add-B"><dt>増強<dd>@{[input('sttAddB','number','calcStt')]}</dl>
-          <dl class="box" id="stt-add-C"><dt>増強<dd>@{[input('sttAddC','number','calcStt')]}</dl>
-          <dl class="box" id="stt-add-D"><dt>増強<dd>@{[input('sttAddD','number','calcStt')]}</dl>
-          <dl class="box" id="stt-add-E"><dt>増強<dd>@{[input('sttAddE','number','calcStt')]}</dl>
-          <dl class="box" id="stt-add-F"><dt>増強<dd>@{[input('sttAddF','number','calcStt')]}</dl>
+          <dl class="box" id="stt-add-A"><dt>増強<dd><span id="stt-equip-A-value"></span>@{[input('sttAddA','number','calcStt')]}</dl>
+          <dl class="box" id="stt-add-B"><dt>増強<dd><span id="stt-equip-B-value"></span>@{[input('sttAddB','number','calcStt')]}</dl>
+          <dl class="box" id="stt-add-C"><dt>増強<dd><span id="stt-equip-C-value"></span>@{[input('sttAddC','number','calcStt')]}</dl>
+          <dl class="box" id="stt-add-D"><dt>増強<dd><span id="stt-equip-D-value"></span>@{[input('sttAddD','number','calcStt')]}</dl>
+          <dl class="box" id="stt-add-E"><dt>増強<dd><span id="stt-equip-E-value"></span>@{[input('sttAddE','number','calcStt')]}</dl>
+          <dl class="box" id="stt-add-F"><dt>増強<dd><span id="stt-equip-F-value"></span>@{[input('sttAddF','number','calcStt')]}</dl>
           
           <dl class="box" id="stt-bonus-dex"><dt><span>器用度</span><dd id="stt-bonus-dex-value">$pc{bonusDex}</dl>
           <dl class="box" id="stt-bonus-agi"><dt><span>敏捷度</span><dd id="stt-bonus-agi-value">$pc{bonusAgi}</dl>
@@ -871,9 +873,9 @@ print <<"HTML";
                 <td>装備補正など
                 <td>魔法全般
                 <td>
-                <td>+@{[ input 'magicPowerAdd','number','calcMagic' ]}
-                <td>+@{[ input 'magicCastAdd','number','calcMagic' ]}
-                <td>+@{[ input 'magicDamageAdd','number','calcMagic' ]}
+                <td>+@{[ input 'magicPowerAdd' ,'number','calcMagic' ]}<span id="magic-power-equip-value" ></span>
+                <td>+@{[ input 'magicCastAdd'  ,'number','calcMagic' ]}<span id="magic-cast-equip-value"  ></span>
+                <td>+@{[ input 'magicDamageAdd','number','calcMagic' ]}<span id="magic-damage-equip-value"></span>
 HTML
 my $fairyset = <<"HTML";
 <small>ランク</small><b id="fairy-rank"></b>
@@ -937,12 +939,12 @@ print <<"HTML";
           <table class="edit-table line-tbody">
             <thead>
               <tr>
-                <th>技能・特技
-                <th>必筋<br>上限
-                <th>命中力
-                <th>
-                <th>Ｃ値
-                <th>追加Ｄ
+                <th class="name ">技能・特技
+                <th class="reqd ">必筋<br>上限
+                <th class="acc  ">命中力
+                <th class="rate ">
+                <th class="crit ">Ｃ値
+                <th class="dmg  ">追加Ｄ
               </tr>
             <tbody>
 HTML
@@ -1008,16 +1010,16 @@ print <<"HTML";
           <table class="edit-table line-tbody" id="weapons-table">
             <thead id="weapon-head">
               <tr>
-                <th>武器
-                <th>用法
-                <th>必筋
-                <th>命中力
-                <th>威力
-                <th>Ｃ値
-                <th>追加Ｄ
-                <th>専用
-                <th>カテゴリ
-                <th>使用技能
+                <th class="name ">武器
+                <th class="usage">用法
+                <th class="reqd ">必筋
+                <th class="acc  ">命中力
+                <th class="rate ">威力
+                <th class="crit ">Ｃ値
+                <th class="dmg  ">追加Ｄ
+                <th class="own  ">専用
+                <th class="cate ">カテゴリ
+                <th class="class">使用技能
                 <th>
               </tr>
             </thead>
@@ -1043,7 +1045,7 @@ print <<"HTML";
                 <td><select name="weapon${num}Class" oninput="calcWeapon()">@{[option("weapon${num}Class",@weapon_users,'自動計算しない')]}</select>
                 <td rowspan="2"><span class="button" onclick="addWeapons(${num});setupBracketInputCompletion()">複<br>製</span>
               <tr>
-                <td colspan="3">@{[input("weapon${num}Note",'','calcWeapon','placeholder="備考"')]}
+                <td colspan="3">@{[input("weapon${num}Note",'','calcWeapon','onchange="changeEquipMod()" placeholder="備考"')]}
 HTML
   if($num eq 'TMPL'){ print '</template>' }
 }
@@ -1052,7 +1054,7 @@ print <<"HTML";
           <div class="add-del-button"><a onclick="addWeapons();setupBracketInputCompletion()">▼</a><a onclick="delWeapons()">▲</a></div>
           <ul class="annotate">
             <li>Ｃ値は自動計算されません。
-            <li><code>\@防護点+1</code>や<code>\@回避力+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。
+            <li><code>\@防護点+1</code>や<code>\@回避力+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>有効な項目は、装飾品欄と同様です。
             <li id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。
           </ul>
           @{[input('weaponNum','hidden')]}
@@ -1061,10 +1063,10 @@ print <<"HTML";
           <table class="edit-table">
             <thead>
               <tr>
-                <th>技能・特技
-                <th>必筋<br>上限
-                <th>回避力
-                <th>防護点
+                <th class="name">技能・特技
+                <th class="reqd">必筋<br>上限
+                <th class="eva ">回避力
+                <th class="def ">防護点
               </tr>
             <tbody>
 HTML
@@ -1262,11 +1264,11 @@ print <<"HTML";
           <table class="edit-table">
             <thead>
               <tr>
-                <th>
-                <th>
-                <th>装飾品
-                <th>専用
-                <th>効果
+                <th class="check">
+                <th class="type ">
+                <th class="name ">装飾品
+                <th class="own  ">専用
+                <th class="note ">効果
               </tr>
             <tbody id="accessories-table">
 HTML
@@ -1308,10 +1310,10 @@ foreach (
     <td>
       <select name="accessory@$_[1]Own" oninput="calcSubStt()">
         <option></option>
-        <option value="HP" @{[ $pc{"accessory@$_[1]Own"} eq 'HP' ? 'selected':'']}>HP</option>
-        <option value="MP" @{[ $pc{"accessory@$_[1]Own"} eq 'MP' ? 'selected':'' ]}>MP</option>
+        <option value="HP" @{[ $pc{"accessory@$_[1]Own"} eq 'HP' ? 'selected':'' ]}>HP+2</option>
+        <option value="MP" @{[ $pc{"accessory@$_[1]Own"} eq 'MP' ? 'selected':'' ]}>MP+2</option>
       </select>
-    <td>@{[input('accessory'.@$_[1].'Note','','calcDefense')]}
+    <td>@{[input('accessory'.@$_[1].'Note','','','onchange="changeEquipMod()"')]}
 HTML
 }
 print <<"HTML";
@@ -1319,7 +1321,10 @@ print <<"HTML";
           </table>
           <ul class="annotate">
             <li>左のボックスにチェックを入れると欄が一つ追加されます
-            <li><code>\@防護点+1</code>のように記述すると、<span class="text-em">常時</span>有効な防護点の上昇が自動計算されます
+            <li>
+              <code>\@器用度+1</code>や<code>\@防護点+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>
+              有効な項目は、<code>器用度</code>～<code>精神力</code> <code>生命抵抗力</code> <code>精神抵抗力</code> <code>回避力</code> <code>防護点</code> <code>移動力</code> <code>魔力</code> <code>行使判定</code> <code>武器必筋上限</code>です。<br>
+              同じ項目へは累積するため、同名や効果排他のアイテムには注意してください。
           </ul>
         </div>
       </div>

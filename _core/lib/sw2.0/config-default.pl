@@ -142,7 +142,7 @@ our @effects = (
     pointName => '穢れ度',
     calc => [1],
     type => ['text','number'],
-    header => ['影響','穢れの増加'],
+    header => ['理由や影響','穢れの増加'],
   },
   { name => '自由記入：１列',
     calc => [1],
