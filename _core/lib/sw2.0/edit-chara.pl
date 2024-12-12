@@ -121,7 +121,7 @@ $pc{chatPalette}   =~ s/&lt;br&gt;/\n/g;
 $pc{'chatPaletteInsert'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..$pc{chatPaletteInsertNum});
 
 ### フォーム表示 #####################################################################################
-my $titlebarname = removeTags nameToPlain unescapeTags ($pc{characterName}||"“$pc{aka}”");
+my $titlebarname = removeTags removeRuby unescapeTags ($pc{characterName}||"“$pc{aka}”");
 print <<"HTML";
 Content-type: text/html\n
 <!DOCTYPE html>
@@ -1159,7 +1159,7 @@ print <<"HTML";
                 <th class="note">備考
               </tr>
             </thead>
-            <tbody>
+            <tbody id="armours-table">
 HTML
 foreach my $num ('TMPL',1 .. $pc{armourNum}) {
   if($num eq 'TMPL'){ print '<template id="armour-template">' }
@@ -1172,7 +1172,7 @@ foreach my $num ('TMPL',1 .. $pc{armourNum}) {
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Own",'checkbox','calcDefense();calcMobility','disabled' ]}
-                <td>@{[ input "armour${num}Note" ]}
+                <td>@{[ input "armour${num}Note",'','','onchange="changeEquipMod()"' ]}
 HTML
   if($num eq 'TMPL'){ print '</template>' }
 }
@@ -1212,6 +1212,11 @@ print <<"HTML";
             @{[ input 'defenseNum','hidden' ]}
           </table>
           <div class="add-del-button"><a onclick="addDefense()">▼</a><a onclick="delDefense()">▲</a></div>
+          <ul class="annotate">
+            <li><code>\@敏捷度-6</code>や<code>\@精神抵抗力+2</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>
+              有効な項目は、装飾品欄と同様です。<br>
+              <code>\@</code>による修正は合算のチェックに関わらず計算されるため、予備装備や切り替えが想定されるものは注意してください。<br>
+          </ul>
         </div>
 
         <details class="box-union" id="parts" @{[ $data::races{$pc{race}}{parts} ? 'open':'' ]}>

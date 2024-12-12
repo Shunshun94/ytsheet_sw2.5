@@ -226,6 +226,38 @@ sub palettePreset {
     $text .= "\n";
     $text .= appendPaletteInsert('common');
 
+    # 宣言特技
+    require $set::data_feats;
+    my @declarationFeats = ();
+    foreach ('1+', @set::feats_lv) {
+      my $level = $_;
+      last if $level ne '1+' && $level > $::pc{level};
+      my $featName = $::pc{"combatFeatsLv${level}"};
+      next unless $featName;
+      my $category = data::getFeatCategoryByName($featName);
+      next if $category !~ /宣/;
+      my $marks = '[宣]';
+      $marks .= '[準]' if $category =~ /準/;
+      push(@declarationFeats, [$marks, $featName]);
+    }
+    foreach (1 .. $::pc{mysticArtsNum}) {
+      my $artsName = $::pc{"mysticArts${_}"};
+      my $marks = '';
+      $marks .= $& while $artsName =~ s/\[.]//;
+      next if $marks !~ /宣|準/;
+      next unless $artsName;
+      push(@declarationFeats, [$marks, $artsName]);
+    }
+    if (@declarationFeats) {
+      $text .= "###\n" if $bot{TKY};
+      $text .= "\n### ■宣言特技\n";
+      foreach (@declarationFeats) {
+        (my $marks, my $featName) = @{$_};
+        $text .= "${marks}《${featName}》\n";
+      }
+      $text .= "\n";
+    }
+
     # 魔法
     foreach my $name (@classNames){
       next if !($data::class{$name}{magic}{jName} || $data::class{$name}{craft}{stt});
@@ -313,7 +345,13 @@ sub palettePreset {
             $text .= "Dru[24,27,30]+$druidBase／【ダブルストンプ】\n"     if($::pc{lvDru} >= 15);
           }
         }
-      
+
+        if ($id eq 'Aby' && $::pc{'lv'.$id} >= 7) {
+          foreach my $count (1 .. 2) {
+            $text .= makeChoiceCommand($count, ['雷', '純エネルギー', '衝撃', '断空', '毒', '呪い'], \%bot);
+          }
+        }
+
         foreach my $pow (sort {$a <=> $b} keys %{$heals{$id}}) {
           if($heals{$id}{$pow} =~ /^[0-9]+$/){
             next if($::pc{'lv'.$id} < $heals{$id}{$pow});

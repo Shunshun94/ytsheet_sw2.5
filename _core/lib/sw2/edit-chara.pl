@@ -128,7 +128,7 @@ $pc{'chatPaletteInsert'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..$pc{chatPaletteInser
 $pc{$_} =~ s/&lt;br&gt;/\n/g foreach (grep {/^fellow[-0-9]+(?:Action|Note)$/} keys %pc);
 
 ### フォーム表示 #####################################################################################
-my $titlebarname = removeTags nameToPlain unescapeTags ($pc{characterName}||"“$pc{aka}”");
+my $titlebarname = removeTags removeRuby unescapeTags ($pc{characterName}||"“$pc{aka}”");
 print <<"HTML";
 Content-type: text/html\n
 <!DOCTYPE html>
@@ -525,7 +525,7 @@ foreach my $lv ('1bat',@set::feats_lv) {
     print '<optgroup label="'.($type eq '常' ? '常時' : $type eq '宣' ? '宣言' : $type eq '宣' ? '宣言' : '主動作').'特技">';
     foreach my $feats (@data::combat_feats){
       next if $data_lv < @$feats[1];
-      next if $type ne @$feats[0];
+      next if @$feats[0] !~ /${type}/;
       next if @$feats[3] =~ /2.0/ && !$set::all_class_on;
       if($lv =~ /bat/ && @$feats[3] !~ /バトルダンサー/){ next; }
       if(@$feats[3] =~ /ヴァグランツ/){
@@ -1153,7 +1153,7 @@ print <<"HTML";
                 <th class="note">備考
               </tr>
             </thead>
-            <tbody>
+            <tbody id="armours-table">
 HTML
 foreach my $num ('TMPL',1 .. $pc{armourNum}) {
   if($num eq 'TMPL'){ print '<template id="armour-template">' }
@@ -1166,7 +1166,7 @@ foreach my $num ('TMPL',1 .. $pc{armourNum}) {
                 <td>@{[ input "armour${num}Eva",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Def",'number','calcDefense' ]}
                 <td>@{[ input "armour${num}Own",'checkbox','calcDefense();calcMobility','disabled' ]}
-                <td>@{[ input "armour${num}Note" ]}
+                <td>@{[ input "armour${num}Note",'','','onchange="changeEquipMod()"' ]}
 HTML
   if($num eq 'TMPL'){ print '</template>' }
 }
@@ -1211,6 +1211,11 @@ print <<"HTML";
             @{[ input 'defenseNum','hidden' ]}
           </table>
           <div class="add-del-button"><a onclick="addDefense()">▼</a><a onclick="delDefense()">▲</a></div>
+          <ul class="annotate">
+            <li><code>\@敏捷度-6</code>や<code>\@精神抵抗力+2</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>
+              有効な項目は、装飾品欄と同様です。<br>
+              <code>\@</code>による修正は合算のチェックに関わらず計算されるため、予備装備や切り替えが想定されるものは注意してください。<br>
+          </ul>
         </div>
 
         <details class="box-union" id="parts" @{[ $data::races{$pc{race}}{parts} ? 'open':'' ]}>
