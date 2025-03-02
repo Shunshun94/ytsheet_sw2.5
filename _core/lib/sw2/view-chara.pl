@@ -1217,6 +1217,12 @@ else {
   $SHEET->param(titleName => removeTags removeRuby($pc{characterName}||"“$pc{aka}”"));
 }
 
+### コマ出力 --------------------------------------------------
+if($pc{partNum} != "0"){
+  $SHEET->param(multiPartsOutputMode => 1);
+}
+
+
 ### OGP --------------------------------------------------
 $SHEET->param(ogUrl => url().($::in{url} ? "?url=$::in{url}" : "?id=$::in{id}"));
 if($pc{image}) { $SHEET->param(ogImg => $pc{imageURL}); }
