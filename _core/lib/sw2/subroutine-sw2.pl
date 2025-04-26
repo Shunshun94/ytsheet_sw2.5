@@ -69,11 +69,11 @@ sub createUnitStatus {
     }
     
     if($pc{weakness}){
-      if ($target eq 'udonarium' || $target eq 'ccforia') {
+      if ($target eq 'udonarium') {
         push(@unitStatus, { '弱点' => $pc{weakness} });
       }
       else {
-        #push(@unitMemo, '弱点:'.$pc{weakness});
+        push(@unitMemo, '弱点:'.$pc{weakness});
       }
     }
   }
@@ -99,8 +99,11 @@ sub createUnitStatus {
     }
   }
   if(@unitMemo){
-    if ($target eq 'udonarium' || $target eq 'ccforia') {
+    if ($target eq 'udonarium') {
       push(@unitStatus, {'メモ' => join("　",@unitMemo)});
+    }
+    if ($target eq 'ccfolia') {
+      push(@unitStatus, {'メモ' => join("\n",@unitMemo)});
     }
     else {
       push(@unitStatus, {'メモ' => join("<br>",@unitMemo)});
