@@ -8,8 +8,11 @@ use CGI qw/:all/;
 use LWP::UserAgent;
 use JSON::PP;
 
+BEGIN { push @INC, '/home/hiyo-hitsu/www/ytsheets/ytsheet2_sw2.5/_core/module/' }
+BEGIN { push @INC, '/home/hiyo-hitsu/www/ytsheets/ytsheet2_sw2.5/_core/module/Text' }
+
 our $core_dir = '../_core';
-use lib '../_core/module';
+use Text::Diff;
 
 require $core_dir.'/lib/sw2/config-default.pl';
 require './config.cgi';
@@ -78,10 +81,10 @@ my %afterData  = getDataFromYtsheet($afterUrl);
 print "Status: 200 OK\n";
 print "Content-type: application/json\n\n";
 
-sub is_ignorable {
+sub is_multiText {
   my $column = shift;
-  my @ignore = ('freeNote', 'freeHistory', 'cashbook', 'items');
-  return grep { $_ eq $column } @ignore;
+  my @multiText = ('freeNote', 'freeHistory', 'cashbook', 'items');
+  return grep { $_ eq $column } @multiText;
 }
 
 my %result;
@@ -89,8 +92,8 @@ my %result;
 foreach my $column(keys(%afterData)){
   my $afterText  = $afterData{$column};
   my $beforeText = $beforeData{$column};
-  if( is_ignorable($column) ) {
-    $result{$column} = '比較対象外です';
+  if( is_multiText($column) ) {
+    $result{$column} = diff $beforeText, $afterText, { STYLE => "Context" };
   }
   elsif ($column eq 'updateTime') {
     $result{'updateTime'} = '[[Before('.$beforeData{'updateTime'}.')&gt;'.$beforeUrl.']] / [[After('.$afterData{'updateTime'}.')&gt;'.$afterUrl.']]';
