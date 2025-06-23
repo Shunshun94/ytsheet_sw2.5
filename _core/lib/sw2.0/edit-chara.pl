@@ -458,7 +458,7 @@ print '</dl></div>';
 print '<div class="classes-group" id="classes-magic-user"><h3>魔法使い系技能</h3><dl class="edit-table side-margin">';
 foreach my $name (@data::class_names){ print classInputBox($name) if $data::class{$name}{type} eq 'magic-user'; }
 print '</dl></div>';
-print '<div class="classes-group" id="classes-other-user"><h3>その他系技能</h3><dl class="edit-table side-margin">';
+print '<div class="classes-group" id="classes-others"><h3>その他系技能</h3><dl class="edit-table side-margin">';
 foreach my $name (@data::class_names){ print classInputBox($name) if !$data::class{$name}{type}; }
 print '</dl></div>';
 
@@ -477,9 +477,9 @@ sub classInputBox {
   return $out;
 }
 print <<"HTML";
-            <dl class="edit-table side-margin" style="grid-column: 2;flex-grow:0;grid-template-columns:1fr auto;">
-              <dt style="border-width: 1px 0 1px;">求道者
-              <dd style="border-width: 1px 0 1px;"><select name="lvSeeker" onchange="calcLv();calcStt();">
+          <div class="classes-group" id="classes-seeker"><h3>求道者</h3>
+            <dl class="edit-table side-margin" style="flex-grow:0;grid-template-columns:auto 1fr;">
+              <dd style="grid-column:span 2"><select name="lvSeeker" onchange="calcLv();calcStt();">
 HTML
 my $i = 0;
 foreach (@data::seeker_lv){ print '<option value="'.$i.'"'.($pc{lvSeeker} eq $i?' selected':'').'>'.$_.'</option>'; $i++; }
@@ -488,14 +488,15 @@ print <<"HTML";
 HTML
 foreach my $i (1..5){
   print <<"HTML";
-              <dt id="seeker-buildup${i}" style="text-align:right;">成長枠追加:
+              <dt id="seeker-buildup${i}" style="text-align:right;font-size:85%;">成長枠追加
               <dd><select name="seekerBuildup${i}" onchange="changeLv()">
                 @{[ option("seekerBuildup${i}",'戦闘特技','真語魔法','操霊魔法','深智魔法','神聖魔法','妖精魔法','魔動機術','召異魔法','秘奥魔法','練技','呪歌','騎芸','賦術','鼓咆','占瞳','魔装','呪印','貴格') ]}
               </select>
 HTML
 }
 print <<"HTML";
-            </dl>
+              </dl>
+            </div>
           </div>
           <div class="box" id="common-classes">
             <h2>
@@ -1113,6 +1114,11 @@ print <<"HTML";
                 <td>―
                 <td>―
                 <td id="mastery-shield-value">$pc{masteryShield}
+              <tr id="mastery-ryugaiarmour"@{[ display $pc{masteryRyugai} ]}>
+                <td>《防具習熟／龍骸》
+                <td>―
+                <td>―
+                <td id="mastery-ryugaiarmour-value">$pc{masteryRyugai}
               <tr id="mastery-artisan-def"@{[ display $pc{masteryArtisan} ]}>
                 <td>《魔器習熟》
                 <td>―
@@ -1320,14 +1326,14 @@ HTML
 print <<"HTML";
           </tbody>
           </table>
-        <ul class="annotate">
-          <li>左のボックスにチェックを入れると欄が一つ追加されます
-          <li>
-            <code>\@器用度+1</code>や<code>\@防護点+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>
-            有効な項目は、<code>器用度</code>～<code>精神力</code> <code>生命抵抗力</code> <code>精神抵抗力</code> <code>回避力</code> <code>防護点</code> <code>移動力</code> <code>魔力</code> <code>行使判定</code> <code>武器必筋上限</code>です。<br>
-            同じ項目へは累積するため、同名や効果排他のアイテムには注意してください。<br>
-            能力値の増強にかぎり、<code>\@筋力増強+2</code>のように<code>増強</code>の文言を記述することで、能力値ごとに最大の値のみを採用できます。
-        </ul>
+          <ul class="annotate">
+            <li>左のボックスにチェックを入れると欄が一つ追加されます
+            <li>
+              <code>\@器用度+1</code>や<code>\@防護点+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>
+              有効な項目は、<code>器用度</code>～<code>精神力</code> <code>生命抵抗力</code> <code>精神抵抗力</code> <code>HP</code> <code>MP</code> <code>回避力</code> <code>防護点</code> <code>移動力</code> <code>魔力</code> <code>行使判定</code> <code>武器必筋上限</code>です。<br>
+              同じ項目へは累積するため、同名や効果排他のアイテムには注意してください。<br>
+              能力値の増強にかぎり、<code>\@筋力増強+2</code>のように<code>増強</code>の文言を記述することで、能力値ごとに最大の値のみを採用できます。
+          </ul>
         </div>
       </div>
       <div id="area-items">
@@ -1461,9 +1467,9 @@ print <<"HTML";
               <td>-
               <td>
               <td>キャラクター作成
-              <td id="history0-exp">$pc{history0Exp}
-              <td id="history0-money">$pc{history0Money}
-              <td id="history0-honor">$pc{history0Honor}
+              <td id="history0-exp">@{[commify $pc{history0Exp}]}
+              <td id="history0-money">@{[commify $pc{history0Money}]}
+              <td id="history0-honor">@{[commify $pc{history0Honor}]}
               <td id="history0-grow">$pc{history0Grow}
             </tr>
 HTML
@@ -1578,6 +1584,8 @@ my $text_rule = <<"HTML";
         　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
         　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
         　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
+        　地方特産品　　：<code>[特]</code>：<i class="i-icon" data-kind="特"><span class="raw">[特]</span></i><br>
+        　流派装備　　　：<code>[流]</code>：<i class="i-icon" data-kind="流"><span class="raw">[流]</span></i><br>
         　常時型　　：<code>[常]</code>：<i class="s-icon passive  "><span class="raw">[常]</span></i><br>
         　主動作型　：<code>[主]</code>：<i class="s-icon major0   "><span class="raw">[主]</span></i><br>
         　補助動作型：<code>[補]</code>：<i class="s-icon minor0   "><span class="raw">[補]</span></i><br>

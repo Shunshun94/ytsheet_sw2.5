@@ -36,12 +36,11 @@ sub createUnitStatus {
           $count{ $partname }++;
           $partname .= $n2a[ $count{ $partname } ];
         }
-        my $hp  = s_eval($pc{"status${i}Hp"});
-        my $mp  = s_eval($pc{"status${i}Mp"});
-        my $def = s_eval($pc{"status${i}Defense"});
-        push(@hp , {$partname.':HP' => "$hp/$hp"});
-        push(@mp , {$partname.':MP' => "$mp/$mp"}) unless isEmptyValue($mp);
-        push(@def, $partname.$def);
+        my $hp  = convertStt($pc{"status${i}Hp"});
+        my $mp  = convertStt($pc{"status${i}Mp"});
+        push(@hp , {$partname.':HP' => $hp});
+        push(@mp , {$partname.':MP' => $mp}) unless isEmptyValue($mp);
+        push(@def, $partname.$pc{"status${i}Defense"});
       }
       @unitStatus = ();
       push(@unitStatus, @hp);
@@ -60,12 +59,20 @@ sub createUnitStatus {
           $i .= $ii > 1 ? "-$ii" : '';
         }
       }
-      my $hp = s_eval($pc{"status${i}Hp"});
-      my $mp = s_eval($pc{"status${i}Mp"});
-      my $def = s_eval($pc{"status${i}Defense"});
-      push(@unitStatus, { 'HP' => "$hp/$hp" });
-      push(@unitStatus, { 'MP' => "$mp/$mp" }) unless isEmptyValue($mp);
-      push(@unitStatus, { '防護' => "$def" });
+      my $hp = convertStt($pc{"status${i}Hp"});
+      my $mp = convertStt($pc{"status${i}Mp"});
+      push(@unitStatus, { 'HP' => $hp });
+      push(@unitStatus, { 'MP' => $mp }) unless isEmptyValue($mp);
+      push(@unitStatus, { '防護' => $pc{"status${i}Defense"} });
+    }
+    
+    if($pc{weakness} && $pc{weakness} ne 'なし'){
+      if ($target eq 'udonarium') {
+        push(@unitStatus, { '弱点' => $pc{weakness} });
+      }
+      else {
+        push(@unitMemo, '弱点:'.$pc{weakness});
+      }
     }
     
     if($pc{weakness}){
@@ -203,6 +210,7 @@ sub fairyRank {
     '3' => ['×','×','×','4','5','6','8','9','10','12','13','14','15','15','15','15'],
     '6' => ['×','×','×','2&1','3&1','4&1','4&2','5&2','6&2','6&3','7&3','8&3','8&4','9&4','10&4','10&5'],
   );
+  return $lv if !$rank{$i}[$lv] && $lv < 3;
   return $rank{$i}[$lv] || '×';
 }
 
@@ -229,8 +237,10 @@ sub extractModifications {
       'D' => '生(?:命力)?',
       'E' => '知力?',
       'F' => '精(?:神力?)?',
-      'vResist' => '生命抵抗力?',
-      'mResist' => '精神抵抗力?',
+      'vResist' => '生命抵抗(?:力(?:判定)?)?',
+      'mResist' => '精神抵抗(?:力(?:判定)?)?',
+      'hp' => '[HＨ][PＰ]',
+      'mp' => '[MＭ][PＰ]',
       'eva' => '回避力?',
       'def' => '防(?:護点?)?',
       'mobility' => '移動力',
@@ -516,6 +526,11 @@ sub data_update_chara {
       $pc{race} = 'ドレイクブロークン' if $pc{race} eq 'ドレイク（ブロークン）';
     }
   }
+  if($ver < 1.27004){
+    if($pc{lvSam} || $pc{lvNin} || $pc{lvJuj} || $pc{lvFug}){
+      $pc{unlockRyugai} = 1;
+    }
+  }
   $pc{ver} = $main::ver;
   $pc{lasttimever} = $ver;
   return %pc;
@@ -563,6 +578,12 @@ sub data_update_item {
       }
     }
   }
+  if($ver < 1.27003){
+    if($pc{age} eq '魔法文明'){ $pc{age} = '古代魔法文明' }
+  }
+  if($ver < 1.27009){
+    $pc{iconMagic} = $pc{magic};
+  }
 
   $pc{ver} = $main::ver;
   $pc{lasttimever} = $ver;
@@ -583,6 +604,14 @@ sub data_update_arts {
   $pc{ver} = $main::ver;
   $pc{lasttimever} = $ver;
   return %pc;
+}
+
+sub convertStt {
+  my $value = shift;
+  if($value eq ''){ return '' }
+  if($value =~ /[^0-9,\+\-\*\/\%\(\) ]/){ return $value }
+  my $v = s_eval($value);
+  return "$v/$v";
 }
 
 sub isEmptyValue {
