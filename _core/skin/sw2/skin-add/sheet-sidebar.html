@@ -71,7 +71,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 	// 剣の欠片機能
 	Array.from(document.getElementsByClassName('name')).filter((e)=>{ return e.tagName === 'TD' }).forEach((e, i)=>{
 		e.innerHTML = e.innerHTML += `<div style="font-size:70%;background-color:rgba(120, 120, 120, 0.5);" class="fragments">
-			(駒には反映せず)剣の欠片：
+			剣の欠片：
 			<button style="width:1em;" class="fragments-minus" value="${i}">-</button>
 			<span style="display:inline-block;width:2em;" class="flagments-count">0</span>
 			<button style="width:1em;" class="fragments-plus" value="${i}">+</button></div>`;
@@ -134,8 +134,18 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 		getJsonData('ccfolia').then((characterJsonData) => {
 			output.generateCcfoliaJson(generateType, characterJsonData, location.href).then((jsonString)=>{
 				const json = JSON.parse(jsonString);
+				json.data.externalUrl = '';
 				// 移動力.魔物レベル0ランダムの値 というフォーマットになる
-				json.data.initiative = Number('-' + (parseInt(characterJsonData.mobility)) + '.' + String(characterJsonData.lv).padStart(2, '0') + '0' + String(Math.floor((Math.random() * 100) % 100)).padStart(2, '0'));
+				json.data.initiative = Number('-' + (parseInt(/\d+/.exec(characterJsonData.mobility)[0])) + '.' + String(characterJsonData.lv).padStart(2, '0') + '0' + String(Math.floor((Math.random() * 100) % 100)).padStart(2, '0'));
+				if(isUseFixedValue) {
+					json.data.commands = json.data.commands.split('\n').map((l)=>{
+						if(l.startsWith('2d') && ! l.includes('ダメージ')) {
+							return l.replace(/2d[^\s]*/, `C($&)`).replace('2d', '7')
+						} else {
+							return l;
+						}
+					}).join('\n');
+				}
 				hpCells.forEach((e, i)=>{
 					const value = parseInt(e.textContent);
 					json.data.status[i].value = value;
@@ -166,18 +176,29 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 			});
 		});
 	};
-	if( isTargetUser ) {
-		const downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase = document.createElement('li');
-		downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.setAttribute('id', 'downloadlist-hiyoko-ccfolia-json-with-dice-roll');
-		const downloadAsHiyokoCcfoliaJsonWithDiceRollButton = document.createElement('a');
-		downloadAsHiyokoCcfoliaJsonWithDiceRollButton.appendChild(document.createTextNode('ココフォリア用独自コマデータ'));
-		downloadAsHiyokoCcfoliaJsonWithDiceRollButton.title = '剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します';
-		downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.appendChild(downloadAsHiyokoCcfoliaJsonWithDiceRollButton);
-		document.getElementById('downloadlist-ccfolia').after(downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase);
-		downloadAsHiyokoCcfoliaJsonWithDiceRollButton.onclick = (e)=>{
-			generateHiyokoCcfoliaJson();
-		};
-	}
+	const downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase = document.createElement('li');
+	downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.setAttribute('id', 'downloadlist-hiyoko-ccfolia-json-with-dice-roll');
+	const downloadAsHiyokoCcfoliaJsonWithDiceRollButton = document.createElement('a');
+	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.appendChild(document.createTextNode('ココフォリア用独自コマデータ'));
+	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.title = '剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します';
+	const downloadAsHiyokoCcfoliaJsonWithDiceRollSmallNotify = document.createElement('small');
+	downloadAsHiyokoCcfoliaJsonWithDiceRollSmallNotify.textContent = '（表示される json をコピーしてココフォリアにはりつけ）';
+	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.appendChild(downloadAsHiyokoCcfoliaJsonWithDiceRollSmallNotify);
+	downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.appendChild(downloadAsHiyokoCcfoliaJsonWithDiceRollButton);
+	document.getElementById('downloadlist-ccfolia').after(downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase);
+	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.onclick = (e)=>{generateHiyokoCcfoliaJson();};
+	
+	const downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase = document.createElement('li');
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase.setAttribute('id', 'downloadlist-hiyoko-ccfolia-json-without-dice-roll');
+	const downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton = document.createElement('a');
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.appendChild(document.createTextNode('ココフォリア用独自コマデータ（固定値使用）'));
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.title = '剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します。命中や回避等のチャットパレットには固定値を用います';
+	const downloadAsHiyokoCcfoliaJsonWithoutDiceRollSmallNotify = document.createElement('small');
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollSmallNotify.textContent = '（表示される json をコピーしてココフォリアにはりつけ）';
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.appendChild(downloadAsHiyokoCcfoliaJsonWithoutDiceRollSmallNotify);
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase.appendChild(downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton);
+	document.getElementById('downloadlist-hiyoko-ccfolia-json-with-dice-roll').after(downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase);
+	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.onclick = (e)=>{generateHiyokoCcfoliaJson(true);};
 }
 
 /** エロステータス編集機能 **/
