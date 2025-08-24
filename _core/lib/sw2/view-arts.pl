@@ -181,7 +181,7 @@ $SHEET->param(Tags => \@tags);
   $SHEET->param(magicTarget   => textMagic($pc{magicTarget}));
   $SHEET->param(magicDuration => textMagic($pc{magicDuration}));
 
-  if($pc{magicClass} eq '魔動機術'){ $SHEET->param(magicNameNotes => 'マギスフィア:'.$pc{magicMagisphere}); }
+  if($pc{magicClass} =~ /魔動機術/){ $SHEET->param(magicNameNotes => 'マギスフィア:'.$pc{magicMagisphere}); }
   
   if   ($class eq '練技'){
     $SHEET->param(magicClassEn => 'enhance');
@@ -290,7 +290,7 @@ foreach my $lv (2,4,7,10,13){
 }
 $SHEET->param(MagicData => \@magics);
 
-### 流派装備 --------------------------------------------------
+### 流派アイテム --------------------------------------------------
 my @items;
 foreach my $set_url (split ',',$item_urls){
   require $set::lib_convert;
@@ -331,7 +331,7 @@ foreach my $num (1..$pc{schoolArtsNum}){
     foreach (split '(?<!<)\s[/／]\s', $pc{'schoolArts'.$num.$type}){
       push(@texts, "<span>$_</span>")
     }
-    $pc{'schoolArts'.$num.$type} = join('<hr>', @texts)
+    $pc{'schoolArts'.$num.$type} = join('<hr class="dotted">', @texts)
   }
   $pc{'schoolArts'.$num.'Premise'} =~ s#(《.+?》)、?#<span class="keep-all">$1</span><wbr>#g;
   $pc{'schoolArts'.$num.'Premise'} =~ s#<wbr>$##g;
