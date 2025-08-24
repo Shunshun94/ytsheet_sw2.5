@@ -1,5 +1,6 @@
 <div style="position:absolute;bottom:4px;left:4px;" id="appendTextConsole"></div>
 <script src="https://shunshun94.github.io/shared/jquery/com/hiyoko/util/v2/utils.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script>
 var io = {};
 io.github = io.github || {};
@@ -17,19 +18,174 @@ const isTargetUser = ['302451274706583553', '413974037501313024', '4585924338658
 });
 const isTargetDomain = ! location.href.includes('hiyo-hitsu.sakura.ne.jp');
 
+/** 便利機能 **/
+if( generateType === 'SwordWorld2PC') {
+	// チェック機能
+	const navUl = document.getElementsByTagName('nav')[0].getElementsByTagName('ul')[0];
+	const lastLi = Array.from(navUl.children).at(-1);
+	const newMenu = document.createElement('li');
+	newMenu.innerHTML = `<a target="_blank" href="https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/sw2/ytsheet/validation/index.html?target=${ encodeURIComponent(location.href) }"><span>チェック</span></a>`;
+	navUl.insertBefore(newMenu, lastLi);
+
+	// Discord共有用リンク
+	const markdownLink = document.createElement('li');
+	markdownLink.setAttribute('class', 'link-tag');
+	const markdownLinkBase = document.createElement('span');
+	markdownLinkBase.appendChild(document.createTextNode('Discord共有用リンク'));
+	markdownLinkBase.appendChild(document.createElement('br'));
+	const markdownLinkInput = document.createElement('input');
+	markdownLinkInput.type = 'text';
+	markdownLinkInput.value = `[${document.getElementById('character-name').textContent}](${location.href})`;
+	markdownLinkInput.onclick = (e) => { e.target.select(); };
+	markdownLinkBase.appendChild(markdownLinkInput);
+	markdownLink.appendChild(markdownLinkBase);
+	document.getElementById('downloadlist').getElementsByTagName('ul')[0].appendChild(markdownLink);
+}
+
+if ( generateType === 'SwordWorld2Enemy' ) {
+	// 画像ダウンロード機能
+	const downloadAsPictureButtonBase = document.createElement('li');
+	downloadAsPictureButtonBase.setAttribute('id', 'downloadlist-picture');
+	const downloadAsPictureButton = document.createElement('a');
+	downloadAsPictureButton.appendChild(document.createTextNode('画像形式'));
+	downloadAsPictureButtonBase.appendChild(downloadAsPictureButton);
+	downloadAsPictureButton.onclick = (e) => {
+		Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'none'; });
+		document.getElementById('author').style.display = 'none';
+		document.getElementsByTagName('article')[0].style.padding = '1em';
+		html2canvas(document.getElementsByTagName('article')[0], {
+			backgroundColor: null,
+			scale: 2
+		}).then((canvas) => {
+			const link = document.createElement('a');
+			link.download = `${document.getElementsByTagName('article')[0].getElementsByTagName('h1')[0].textContent}.png`;
+			link.href = canvas.toDataURL();
+			link.click();
+			document.getElementsByTagName('article')[0].style.padding = '0';
+			document.getElementById('author').style.display = 'block';
+			Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'block'; });
+		});
+	};
+	document.getElementById('downloadlist-zipped').after(downloadAsPictureButtonBase);
+
+	// 剣の欠片機能
+	Array.from(document.getElementsByClassName('name')).filter((e)=>{ return e.tagName === 'TD' }).forEach((e, i)=>{
+		e.innerHTML = e.innerHTML += `<div style="font-size:70%;background-color:rgba(120, 120, 120, 0.5);" class="fragments">
+			(駒には反映せず)剣の欠片：
+			<button style="width:1em;" class="fragments-minus" value="${i}">-</button>
+			<span style="display:inline-block;width:2em;" class="flagments-count">0</span>
+			<button style="width:1em;" class="fragments-plus" value="${i}">+</button></div>`;
+	});
+	const hpCells = Array.from(document.getElementsByClassName('hp')).filter((e)=>{ return e.tagName === 'TD' });
+	hpCells.forEach((e, i)=>{ e.title = e.textContent.trim(); });
+	const mpCells = Array.from(document.getElementsByClassName('mp')).filter((e)=>{ return e.tagName === 'TD' });
+	mpCells.forEach((e, i)=>{ e.title = e.textContent.trim(); });
+	Array.from(document.getElementsByClassName('status')[0].getElementsByTagName('dl')).filter((e)=>{ return e.textContent.includes('抵抗力') }).forEach((dl, i)=>{
+		dl.getElementsByTagName('dd')[0].title = /(\d+) \(\d+\)/.exec(dl.getElementsByTagName('dd')[0].textContent)[1];
+		dl.getElementsByTagName('dd')[0].className = `regist`;
+	});
+	document.getElementsByTagName('table')[0].addEventListener('click', (e) => {
+		const target = e.target;
+		if( (! target.className.startsWith('fragments-')) || target.tagName !== 'BUTTON') {
+			return;
+		}
+		const index = e.target.value;
+		const countSpan = document.getElementsByClassName('flagments-count')[index];
+		let count = parseInt(countSpan.textContent);
+		if(target.className === 'fragments-minus')  {				
+			if(count > 0) {
+				count--;
+			}
+		} else {
+			count++;
+		}
+		countSpan.textContent = count;
+		hpCells[index].textContent = parseInt(hpCells[index].title) + count * 5;
+		mpCells[index].textContent = (parseInt(mpCells[index].title) + count) || mpCells[index].title;
+		const totalFragments = Array.from(document.getElementsByClassName('flagments-count')).reduce((sum, span) => {
+			return sum + parseInt(span.textContent);
+		}, 0);
+		const registBonusByFragments = Math.min(4, Math.ceil(totalFragments / 5));
+		Array.from(document.getElementsByClassName('regist')).forEach((e)=>{ e.textContent = `${parseInt(e.title)+registBonusByFragments} (${parseInt(e.title)+registBonusByFragments+7})`; });
+	});
+
+	// 剣の欠片の修正値を含めたココフォリアの駒出力機能
+	const generateStatusSummary = (characterJsonData, registBonusByFragments) => {
+		const result = [];
+		result.push([
+			`生命抵抗力：${Number(characterJsonData.vitResist) + registBonusByFragments}（${Number(characterJsonData.vitResistFix) + registBonusByFragments}）`,
+			`精神抵抗力：${Number(characterJsonData.mndResist) + registBonusByFragments}（${Number(characterJsonData.mndResistFix) + registBonusByFragments}）`
+		].join(' '));
+		const statusLength = Number(characterJsonData.statusNum);
+		for(var i = 0; i < statusLength; i++) {
+			result.push('●' + characterJsonData[`status${ i + 1}Style`]);
+			result.push([
+				characterJsonData[`status${ i + 1}Accuracy`] ? `命中：${characterJsonData[`status${ i + 1}Accuracy`]}（${characterJsonData[`status${ i + 1}AccuracyFix`]}）` : '',
+				characterJsonData[`status${ i + 1}Damage`] ? `打撃：${characterJsonData[`status${ i + 1}Damage`]}`: ''
+			].filter((d)=>{return d}).join(' '));
+			result.push([
+				characterJsonData[`status${ i + 1}Evasion`] ? `回避：${characterJsonData[`status${ i + 1}Evasion`]}（${characterJsonData[`status${ i + 1}EvasionFix`]}）` : '',
+				characterJsonData[`status${ i + 1}Defense`] ? `防護：${characterJsonData[`status${ i + 1}Defense`]}` : ''
+			].filter((d)=>{return d}).join(' '));
+		}
+		return result.join('\n');
+	};
+	const generateHiyokoCcfoliaJson = (isUseFixedValue = false) =>{
+		getJsonData('ccfolia').then((characterJsonData) => {
+			output.generateCcfoliaJson(generateType, characterJsonData, location.href).then((jsonString)=>{
+				const json = JSON.parse(jsonString);
+				// 移動力.魔物レベル0ランダムの値 というフォーマットになる
+				json.data.initiative = Number('-' + (parseInt(characterJsonData.mobility)) + '.' + String(characterJsonData.lv).padStart(2, '0') + '0' + String(Math.floor((Math.random() * 100) % 100)).padStart(2, '0'));
+				hpCells.forEach((e, i)=>{
+					const value = parseInt(e.textContent);
+					json.data.status[i].value = value;
+					json.data.status[i].max = value;
+				});
+				mpCells.forEach((e, i)=>{
+					const value = parseInt(e.textContent);
+					if( value ) {
+						json.data.status[i + hpCells.length].value = parseInt(e.textContent);
+						json.data.status[i + hpCells.length].max = parseInt(e.textContent);
+					}
+				});
+				const totalFragments = Array.from(document.getElementsByClassName('flagments-count')).reduce((sum, span) => {
+					return sum + parseInt(span.textContent);
+				}, 0);
+				const registBonusByFragments = Math.min(4, Math.ceil(totalFragments / 5));
+				json.data.params = json.data.params.map((param) => {
+					if( param.label.includes('抵抗修正') ) { param.value = String(registBonusByFragments); }
+					return param;
+				});
+				json.data.memo = [
+					(totalFragments ? '剣の欠片：' + totalFragments + '個' : ''),
+					`種族：${characterJsonData.taxa}　知覚：${characterJsonData.perception}`,
+					`弱点':${characterJsonData.weakness}`,
+					``, '能力値',
+				].concat(generateStatusSummary(characterJsonData, registBonusByFragments)).join('\n').trim();
+				popTextareaForCopy(JSON.stringify(json));
+			});
+		});
+	};
+	if( isTargetUser ) {
+		const downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase = document.createElement('li');
+		downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.setAttribute('id', 'downloadlist-hiyoko-ccfolia-json-with-dice-roll');
+		const downloadAsHiyokoCcfoliaJsonWithDiceRollButton = document.createElement('a');
+		downloadAsHiyokoCcfoliaJsonWithDiceRollButton.appendChild(document.createTextNode('ココフォリア用独自コマデータ'));
+		downloadAsHiyokoCcfoliaJsonWithDiceRollButton.title = '剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します';
+		downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.appendChild(downloadAsHiyokoCcfoliaJsonWithDiceRollButton);
+		document.getElementById('downloadlist-ccfolia').after(downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase);
+		downloadAsHiyokoCcfoliaJsonWithDiceRollButton.onclick = (e)=>{
+			generateHiyokoCcfoliaJson();
+		};
+	}
+}
+
+/** エロステータス編集機能 **/
 if((isTargetDomain || isTargetUser) && (generateType === 'SwordWorld2PC')) {
 	const navUl = document.getElementsByTagName('nav')[0].getElementsByTagName('ul')[0];
 	const lastLi = Array.from(navUl.children).at(-1);
 	const newMenu = document.createElement('li');
 	newMenu.innerHTML = `<a href="./${location.search}&eroedit=1"><span>エロステ<br/>編集</span></a>`;
-	navUl.insertBefore(newMenu, lastLi);
-}
-
-if( generateType === 'SwordWorld2PC') {
-	const navUl = document.getElementsByTagName('nav')[0].getElementsByTagName('ul')[0];
-	const lastLi = Array.from(navUl.children).at(-1);
-	const newMenu = document.createElement('li');
-	newMenu.innerHTML = `<a target="_blank" href="https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/sw2/ytsheet/validation/index.html?target=${ encodeURIComponent(location.href) }"><span>チェック</span></a>`;
 	navUl.insertBefore(newMenu, lastLi);
 }
 
@@ -126,7 +282,7 @@ if( eroStaMode === 'edit' ) {
 	if(io.github.shunshun94.ytsheet.addSkin.param.appendTextRightTop) {
 		const item = document.createElement('span');
 		item.id = 'image-append-right-top';
-		item.style = `padding:0.8em;top:8px;right:8px;position:absolute;width:3em;writing-mode: vertical-rl;background-color:white;border:black solid 2px;font-weight: bold;`;
+		item.style = `padding:0.8em;top:8px;right:8px;position:absolute;width:3em;writing-mode: vertical-rl;color:black;background-color:white;border:black solid 2px;font-weight: bold;`;
 		item.textContent = decodeURI(io.github.shunshun94.ytsheet.addSkin.param.appendTextRightTop);
 		document.getElementById('image').append(item);
 	}
@@ -134,27 +290,10 @@ if( eroStaMode === 'edit' ) {
 	if(io.github.shunshun94.ytsheet.addSkin.param.appendTextLeftBottom) {
 		const item = document.createElement('span');
 		item.id = 'image-append-left-bottom';
-		item.style = `padding:0.8em;bottom:8px;left:8px;position:absolute;width:3em;writing-mode: vertical-rl;background-color:white;border:black solid 2px;font-weight: bold;`;
+		item.style = `padding:0.8em;bottom:8px;left:8px;position:absolute;width:3em;writing-mode: vertical-rl;color:black;background-color:white;border:black solid 2px;font-weight: bold;`;
 		item.textContent = decodeURI(io.github.shunshun94.ytsheet.addSkin.param.appendTextLeftBottom);
 		document.getElementById('image').append(item);
 	}
 }
-
-const markdownLink = document.createElement('li');
-markdownLink.setAttribute('class', 'link-tag');
-
-const markdownLinkBase = document.createElement('span');
-markdownLinkBase.appendChild(document.createTextNode('Discord共有用リンク'));
-markdownLinkBase.appendChild(document.createElement('br'));
-
-const markdownLinkInput = document.createElement('input');
-markdownLinkInput.type = 'text';
-markdownLinkInput.value = `[${document.getElementById('character-name').textContent}](${location.href})`;
-markdownLinkInput.onclick = (e) => { e.target.select(); };
-
-markdownLinkBase.appendChild(markdownLinkInput);
-
-markdownLink.appendChild(markdownLinkBase);
-document.getElementById('downloadlist').getElementsByTagName('ul')[0].appendChild(markdownLink);
 
 </script>
