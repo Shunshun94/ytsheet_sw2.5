@@ -11,11 +11,10 @@ io.github.shunshun94.ytsheet.addSkin = io.github.shunshun94.ytsheet.addSkin || {
 io.github.shunshun94.ytsheet.addSkin.param = com.hiyoko.util.getQueries();
 
 const sheetIdentifier = (io.github.shunshun94.ytsheet.addSkin.param.url) ? `url=${io.github.shunshun94.ytsheet.addSkin.param.url}` : `id=${io.github.shunshun94.ytsheet.addSkin.param.id}`;
-
+const userIdCandiate = /ytsheet2=(\d+)/.exec(document.cookie);
+const userId = (userIdCandiate) ? userIdCandiate[1] : '';
 // 編集画面は自鯖では一部のユーザにだけ解放している
-const isTargetUser = ['302451274706583553', '413974037501313024', '458592433865883659', '272299464486682624', '214107818947641346'].some((id)=>{
-	return document.cookie.includes(`ytsheet2=${id}%`);
-});
+const isTargetUser = ['302451274706583553', '413974037501313024', '458592433865883659', '272299464486682624', '214107818947641346'].includes(userId);
 const isTargetDomain = ! location.href.includes('hiyo-hitsu.sakura.ne.jp');
 
 /** 便利機能 **/
@@ -44,6 +43,11 @@ if( generateType === 'SwordWorld2PC') {
 
 if ( generateType === 'SwordWorld2Enemy' ) {
 	// 画像ダウンロード機能
+	// ささやかな抵抗として透かしを入れておく
+	const waterMark = document.createElement('div');
+	waterMark.style = `opacity:0.1;position:absolute;top:3em;font-size:5em;transform: rotate(15deg);display:none;`;
+	waterMark.innerHTML = userId + '<br/>' + new Date().toLocaleString();
+	document.getElementsByTagName('article')[0].append(waterMark);
 	const downloadAsPictureButtonBase = document.createElement('li');
 	downloadAsPictureButtonBase.setAttribute('id', 'downloadlist-picture');
 	const downloadAsPictureButton = document.createElement('a');
@@ -52,6 +56,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 	downloadAsPictureButton.onclick = (e) => {
 		Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'none'; });
 		document.getElementById('author').style.display = 'none';
+		waterMark.style.display = 'block';
 		document.getElementsByTagName('article')[0].style.padding = '1em';
 		html2canvas(document.getElementsByTagName('article')[0], {
 			backgroundColor: null,
@@ -63,10 +68,13 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 			link.click();
 			document.getElementsByTagName('article')[0].style.padding = '0';
 			document.getElementById('author').style.display = 'block';
+			waterMark.style.display = 'none';
 			Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'block'; });
 		});
 	};
-	document.getElementById('downloadlist-zipped').after(downloadAsPictureButtonBase);
+	if(userId) {
+		document.getElementById('downloadlist-zipped').after(downloadAsPictureButtonBase);
+	}
 
 	// 剣の欠片機能
 	Array.from(document.getElementsByClassName('name')).filter((e)=>{ return e.tagName === 'TD' }).forEach((e, i)=>{
@@ -112,23 +120,28 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 	// 剣の欠片の修正値を含めたココフォリアの駒出力機能
 	const generateStatusSummary = (characterJsonData, registBonusByFragments) => {
 		const result = [];
+		const mountSuffix = (characterJsonData.mount && (Number(characterJsonData.lv) - Number(characterJsonData.lvMin))) ? `-${Number(characterJsonData.lv) - Number(characterJsonData.lvMin) + 1}` : '';
 		result.push([
-			`生命抵抗力：${Number(characterJsonData.vitResist) + registBonusByFragments}（${Number(characterJsonData.vitResistFix) + registBonusByFragments}）`,
-			`精神抵抗力：${Number(characterJsonData.mndResist) + registBonusByFragments}（${Number(characterJsonData.mndResistFix) + registBonusByFragments}）`
+			`生命抵抗力：${Number(characterJsonData.vitResist || characterJsonData[`status1${mountSuffix}Vit`]) + registBonusByFragments}（${(Number(characterJsonData.vitResistFix) || Number(characterJsonData[`status1${mountSuffix}Vit`]) + 7) + registBonusByFragments}）`,
+			`精神抵抗力：${Number(characterJsonData.mndResist || characterJsonData[`status1${mountSuffix}Mnd`]) + registBonusByFragments}（${(Number(characterJsonData.mndResistFix) || Number(characterJsonData[`status1${mountSuffix}Mnd`]) + 7) + registBonusByFragments}）`
 		].join(' '));
 		const statusLength = Number(characterJsonData.statusNum);
 		for(var i = 0; i < statusLength; i++) {
 			result.push('●' + characterJsonData[`status${ i + 1}Style`]);
 			result.push([
-				characterJsonData[`status${ i + 1}Accuracy`] ? `命中：${characterJsonData[`status${ i + 1}Accuracy`]}（${characterJsonData[`status${ i + 1}AccuracyFix`]}）` : '',
-				characterJsonData[`status${ i + 1}Damage`] ? `打撃：${characterJsonData[`status${ i + 1}Damage`]}`: ''
+				characterJsonData[`status${ i + 1}${mountSuffix}Accuracy`] ? `命中：${characterJsonData[`status${ i + 1}${mountSuffix}Accuracy`]}（${characterJsonData[`status${ i + 1}${mountSuffix}AccuracyFix`]}）` : '',
+				characterJsonData[`status${ i + 1}${mountSuffix}Damage`] ? `打撃：${characterJsonData[`status${ i + 1}${mountSuffix}Damage`]}`: ''
 			].filter((d)=>{return d}).join(' '));
 			result.push([
-				characterJsonData[`status${ i + 1}Evasion`] ? `回避：${characterJsonData[`status${ i + 1}Evasion`]}（${characterJsonData[`status${ i + 1}EvasionFix`]}）` : '',
-				characterJsonData[`status${ i + 1}Defense`] ? `防護：${characterJsonData[`status${ i + 1}Defense`]}` : ''
+				characterJsonData[`status${ i + 1}${mountSuffix}Evasion`] ? `回避：${characterJsonData[`status${ i + 1}${mountSuffix}Evasion`]}（${characterJsonData[`status${ i + 1}${mountSuffix}EvasionFix`]}）` : '',
+				characterJsonData[`status${ i + 1}${mountSuffix}Defense`] ? `防護：${characterJsonData[`status${ i + 1}${mountSuffix}Defense`]}` : ''
 			].filter((d)=>{return d}).join(' '));
 		}
-		return result.join('\n');
+		result.push('\n特殊能力');
+		result.push((characterJsonData.skills || '').replaceAll(/&lt;br&gt;/g, '\n').split('\n').filter((line)=>{
+			return /^([●○◯〇△＞▶〆≫☆🗨□☑]|\[[常準主補補]\]|>>)/.test(line);
+		}));
+		return result.flat();
 	};
 	const generateHiyokoCcfoliaJson = (isUseFixedValue = false) =>{
 		getJsonData('ccfolia').then((characterJsonData) => {
@@ -136,7 +149,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 				const json = JSON.parse(jsonString);
 				json.data.externalUrl = '';
 				// 移動力.魔物レベル0ランダムの値 というフォーマットになる
-				json.data.initiative = Number('-' + (parseInt(/\d+/.exec(characterJsonData.mobility)[0])) + '.' + String(characterJsonData.lv).padStart(2, '0') + '0' + String(Math.floor((Math.random() * 100) % 100)).padStart(2, '0'));
+				json.data.initiative = Number('-' + String((parseInt((/\d+/.exec(characterJsonData.mobility) || ['00'])[0]))).padStart(2, '0') + '.' + String(characterJsonData.lv || '00').padStart(2, '0') + '0' + String(Math.floor((Math.random() * 100) % 100)).padStart(2, '0'));
 				if(isUseFixedValue) {
 					json.data.commands = json.data.commands.split('\n').map((l)=>{
 						if(l.startsWith('2d') && ! l.includes('ダメージ')) {
@@ -146,10 +159,15 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 						}
 					}).join('\n');
 				}
+				json.data.commands += '\n' + Array.from(document.getElementsByClassName('loots')[0]?.getElementsByTagName('dl')[0].children || []).map((elem)=>{return elem.textContent}).map((d, i)=>{
+					if( i % 2 ) { return `${d}\n`} else { return `戦利品　${d}：`; }
+				}).join('').trim();
 				hpCells.forEach((e, i)=>{
 					const value = parseInt(e.textContent);
-					json.data.status[i].value = value;
-					json.data.status[i].max = value;
+					if( value ) {
+						json.data.status[i].value = value;
+						json.data.status[i].max = value;
+					}
 				});
 				mpCells.forEach((e, i)=>{
 					const value = parseInt(e.textContent);
@@ -169,7 +187,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 				json.data.memo = [
 					(totalFragments ? '剣の欠片：' + totalFragments + '個' : ''),
 					`種族：${characterJsonData.taxa}　知覚：${characterJsonData.perception}`,
-					`弱点':${characterJsonData.weakness}`,
+					`弱点：${characterJsonData.weakness}`,
 					``, '能力値',
 				].concat(generateStatusSummary(characterJsonData, registBonusByFragments)).join('\n').trim();
 				popTextareaForCopy(JSON.stringify(json));
