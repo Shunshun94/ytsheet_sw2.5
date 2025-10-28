@@ -139,7 +139,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 		}
 		result.push('\n特殊能力');
 		result.push((characterJsonData.skills || '').replaceAll(/&lt;br&gt;/g, '\n').split('\n').filter((line)=>{
-			return /^([●○◯〇△＞▶〆≫☆🗨□☑]|\[[常準主補補]\]|>>)/.test(line);
+			return /^([●○◯〇△＞▶〆≫☆🗨□☑]|\[[常準主補宣]\]|>>)/.test(line);
 		}));
 		return result.flat();
 	};
