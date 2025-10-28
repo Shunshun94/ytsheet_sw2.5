@@ -95,7 +95,7 @@ sub addJsonData {
     $pc{unitStatus} = createUnitStatus(\%pc, $target);
     #$pc{sheetDescriptionM} .= "\n".$pc{unitStatus}->{'メモ'} if $pc{unitStatus}->{'メモ'};
     my @memo = grep { exists $_->{'メモ'} } @{$pc{unitStatus}};
-    $pc{sheetDescriptionM} .= "\n$memo[0]->{'メモ'}" if @memo[0]->{'メモ'};
+    $pc{sheetDescriptionM} .= "\n$memo[0]->{'メモ'}" if @memo && @memo[0]->{'メモ'};
     my @array = grep { !exists $_->{'メモ'} } @{$pc{unitStatus}};
     $pc{unitStatus} = \@array;
   }
