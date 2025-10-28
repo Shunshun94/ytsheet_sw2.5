@@ -1426,6 +1426,7 @@ aside#error {
 /* ////////// LayerEnd ////////// */
 }
 
+/**
 .comment:before {
   content: '？';
   font-size:16px;
@@ -1448,3 +1449,4 @@ aside#error {
   height: auto;
   text-align:left;
 }
+**/
