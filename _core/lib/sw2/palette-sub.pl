@@ -87,9 +87,19 @@ my %pows = (
     80  => 13,
     100 => 13,
   },
+  Bib => {
+    10  => '.+－猛毒の霧－|その他の(1ランクすべて|[12345]ランク以下すべて)',
+    20  => '.+－破滅の槍－|その他の(1ランクすべて|[12345]ランク以下すべて)',
+    30  => '.+－貫く光条－|その他の(2ランクすべて|[2345]ランク以下すべて)',
+    40  => '.+－大気爆発－|その他の(3ランクすべて|[345]ランク以下すべて)',
+    50  => '.+－断罪の槍－|その他の(3ランクすべて|[345]ランク以下すべて)',
+    60  => '.+－闇を裂く閃光－|その他の(4ランクすべて|[45]ランク以下すべて)',
+    80  => '.+－死の嵐－|その他の5ランク(以下)?すべて',
+    100 => '.+－神殺の槍－|その他の5ランク(以下)?すべて',
+  },
   Bar => {
     10  => '終律：春の強風|終律：冬の寒風',
-    20  => '終律：獣の咆哮|終律：蛇穴の苦鳴',
+    20  => '終律：獣の咆吼|終律：蛇穴の苦鳴',
     30  => '終律：火竜の舞|終律：水竜の轟',
   },
   Dar => {
@@ -130,6 +140,11 @@ my %heals = (
     20  =>  1,
     40  =>  7,
     100 => 13,
+  },
+  Bib => {
+    20  => '.+－肉体修復－|その他の(1ランクすべて|[12345]ランク以下すべて)',
+    40  => '.+－再生起動－|その他の(3ランクすべて|[345]ランク以下すべて)',
+    100 => '.+－聖魔の光束－|その他の5ランク(以下)?すべて',
   },
   Bar => {
     0   => '終律：秋の実り',
@@ -411,10 +426,16 @@ sub palettePreset {
             next if($id eq 'Fai' && $pow == 80 && $::pc{lvFai} < 15);
           }
           else {
-            my $eName = $data::class{$class}{craft}{eName};
+            my $eName = $data::class{$class}{magic}{eName} || $data::class{$class}{craft}{eName};
             my $exist;
             foreach(1 .. $::pc{'lv'.$id}+$::pc{$eName.'Addition'}){
+              if($::pc{'magic'.ucfirst($eName).$_} =~ /^($pows{$id}{$pow})$/){ $exist = 1; last; }
               if($::pc{'craft'.ucfirst($eName).$_} =~ /^($pows{$id}{$pow})$/){ $exist = 1; last; }
+            }
+            if(!$exist && $class eq 'ビブリオマンサー'){
+              foreach(1 .. $::pc{bibliomancyTemporaryNum}){
+                if($::pc{'magicBibliomancyTemporary'.$_} =~ /^($pows{$id}{$pow})$/){ $exist = 1; last; }
+              }
             }
             next if !$exist;
           }
@@ -471,10 +492,16 @@ sub palettePreset {
             next if($::pc{'lv'.$id} < $heals{$id}{$pow});
           }
           else {
-            my $eName = $data::class{$class}{craft}{eName};
+            my $eName = $data::class{$class}{magic}{eName} || $data::class{$class}{craft}{eName};
             my $exist;
             foreach(1 .. $::pc{'lv'.$id}+$::pc{$eName.'Addition'}){
+              if($::pc{'magic'.ucfirst($eName).$_} =~ /^($heals{$id}{$pow})$/){ $exist = 1; last; }
               if($::pc{'craft'.ucfirst($eName).$_} =~ /^($heals{$id}{$pow})$/){ $exist = 1; last; }
+            }
+            if(!$exist && $class eq 'ビブリオマンサー'){
+              foreach(1 .. $::pc{bibliomancyTemporaryNum}){
+                if($::pc{'magicBibliomancyTemporary'.$_} =~ /^($pows{$id}{$pow})$/){ $exist = 1; last; }
+              }
             }
             next if !$exist;
           }
@@ -999,6 +1026,7 @@ sub paletteProperties {
           $dmgMod += $::pc{'mastery' . ucfirst($data::weapon_id{ $category }) };
           if($category eq 'ガン（物理）'){ $dmgMod += $::pc{masteryGun}; }
           if($::pc{"weapon${_}Note"} =~ /〈魔器〉/){ $dmgMod += $::pc{masteryArtisan}; }
+          if($category eq '投擲'){ $dmgMod += $::pc{mightyShot}; } # 【剛力弾】
         }
         else {
           if($category eq '格闘'){ $dmgMod += $::pc{masteryGrapple}; }

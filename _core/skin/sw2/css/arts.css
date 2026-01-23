@@ -58,6 +58,8 @@ article {
       display: grid;
       grid-gap: 0 1.2rem;
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto 1fr;
+      align-items: start;
       padding: 0 1.2rem;
       position: relative;
     }
@@ -72,6 +74,7 @@ article {
   #magics,
   #mystic-arts {
     grid-column: 2;
+    grid-row: span 2;
     margin-top: 0;
   }
 }
@@ -131,6 +134,11 @@ article {
   .wide .data-magic + & {
     margin-top: 1.5em;
   }
+
+  & .alias {
+    display: inline-block;
+  }
+
   &   .name     { grid-area: NAME; }
   & dl.cost     { grid-area: COST; }
   & dl.target   { grid-area: TRGT; }
@@ -478,7 +486,7 @@ article {
 .data-magic > h3 .s-icon::before {
   color: #fff;
 }
-.data-magic.data-arts dl:not(.summary,.effect) dd {
+.data-magic.data-arts > dl:not(.summary,.effect) dd {
   display: flex;
   flex-direction: column;
   justify-content: space-around;

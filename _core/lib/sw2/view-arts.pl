@@ -107,7 +107,7 @@ if($pc{forbidden} && !$pc{yourAuthor}){
 if($pc{category} eq 'magic'){
   if($pc{magicMinor}){ $pc{magicClass} .= ' (小魔法)' }
   $SHEET->param(categoryMagic => 1);
-  $pc{artsName} = '【'.$pc{magicName}.'】';
+  $pc{artsName} = '【'.($pc{magicClass} eq '神聖魔法' ? (extractDivineMark $pc{magicName})[1] : $pc{magicName}).'】';
   $SHEET->param(rawName => $pc{magicName});
 }
 elsif($pc{category} eq 'god'){
@@ -127,7 +127,8 @@ my $item_urls = $pc{schoolItemList};
 ### タグ置換 #########################################################################################
 foreach (keys %pc) {
   next if($_ =~ /^image/);
-  if($_ =~ /(?:Effect|Description|Note)$/){
+  next if($_ eq 'tags');
+  if($_ =~ /(?:Effect|Description|Note|QnA)$/){
     $pc{$_} = unescapeTagsLines($pc{$_});
   }
   $pc{$_} = unescapeTags($pc{$_});
@@ -176,8 +177,16 @@ $SHEET->param(Tags => \@tags);
   if($pc{magicActionTypeMajor}  ){ $icon .= '<i class="s-icon major"><span class="raw">[主]</span></i>' }
   if($pc{magicActionTypeMinor}  ){ $icon .= '<i class="s-icon minor"><span class="raw">[補]</span></i>' }
   if($pc{magicActionTypeSetup}  ){ $icon .= '<i class="s-icon setup"><span class="raw">[準]</span></i>' }
+
+  my $magicName = $pc{magicName};
+  (my $divineMark, $magicName) = extractDivineMark $magicName if $pc{magicClass} eq '神聖魔法';
+  my $alias;
+  if($magicName =~ s/\s?[－―‐–—─\-](.+?)[－―‐–—─\-]$//){ $alias = "－$1－" }
+
   $SHEET->param(magicIcon => $icon);
-  $SHEET->param(magicName => stylizeCharacterName $pc{magicName});
+  $SHEET->param(magicName => stylizeCharacterName $magicName);
+  $SHEET->param(magicAlias => $alias);
+  $SHEET->param(magicDivineMark => $divineMark) if defined $divineMark;
   $SHEET->param(magicTarget   => textMagic($pc{magicTarget}));
   $SHEET->param(magicDuration => textMagic($pc{magicDuration}));
 
@@ -333,7 +342,7 @@ foreach my $num (1..$pc{schoolArtsNum}){
     }
     $pc{'schoolArts'.$num.$type} = join('<hr class="dotted">', @texts)
   }
-  $pc{'schoolArts'.$num.'Premise'} =~ s#(《.+?》)、?#<span class="keep-all">$1</span><wbr>#g;
+  $pc{'schoolArts'.$num.'Premise'} =~ s#(《.+?》、?)#<span class="keep-all">$1</span><wbr>#g;
   $pc{'schoolArts'.$num.'Premise'} =~ s#<wbr>$##g;
   $pc{'schoolArts'.$num.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt><span class="center">$1</span></dt><dd class="box">#gi;
   push(@arts, {
@@ -360,8 +369,16 @@ foreach my $num (1..$pc{schoolMagicNum}){
   if($pc{'schoolMagic'.$num.'ActionTypeMinor'}){ $icon .= '<i class="s-icon minor">≫</i>' }
   if($pc{'schoolMagic'.$num.'ActionTypeSetup'}){ $icon .= '<i class="s-icon setup">△</i>' }
   $pc{'schoolMagic'.$num.'Effect'} =~ s#<h2>(.+?)</h2>#</dd><dt><span class="center">$1</span></dt><dd class="box">#gi;
+
+  my $schoolMagicName = $pc{'schoolMagic'.$num.'Name'};
+  (my $divineMark, $schoolMagicName) = extractDivineMark $schoolMagicName;
+  my $alias;
+  if($schoolMagicName =~ s/\s?[－―‐–—─\-](.+?)[－―‐–—─\-]$//){ $alias = "－$1－" }
+
   push(@schoolmagics, {
-    "NAME"     => stylizeCharacterName($pc{'schoolMagic'.$num.'Name'}),
+    "NAME"     => stylizeCharacterName($schoolMagicName),
+    "ALIAS"    => $alias,
+    "DIVINE_MARK" => $divineMark,
     "LEVEL"    => $pc{'schoolMagic'.$num.'Lv'},
     "ICON"     => $icon,
     "A-COST"   => $pc{'schoolMagic'.$num.'AcquireCost'},
