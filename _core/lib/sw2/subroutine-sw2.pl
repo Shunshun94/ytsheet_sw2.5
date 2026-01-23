@@ -103,6 +103,16 @@ sub createUnitStatus {
         push(@unitStatus, { '人' => '0' });
       }
       push(@unitStatus, { '陣気' => '0' }) if $pc{lvWar};
+      push(@unitStatus, { '特殊失敗値' => '0' }) if ($pc{lvBib});
+      if ($pc{lvFai}) {
+        my @contractAttributes = ();
+        foreach ([Earth => '土'], [Water => '水'], [Fire => '炎'], [Wind => '風'], [Light => '光'], [Dark => '闇']) {
+          (my $attributeEn, my $attributeJa) = @{$_};
+          next unless $pc{"fairyContract${attributeEn}"};
+          push(@contractAttributes, $attributeJa);
+        }
+        push(@unitStatus, { 契約属性 => join('', @contractAttributes) });
+      }
     }
   }
   if(@unitMemo){
@@ -322,6 +332,18 @@ sub extractModifications {
   return \@modifications;
 }
 
+### 神聖魔法の短剣符の抽出 --------------------------------------------------
+# (記号, 魔法名) のかたちで返す.
+sub extractDivineMark {
+  my $magicName = shift;
+
+  if ($magicName =~ s/^([†‡])//) {
+    return ($1, $magicName);
+  }
+
+  return (undef, $magicName);
+}
+
 ### バージョンアップデート --------------------------------------------------
 sub data_update_chara {
   my %pc = %{$_[0]};
@@ -529,6 +551,11 @@ sub data_update_chara {
   if($ver < 1.27004){
     if($pc{lvSam} || $pc{lvNin} || $pc{lvJuj} || $pc{lvFug}){
       $pc{unlockRyugai} = 1;
+    }
+  }
+  if($ver < 1.27013){
+    if($pc{lvDar}){
+      $pc{updateMessage}{'ver.1.27.013'} = '操気【剛力弾】を自動計算するようにしました。<br>既に手動で加算している場合、二重加算になってしまうため、修正してください。';
     }
   }
   $pc{ver} = $main::ver;

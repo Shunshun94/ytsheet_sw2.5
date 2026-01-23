@@ -33,6 +33,7 @@ foreach(@data::class_names){
   elsif($data::class{$_}{craft}) { push(@craft_classes, $data::class{$_}{craft}{jName}); }
 }
 push(@magic_classes, @craft_classes);
+@magic_classes = deduplicate(@magic_classes); #重複削除
 ### データ読み込み ###################################################################################
 my ($data, $mode, $file, $message) = getSheetData($::in{mode});
 our %pc = %{ $data };
@@ -75,6 +76,8 @@ foreach (1..$pc{schoolArtsNum} ){ if($pc{"schoolArts${_}Name"} ){ $open{schoolAr
 foreach (1..$pc{schoolMagicNum}){ if($pc{"schoolMagic${_}Name"}){ $open{schoolMagic} = 'open'; last; } }
 if($pc{schoolArtsNote} ){ $open{schoolArts}  = 'open'; }
 if($pc{schoolMagicNote}){ $open{schoolMagic} = 'open'; }
+if($pc{schoolQnA}      ){ $open{schoolQnA}   = 'open'; }
+if($pc{godQnA}         ){ $open{godQnA}      = 'open'; }
 
 ### 改行処理 --------------------------------------------------
 foreach (
@@ -88,10 +91,12 @@ foreach (
   'godMagic7Effect',
   'godMagic10Effect',
   'godMagic13Effect',
+  'godQnA',
   'schoolNote',
   'schoolItemNote',
   'schoolArtsNote',
   'schoolMagicNote',
+  'schoolQnA',
 ){
   $pc{$_} =~ s/&lt;br&gt;/\n/g;
 }
@@ -256,8 +261,8 @@ HTML
           <dl class="duration "><dt>時間        <dd>@{[ input 'magicDuration','','','list="list-duration"' ]}</dl>
           <dl class="song     "><dt>歌唱        <dd>@{[ checkbox 'magicSongSing','必要' ]}</dl>
           <dl class="song     "><dt>ペット      <dd>@{[ checkbox 'magicSongPetBird','小鳥' ]}@{[ checkbox 'magicSongPetFrog','蛙' ]}@{[ checkbox 'magicSongPetBug','虫' ]}</dl>
-          <dl class="condition"><dt>条件        <dd>@{[ input 'magicCondition','','','list="list-songpoint"' ]}</dl>
-          <dl class="song     "><dt>楽素        <dd>基礎@{[ input 'magicSongBasePoint','','','list="list-songpoint"' ]} 巧奏値@{[ input 'magicSongSetPoint' ]} 追加@{[ input 'magicSongAddPoint','','','list="list-songpoint"' ]}</dl>
+          <dl class="condition"><dt>条件        <dd>@{[ input 'magicCondition','','','list="list-song-condition"' ]}</dl>
+          <dl class="song     "><dt>楽素        <dd>基礎@{[ input 'magicSongBasePoint','','','list="list-songpoint"' ]} 巧奏値@{[ input 'magicSongSetPoint','','','list="list-song-set-point"' ]} 追加@{[ input 'magicSongAddPoint','','','list="list-songpoint"' ]}</dl>
           <dl class="rider    "><dt>対応        <dd>@{[ checkbox 'magicMountTypeAnimal','動物' ]}@{[ checkbox 'magicMountTypeCryptid','幻獣' ]}@{[ checkbox 'magicMountTypeMachine','魔動機' ]}</dl>
           <dl class="part     "><dt>適用部位    <dd>@{[ input 'magicApplyPart','','','list="list-part"' ]}</dl>
           <dl class="human-form"><dt>人間形態時 <dd>@{[ radios 'magicApplyHumanForm','','available=>有効','unavailable=>無効','=>指定なし（変身しない種族用）' ]}</dl>
@@ -324,6 +329,10 @@ HTML
 }
 print <<"HTML";
         </div>
+        <details class="box" $open{godQnA}>
+          <summary class="in-toc">Ｑ＆Ａ</summary>
+          <textarea name="godQnA">$pc{godQnA}</textarea>
+        </details>
       </div>
       <!-- 流派 -->
       <div class="data-area in-toc" id="data-school" data-content-title="流派の詳細">
@@ -426,6 +435,10 @@ print <<"HTML";
           </div>
           <div class="add-del-button"><a onclick="addSchoolMagic()">▼</a><a onclick="delSchoolMagic()">▲</a></div>
         </details>
+        <details class="box" $open{schoolQnA}>
+          <summary class="in-toc">Ｑ＆Ａ</summary>
+          <textarea name="schoolQnA">$pc{schoolQnA}</textarea>
+        </details>
       </div>
     </section>
       
@@ -443,7 +456,7 @@ my $text_rule = <<"HTML";
         　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
         　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
         　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
-        　地方特産品　　：<code>[特]</code>：<i class="i-icon" data-kind="特"><span class="raw">[特]</span></i><br>
+        　地方特産品　　：<code>[特]</code>：<img class="i-icon" src="${set::icon_dir}item_local.png"><br>
 HTML
 if (!$::SW2_0) {
   $text_rule .= <<"HTML";
@@ -511,7 +524,7 @@ print <<"HTML";
     <option value="2d(9)HP">
   </datalist>
   <datalist id="list-target">
-    <option value="術者">
+    <option value="術者" class="self">
     <option value="1体">
     <option value="1体全">
     <option value="1体X">
@@ -536,7 +549,7 @@ print <<"HTML";
     <option value="全エリア(半径30m)／空間">
   </datalist>
   <datalist id="list-range">
-    <option value="術者">
+    <option value="術者" class="self">
     <option value="接触">
     <option value="1(10m)">
     <option value="2(20m)">
@@ -582,6 +595,8 @@ print <<"HTML";
     <option value="半減">
     <option value="短縮">
     <option value="必中">
+    <option value="生命／消滅">
+    <option value="生命／半減">
   </datalist>
   <datalist id="list-element">
     <option value="土">
@@ -606,6 +621,15 @@ print <<"HTML";
     <option value="大中小">
     <option value="大（＿個）">
   </datalist>
+  <datalist id="list-song-condition">
+    <option value="なし">
+    <option value="⤴">
+    <option value="⤵">
+    <option value="♡">
+    <option value="⤴⤵">
+    <option value="⤴♡">
+    <option value="⤵♡">
+  </datalist>
   <datalist id="list-songpoint">
     <option value="⤴">
     <option value="⤵">
@@ -613,6 +637,11 @@ print <<"HTML";
     <option value="⤴⤵">
     <option value="⤴♡">
     <option value="⤵♡">
+  </datalist>
+  <datalist id="list-song-set-point">
+    <option value="13">
+    <option value="18">
+    <option value="24">
   </datalist>
   <datalist id="list-part">
     <option value="―">
@@ -647,6 +676,7 @@ print <<"HTML";
     <option value="【】【】">
   </datalist>
   <datalist id="list-arts-use">
+    <option value="―">
     <option value="ファイター技能">
     <option value="グラップラー技能">
     <option value="フェンサー技能">
@@ -658,9 +688,9 @@ print <<"HTML";
     <option value="近接攻撃武器">
     <option value="魔法使い系技能">
     <option value="特殊">
-    <option value="―">
   </datalist>
   <datalist id="list-arts-apply">
+    <option value="―">
     <option value="1回の武器攻撃">
     <option value="1回の近接攻撃">
     <option value="1回の遠隔攻撃">
@@ -669,7 +699,7 @@ print <<"HTML";
     <option value="10秒（1ラウンド）持続">
   </datalist>
   <datalist id="list-arts-risk">
-    <option value="—">
+    <option value="―">
     <option value="なし">
     <option value="回避力判定-1">
     <option value="回避力判定-2">

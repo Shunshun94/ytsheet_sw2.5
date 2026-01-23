@@ -605,9 +605,11 @@ foreach my $class (@data::class_names){
   next if !$data::class{$class}{magic}{data};
   my $name = $data::class{$class}{magic}{eName};
   my $Name = ucfirst($data::class{$class}{magic}{eName});
+  my $jName = $data::class{$class}{magic}{jName};
+  if($class eq 'ビブリオマンサー'){ $jName .= "／準備行使枠" }
   print <<"HTML";
             <div class="box" id="magic-${name}">
-              <h2 class="in-toc">$data::class{$class}{magic}{jName}</h2>
+              <h2 class="in-toc">$jName</h2>
               <ul class="edit-table side-margin">
 HTML
   foreach my $lv (1..17){
@@ -636,6 +638,27 @@ HTML
             </ul>
           </div>
 HTML
+  if($class eq 'ビブリオマンサー'){
+  print <<"HTML";
+            <div class="box" id="magic-bibliomancy-temporary">
+              <h2 class="in-toc">秘奥魔法／応急行使枠</h2>
+              <ul id="bibliomancy-temporary-list" class="edit-table side-margin">
+HTML
+  my @spells = map { $_->[1] } @{$data::class{$class}{magic}{data}};
+  $pc{bibliomancyTemporaryNum} ||= 0;
+  foreach my $num ('TMPL',1 .. $pc{bibliomancyTemporaryNum}){
+    if($num eq 'TMPL'){ print '<template id="bibliomancy-temporary-template">' }
+    print '<li id="bibliomancy-temporary-row'.$num.'"><span class="handle"></span>'
+      .(selectInput 'magicBibliomancyTemporary'.$num, 'checkBibliomancy', @spells,'その他の1ランクすべて','その他の2ランクすべて','その他の3ランクすべて','その他の4ランクすべて','その他の5ランクすべて','その他の2ランク以下すべて','その他の3ランク以下すべて','その他の4ランク以下すべて','その他の5ランク以下すべて' );
+    if($num eq 'TMPL'){ print '</template>' }
+  }
+  print <<"HTML";
+            </ul>
+            <div class="add-del-button"><a onclick="addBibliomancy()">▼</a><a onclick="delBibliomancy()">▲</a></div>
+            @{[input('bibliomancyTemporaryNum','hidden')]}
+          </div>
+HTML
+  }
 }
 foreach my $class (@data::class_names){
   next if !$data::class{$class}{craft}{data};
@@ -1005,6 +1028,13 @@ print <<"HTML";
                 <td>―
                 <td>―
                 <td>―
+              <tr id="mighty-shot"@{[ display $pc{mightyShot} ]}>
+                <td>【剛力弾】
+                <td>―
+                <td>―
+                <td>―
+                <td>―
+                <td id="mighty-shot-dmg">$pc{mightyShot}
               <tr id="parts-enhance"@{[ display $pc{partEnhance} ]}>
                 <td>【部位強化】
                 <td>―
@@ -1033,7 +1063,7 @@ print <<"HTML";
               </tr>
             </thead>
 HTML
-
+my @weaponCategories = map { $_ eq 'ガン' ? ($_, 'ガン（物理）') : $_ } @data::weapon_names;
 foreach my $num ('TMPL',1 .. $pc{weaponNum}) {
   if($num eq 'TMPL'){ print '<template id="weapon-template">' }
 print <<"HTML";
@@ -1050,7 +1080,7 @@ print <<"HTML";
                 <td rowspan="2">@{[input("weapon${num}Crit")]}
                 <td rowspan="2">+@{[input("weapon${num}Dmg",'number','calcWeapon')]}<b id="weapon${num}-dmg-total">0</b>
                 <td>@{[input("weapon${num}Own",'checkbox','calcWeapon')]}
-                <td><select name="weapon${num}Category" oninput="calcWeapon()">@{[option("weapon${num}Category",@data::weapon_names,'ガン（物理）','その他|<その他（盾など）>')]}</select>
+                <td><select name="weapon${num}Category" oninput="calcWeapon()">@{[option("weapon${num}Category",@weaponCategories,'その他|<その他（盾、魔導書など）>')]}</select>
                 <td><select name="weapon${num}Class" oninput="calcWeapon()">@{[option("weapon${num}Class",@weapon_users,'自動計算しない')]}</select>
                 <td rowspan="2"><span class="button" onclick="addWeapons(${num});setupBracketInputCompletion()">複<br>製</span>
               <tr>
@@ -1705,10 +1735,10 @@ my $text_rule = <<"HTML";
         　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
         　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
         　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
-        　地方特産品　　：<code>[特]</code>：<i class="i-icon" data-kind="特"><span class="raw">[特]</span></i><br>
-        　流派アイテム　：<code>[流]</code>：<i class="i-icon" data-kind="流"><span class="raw">[流]</span></i><br>
-        　アルフレイム大陸由来の流派アイテム：<code>[ア]</code>：<i class="i-icon" data-kind="ア"><span class="raw">[ア]</span></i><br>
-        　テラスティア大陸由来の流派アイテム：<code>[テ]</code>：<i class="i-icon" data-kind="テ"><span class="raw">[テ]</span></i><br>
+        　地方特産品　　：<code>[特]</code>：<img class="i-icon" src="${set::icon_dir}item_local.png"><br>
+        　流派アイテム　：<code>[流]</code>：<img class="i-icon" src="${set::icon_dir}wp_school.png"><br>
+        　アルフレイム大陸由来の流派アイテム：<code>[ア]</code>：<img class="i-icon" src="${set::icon_dir}wp_school_a.png"><br>
+        　テラスティア大陸由来の流派アイテム：<code>[テ]</code>：<img class="i-icon" src="${set::icon_dir}wp_school_t.png"><br>
         　常時型　　：<code>[常]</code>：<i class="s-icon passive"><span class="raw">[常]</span></i><br>
         　戦闘準備型：<code>[準]</code>：<i class="s-icon setup  "><span class="raw">[準]</span></i><br>
         　主動作型　：<code>[主]</code>：<i class="s-icon major  "><span class="raw">[主]</span></i><br>
