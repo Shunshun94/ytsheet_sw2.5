@@ -152,11 +152,7 @@ const beModifiedEnemy = (json, modifiedEnemyConsts, nameFunction) => {
 /** 便利機能 **/
 if( generateType === 'SwordWorld2PC') {
 	// チェック機能
-	const navUl = document.getElementsByTagName('nav')[0].getElementsByTagName('ul')[0];
-	const lastLi = Array.from(navUl.children).at(-1);
-	const newMenu = document.createElement('li');
-	newMenu.innerHTML = `<a target="_blank" href="https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/sw2/ytsheet/validation/index.html?target=${ encodeURIComponent(location.href) }"><span>チェック</span></a>`;
-	navUl.insertBefore(newMenu, lastLi);
+	io.github.shunshun94.ytsheet.addSkin.drawTopMenuButton('チェック', `https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/sw2/ytsheet/validation/index.html?target=${ encodeURIComponent(location.href) }`);
 
 	// Discord共有用リンク
 	const markdownLink = document.createElement('li');
@@ -180,74 +176,51 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 	waterMark.style = `opacity:0.1;position:absolute;top:3em;font-size:5em;transform: rotate(15deg);display:none;`;
 	waterMark.innerHTML = userId + '<br/>' + new Date().toLocaleString();
 	document.getElementsByTagName('article')[0].append(waterMark);
-	const downloadAsPictureButtonBase = document.createElement('li');
-	downloadAsPictureButtonBase.setAttribute('id', 'downloadlist-picture');
-	const downloadAsPictureButton = document.createElement('a');
-	downloadAsPictureButton.appendChild(document.createTextNode('画像形式'));
-	downloadAsPictureButtonBase.appendChild(downloadAsPictureButton);
-	downloadAsPictureButton.onclick = (e) => {
-		Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'none'; });
-		document.getElementById('author').style.display = 'none';
-		document.getElementById('tags').style.display = 'none';
-		waterMark.style.display = 'block';
-		document.getElementsByTagName('article')[0].style.padding = '1em';
-		html2canvas(document.getElementsByTagName('article')[0], {
-			backgroundColor: null,
-			scale: 2
-		}).then((canvas) => {
-			const link = document.createElement('a');
-			link.download = `${document.getElementsByTagName('article')[0].getElementsByTagName('h1')[0].textContent}.png`;
-			link.href = canvas.toDataURL();
-			link.click();
-			document.getElementsByTagName('article')[0].style.padding = '0';
-			document.getElementById('author').style.display = 'block';
-			document.getElementById('tags').style.display = 'block';
-			waterMark.style.display = 'none';
-			Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'block'; });
-		});
-	};
-	if(userId) {
-		document.getElementById('downloadlist-zipped').after(downloadAsPictureButtonBase);
+
+	if(userId && html2canvas) {
+		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton('downloadlist-picture', '画像形式', (e) => {
+			Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'none'; });
+			document.getElementById('author').style.display = 'none';
+			document.getElementById('tags').style.display = 'none';
+			waterMark.style.display = 'block';
+			document.getElementsByTagName('article')[0].style.padding = '1em';
+			html2canvas(document.getElementsByTagName('article')[0], {
+				backgroundColor: null,
+				scale: 2
+			}).then((canvas) => {
+				const link = document.createElement('a');
+				link.download = `${document.getElementsByTagName('article')[0].getElementsByTagName('h1')[0].textContent}.png`;
+				link.href = canvas.toDataURL();
+				link.click();
+				document.getElementsByTagName('article')[0].style.padding = '0';
+				document.getElementById('author').style.display = 'block';
+				document.getElementById('tags').style.display = 'block';
+				waterMark.style.display = 'none';
+				Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'block'; });
+			});
+		}, 'downloadlist-zipped');	
 	}
 
 	if(['蛮族', '動物', '幻獣', '人族'].includes(document.getElementsByClassName('taxa')[0].innerText.trim().replace('分類：', ''))) {
-		const downloadAsRevenantButtonBase = document.createElement('li');
-		downloadAsRevenantButtonBase.setAttribute('id', 'downloadlist-revenant');
-		const downloadAsRevenantButton = document.createElement('a');
-		downloadAsRevenantButton.appendChild(document.createTextNode('レブナント化したデータを出力'));
-		downloadAsRevenantButtonBase.appendChild(downloadAsRevenantButton);
-		const downloadAsRevenantSmallNotify = document.createElement('small');
-		downloadAsRevenantSmallNotify.textContent = '(jsonデータを出力、ゆとシートでコンバートして使用)';
-		downloadAsRevenantButton.appendChild(downloadAsRevenantSmallNotify);
-		downloadAsRevenantButton.onclick = (e) => {
+		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton('downloadlist-revenant', 'レブナント化したデータを出力', (e) => {
 			getJsonData('ccfolia').then((characterJsonData) => {
 				const revenantedJson = beRevenant(characterJsonData);
 				downloadFile(
 					revenantedJson.monsterName + '.json', 
 					window.URL.createObjectURL(new Blob([ JSON.stringify(revenantedJson) ], { "type" : 'text/plain;charset=utf-8;' })));
 			});
-		};
-		document.getElementById('downloadlist-zipped').after(downloadAsRevenantButtonBase);
+		}, 'downloadlist-zipped', false, false, 'jsonデータを出力、ゆとシートでコンバートして使用');
 	}
 
 	if((document.getElementsByClassName('taxa')[0].innerText.trim().replace('分類：', '')) === '動物') {
-		const downloadAsMagiReplicaButtonBase = document.createElement('li');
-		downloadAsMagiReplicaButtonBase.setAttribute('id', 'downloadlist-magi-replica');
-		const downloadAsMagiReplicaButton = document.createElement('a');
-		downloadAsMagiReplicaButton.appendChild(document.createTextNode('マギレプリカ化したデータを出力'));
-		downloadAsMagiReplicaButtonBase.appendChild(downloadAsMagiReplicaButton);
-		const downloadAsMagiReplicaSmallNotify = document.createElement('small');
-		downloadAsMagiReplicaSmallNotify.textContent = '(jsonデータを出力、ゆとシートでコンバートして使用)';
-		downloadAsMagiReplicaButton.appendChild(downloadAsMagiReplicaSmallNotify);
-		downloadAsMagiReplicaButton.onclick = (e) => {
+		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton('downloadlist-magi-replica', 'マギレプリカ化したデータを出力', (e) => {
 			getJsonData('ccfolia').then((characterJsonData) => {
 				const revenantedJson = beMagiReplica(characterJsonData);
 				downloadFile(
 					revenantedJson.monsterName + '.json', 
 					window.URL.createObjectURL(new Blob([ JSON.stringify(revenantedJson) ], { "type" : 'text/plain;charset=utf-8;' })));
 			});
-		};
-		document.getElementById('downloadlist-zipped').after(downloadAsMagiReplicaButtonBase);
+		}, 'downloadlist-zipped', false, false, 'jsonデータを出力、ゆとシートでコンバートして使用');
 	}
 
 	// 剣の欠片機能
@@ -369,29 +342,26 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 			});
 		});
 	};
-	const downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase = document.createElement('li');
-	downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.setAttribute('id', 'downloadlist-hiyoko-ccfolia-json-with-dice-roll');
-	const downloadAsHiyokoCcfoliaJsonWithDiceRollButton = document.createElement('a');
-	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.appendChild(document.createTextNode('ココフォリア用独自コマデータ'));
-	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.title = '剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します';
-	const downloadAsHiyokoCcfoliaJsonWithDiceRollSmallNotify = document.createElement('small');
-	downloadAsHiyokoCcfoliaJsonWithDiceRollSmallNotify.textContent = '（表示される json をコピーしてココフォリアにはりつけ）';
-	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.appendChild(downloadAsHiyokoCcfoliaJsonWithDiceRollSmallNotify);
-	downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase.appendChild(downloadAsHiyokoCcfoliaJsonWithDiceRollButton);
-	document.getElementById('downloadlist-ccfolia').after(downloadAsHiyokoCcfoliaJsonWithDiceRollButtonBase);
-	downloadAsHiyokoCcfoliaJsonWithDiceRollButton.onclick = (e)=>{generateHiyokoCcfoliaJson();};
-	
-	const downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase = document.createElement('li');
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase.setAttribute('id', 'downloadlist-hiyoko-ccfolia-json-without-dice-roll');
-	const downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton = document.createElement('a');
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.appendChild(document.createTextNode('ココフォリア用独自コマデータ（固定値使用）'));
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.title = '剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します。命中や回避等のチャットパレットには固定値を用います';
-	const downloadAsHiyokoCcfoliaJsonWithoutDiceRollSmallNotify = document.createElement('small');
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollSmallNotify.textContent = '（表示される json をコピーしてココフォリアにはりつけ）';
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.appendChild(downloadAsHiyokoCcfoliaJsonWithoutDiceRollSmallNotify);
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase.appendChild(downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton);
-	document.getElementById('downloadlist-hiyoko-ccfolia-json-with-dice-roll').after(downloadAsHiyokoCcfoliaJsonWithoutDiceRollButtonBase);
-	downloadAsHiyokoCcfoliaJsonWithoutDiceRollButton.onclick = (e)=>{generateHiyokoCcfoliaJson(true);};
+
+	io.github.shunshun94.ytsheet.addSkin.drawDownloadButton(
+		'downloadlist-hiyoko-ccfolia-json-with-dice-roll',
+		'ココフォリア用独自コマデータ',
+		generateHiyokoCcfoliaJson,
+		'downloadlist-ccfolia',
+		false,
+		'剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します',
+		'表示される json をコピーしてココフォリアにはりつけ'
+	);
+
+	io.github.shunshun94.ytsheet.addSkin.drawDownloadButton(
+		'downloadlist-hiyoko-ccfolia-json-without-dice-roll',
+		'ココフォリア用独自コマデータ（固定値使用）',
+		(e)=> { generateHiyokoCcfoliaJson(true); },
+		'downloadlist-hiyoko-ccfolia-json-with-dice-roll',
+		false,
+		'剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します。命中や回避等のチャットパレットには固定値を用います',
+		'表示される json をコピーしてココフォリアにはりつけ'
+	);
 }
 
 io.github.shunshun94.ytsheet.addSkin.displayEroEditMenu((userId, href) => {
