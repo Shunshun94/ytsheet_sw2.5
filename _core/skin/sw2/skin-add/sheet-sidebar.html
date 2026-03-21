@@ -1,8 +1,11 @@
 <div style="position:absolute;bottom:4px;left:4px;" id="appendTextConsole"></div>
 <script src="https://shunshun94.github.io/shared/jquery/com/hiyoko/util/v2/utils.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/common.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/ero.js"></script>
 <script>
+const userId = io.github.shunshun94.ytsheet.addSkin.getUserId();
+
 const addParamByColumn = (json, column, val) => {
     const current = Number(json[column]);
     if( current === 0 || current ) {
@@ -108,7 +111,7 @@ const modifiedEnemyConsts = {
 			loots2Num: '2～5',
 			loots3Item: '魔動部品（300G／黒白A）',
 			loots3Num: '6～9',
-			loots4Item: '希少なな魔動部品（900G／黒白A）',
+			loots4Item: '希少な魔動部品（900G／黒白A）',
 			loots4Num: '10～',
 			lootsNum: '4',
 			coreParts: 'なし'
@@ -333,6 +336,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 				json.data.commands += '\n' + Array.from(document.getElementsByClassName('loots')[0]?.getElementsByTagName('dl')[0].children || []).map((elem)=>{return elem.textContent}).map((d, i)=>{
 					if( i % 2 ) { return `${d}\n`} else { return `戦利品　${d}：`; }
 				}).join('').trim();
+				json.data.commands += '\n' + `魔物知識判定：${characterJsonData.reputation} / ${characterJsonData['reputation+']} @まもち`;
 				hpCells.forEach((e, i)=>{
 					const value = parseInt(e.textContent);
 					if( value ) {
