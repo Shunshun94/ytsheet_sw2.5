@@ -120,7 +120,7 @@ if($pc{ver}){
   foreach (keys %pc) {
     next if($_ =~ /^image/);
     next if($_ eq 'tags');
-    if($_ =~ /^(?:items|freeNote|freeHistory|cashbook)$/){
+    if($_ =~ /^(?:items|freeNote|freeHistory|cashbook(?:Other[0-9]+)?)$/){
       $pc{$_} = unescapeTagsLines($pc{$_});
     }
     $pc{$_} = unescapeTags($pc{$_});
@@ -557,7 +557,7 @@ $SHEET->param(Packages => \@packages);
 my $fairy_contact;
 my $fairy_sim_url;
 if($::SW2_0){
-  $fairy_sim_url = 'https://yutorize.2-d.jp/ft_sim/?ft='
+  $fairy_sim_url = 'https://yutorize.work/ft_sim/?ft='
     . convert10to36($pc{lvFai})
     . convert10to36($pc{fairyContractEarth})
     . convert10to36($pc{fairyContractWater})
@@ -1199,7 +1199,17 @@ if($pc{depositAuto}){
   $SHEET->param(deposit => $pc{depositTotal} || $pc{debtTotal} ? commify($pc{depositTotal}).' G ／ '.commify($pc{debtTotal}) : '');
 }
 $pc{cashbook} =~ s/(:(?:\:|&lt;|&gt;))((?:[\+\-\*\/]?[0-9,]+)+)/$1.cashCheck($2)/eg;
-  $SHEET->param(cashbook => $pc{cashbook});
+$SHEET->param(cashbook => $pc{cashbook});
+
+### 任意通貨 --------------------------------------------------
+my @cashbookOthers;
+foreach my $num (1..$pc{cashbookOtherNum}) {
+  next if !$pc{"cashbookOther${num}Name"};
+  $pc{'cashbookOther'.$num} =~ s/(:(?:\:|&lt;|&gt;))((?:[\+\-\*\/]?[0-9,]+)+)/$1.cashCheck($2)/eg;
+  push(@cashbookOthers, { DATA => $pc{'cashbookOther'.$num}, NAME => $pc{"cashbookOther${num}Name"}, UNIT => $pc{"cashbookOther${num}Unit"}, TOTAL => $pc{"cashbookOther${num}Total"} })
+}
+$SHEET->param(CashbookOthers => \@cashbookOthers);
+
 sub cashCheck(){
   my $text = shift;
   my $num = s_eval($text);

@@ -116,6 +116,7 @@ $pc{freeNote}      =~ s/&lt;br&gt;/\n/g;
 $pc{freeHistory}   =~ s/&lt;br&gt;/\n/g;
 $pc{cashbook}      =~ s/&lt;br&gt;/\n/g;
 $pc{chatPalette}   =~ s/&lt;br&gt;/\n/g;
+$pc{'cashbookOther'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..$pc{cashbookOtherNum});
 $pc{'chatPaletteInsert'.$_} =~ s/&lt;br&gt;/\n/g foreach(1..$pc{chatPaletteInsertNum});
 
 ### フォーム表示 #####################################################################################
@@ -1445,6 +1446,35 @@ print <<"HTML";
         </ul>
       </details>
       
+      <details class="box" id="cashbook-others" @{[ (grep { $pc{"cashbookOther${_}Name"} } 1 .. $pc{cashbookOtherNum}) ? 'open' : '' ]}>
+        <summary class="in-toc">収支履歴（任意の通貨・ポイント等）</summary>
+        <div id="cashbook-others-list">
+HTML
+$pc{cashbookOtherNum} ||= 1;
+foreach my $num ('TMPL',1 .. $pc{cashbookOtherNum}){
+  print '<template id="cashbook-other-template">' if $num eq 'TMPL';
+  print <<"HTML";
+          <div id="cashbook-other${num}" class="cashbook-row">
+            <p>
+              通貨名称：@{[ input "cashbookOther${num}Name",'','','list="list-currency-name"' ]}
+              単位：@{[ input "cashbookOther${num}Unit",'','','list="list-currency-unit"' ]}
+            </p>
+            <textarea name="cashbookOther${num}" oninput="calcCashOther($num);">$pc{"cashbookOther${num}"}</textarea>
+            <p>
+              所持：<span id="cashbook-other${num}-total-value">0</span> <span class="cashbook-other${num}-unit"></span>
+              　預：<span id="cashbook-other${num}-deposit-value">－</span> <span class="cashbook-other${num}-unit"></span>
+              　借：<span id="cashbook-other${num}-debt-value">－</span> <span class="cashbook-other${num}-unit"></span>
+            </p>
+          </div>
+HTML
+  print '</template>' if $num eq 'TMPL';
+}
+print <<"HTML";
+        </div>
+        <div class="add-del-button"><a onclick="addCashbook()">▼</a><a onclick="delCashbook()">▲</a></div>
+        @{[ input 'cashbookOtherNum','hidden' ]}
+      </details>
+      
       <details class="box" id="free-note" @{[$pc{freeNote}?'open':'']}>
         <summary class="in-toc">容姿・経歴・その他メモ</summary>
         <textarea name="freeNote">$pc{freeNote}</textarea>
@@ -1608,7 +1638,7 @@ print <<"HTML";
   </main>
   <footer>
     <p class="notes">(C)Group SNE「ソード・ワールド2.0」</p>
-    <p class="copyright">©<a href="https://yutorize.2-d.jp">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
+    <p class="copyright">©<a href="https://yutorize.work">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
 
 HTML
