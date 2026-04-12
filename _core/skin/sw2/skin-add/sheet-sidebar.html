@@ -2,8 +2,10 @@
 <script src="https://shunshun94.github.io/shared/jquery/com/hiyoko/util/v2/utils.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/common.js"></script>
+<script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/store.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/ero.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/pictExport.js"></script>
+<script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/flagments.js"></script>
 <script>
 const addParamByColumn = (json, column, val) => {
     const current = Number(json[column]);
@@ -195,54 +197,13 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 		}, 'downloadlist-zipped', false, false, 'jsonデータを出力、ゆとシートでコンバートして使用');
 	}
 
-	// 剣の欠片機能
-	Array.from(document.getElementsByClassName('name')).filter((e)=>{ return e.tagName === 'TD' }).forEach((e, i)=>{
-		e.innerHTML = e.innerHTML += `<div style="font-size:70%;background-color:rgba(120, 120, 120, 0.5);" class="fragments">
-			剣の欠片：
-			<button style="width:1em;" class="fragments-minus" value="${i}">-</button>
-			<span style="display:inline-block;width:2em;" class="flagments-count">0</span>
-			<button style="width:1em;" class="fragments-plus" value="${i}">+</button></div>`;
-	});
-	const hpCells = Array.from(document.getElementsByClassName('hp')).filter((e)=>{ return e.tagName === 'TD' });
-	hpCells.forEach((e, i)=>{ e.title = e.textContent.trim(); });
-	const mpCells = Array.from(document.getElementsByClassName('mp')).filter((e)=>{ return e.tagName === 'TD' });
-	mpCells.forEach((e, i)=>{ e.title = e.textContent.trim(); });
-	Array.from(document.getElementsByClassName('status')[0].getElementsByTagName('dl')).filter((e)=>{ return e.textContent.includes('抵抗力') }).forEach((dl, i)=>{
-		dl.getElementsByTagName('dd')[0].title = /(\d+) \(\d+\)/.exec(dl.getElementsByTagName('dd')[0].textContent)[1];
-		dl.getElementsByTagName('dd')[0].className = `regist`;
-	});
-	document.getElementsByTagName('table')[0].addEventListener('click', (e) => {
-		const target = e.target;
-		if( (! target.className.startsWith('fragments-')) || target.tagName !== 'BUTTON') {
-			return;
-		}
-		const index = e.target.value;
-		const countSpan = document.getElementsByClassName('flagments-count')[index];
-		let count = parseInt(countSpan.textContent);
-		if(target.className === 'fragments-minus')  {				
-			if(count > 0) {
-				count--;
-			}
-		} else {
-			count++;
-		}
-		countSpan.textContent = count;
-		hpCells[index].textContent = parseInt(hpCells[index].title) + count * 5;
-		mpCells[index].textContent = (parseInt(mpCells[index].title) + count) || mpCells[index].title;
-		const totalFragments = Array.from(document.getElementsByClassName('flagments-count')).reduce((sum, span) => {
-			return sum + parseInt(span.textContent);
-		}, 0);
-		const registBonusByFragments = Math.min(4, Math.ceil(totalFragments / 5));
-		Array.from(document.getElementsByClassName('regist')).forEach((e)=>{ e.textContent = `${parseInt(e.title)+registBonusByFragments} (${parseInt(e.title)+registBonusByFragments+7})`; });
-	});
-
 	// 剣の欠片の修正値を含めたココフォリアの駒出力機能
 	const generateStatusSummary = (characterJsonData, registBonusByFragments) => {
 		const result = [];
 		const mountSuffix = (characterJsonData.mount && (Number(characterJsonData.lv) - Number(characterJsonData.lvMin))) ? `-${Number(characterJsonData.lv) - Number(characterJsonData.lvMin) + 1}` : '';
 		result.push([
-			`生命抵抗力：${Number(characterJsonData.vitResist || characterJsonData[`status1${mountSuffix}Vit`]) + registBonusByFragments}（${(Number(characterJsonData.vitResistFix) || Number(characterJsonData[`status1${mountSuffix}Vit`]) + 7) + registBonusByFragments}）`,
-			`精神抵抗力：${Number(characterJsonData.mndResist || characterJsonData[`status1${mountSuffix}Mnd`]) + registBonusByFragments}（${(Number(characterJsonData.mndResistFix) || Number(characterJsonData[`status1${mountSuffix}Mnd`]) + 7) + registBonusByFragments}）`
+			`生命抵抗力：${io.github.shunshun94.ytsheet.addSkin.store.regist.physical.get()}（${io.github.shunshun94.ytsheet.addSkin.store.regist.physical.get() + 7}）`,
+			`精神抵抗力：${io.github.shunshun94.ytsheet.addSkin.store.regist.mental.get()}（${io.github.shunshun94.ytsheet.addSkin.store.regist.mental.get() + 7}）`
 		].join(' '));
 		const statusLength = Number(characterJsonData.statusNum);
 		for(var i = 0; i < statusLength; i++) {
@@ -282,18 +243,18 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 					if( i % 2 ) { return `${d}\n`} else { return `戦利品　${d}：`; }
 				}).join('').trim();
 				json.data.commands += '\n' + `魔物知識判定：${characterJsonData.reputation} / ${characterJsonData['reputation+']} @まもち`;
-				hpCells.forEach((e, i)=>{
-					const value = parseInt(e.textContent);
+				io.github.shunshun94.ytsheet.addSkin.store.elements.hpCells.forEach((e, i)=>{
+					const value = io.github.shunshun94.ytsheet.addSkin.store.hp.get(i);
 					if( value ) {
 						json.data.status[i].value = value;
 						json.data.status[i].max = value;
 					}
 				});
-				mpCells.forEach((e, i)=>{
-					const value = parseInt(e.textContent);
+				io.github.shunshun94.ytsheet.addSkin.store.elements.mpCells.forEach((e, i)=>{
+					const value = io.github.shunshun94.ytsheet.addSkin.store.mp.get(i);
 					if( value ) {
-						json.data.status[i + hpCells.length].value = parseInt(e.textContent);
-						json.data.status[i + hpCells.length].max = parseInt(e.textContent);
+						json.data.status[i + io.github.shunshun94.ytsheet.addSkin.store.elements.hpCells.length].value = value;
+						json.data.status[i + io.github.shunshun94.ytsheet.addSkin.store.elements.hpCells.length].max = value;
 					}
 				});
 				const totalFragments = Array.from(document.getElementsByClassName('flagments-count')).reduce((sum, span) => {
