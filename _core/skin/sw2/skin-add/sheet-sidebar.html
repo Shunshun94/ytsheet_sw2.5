@@ -3,9 +3,8 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/common.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/ero.js"></script>
+<script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/pictExport.js"></script>
 <script>
-const userId = io.github.shunshun94.ytsheet.addSkin.getUserId();
-
 const addParamByColumn = (json, column, val) => {
     const current = Number(json[column]);
     if( current === 0 || current ) {
@@ -170,36 +169,9 @@ if( generateType === 'SwordWorld2PC') {
 }
 
 if ( generateType === 'SwordWorld2Enemy' ) {
-	// 画像ダウンロード機能
-	// ささやかな抵抗として透かしを入れておく
-	const waterMark = document.createElement('div');
-	waterMark.style = `opacity:0.1;position:absolute;top:3em;font-size:5em;transform: rotate(15deg);display:none;`;
-	waterMark.innerHTML = userId + '<br/>' + new Date().toLocaleString();
-	document.getElementsByTagName('article')[0].append(waterMark);
-
-	if(userId && html2canvas) {
-		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton('downloadlist-picture', '画像形式', (e) => {
-			Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'none'; });
-			document.getElementById('author').style.display = 'none';
-			document.getElementById('tags').style.display = 'none';
-			waterMark.style.display = 'block';
-			document.getElementsByTagName('article')[0].style.padding = '1em';
-			html2canvas(document.getElementsByTagName('article')[0], {
-				backgroundColor: null,
-				scale: 2
-			}).then((canvas) => {
-				const link = document.createElement('a');
-				link.download = `${document.getElementsByTagName('article')[0].getElementsByTagName('h1')[0].textContent}.png`;
-				link.href = canvas.toDataURL();
-				link.click();
-				document.getElementsByTagName('article')[0].style.padding = '0';
-				document.getElementById('author').style.display = 'block';
-				document.getElementById('tags').style.display = 'block';
-				waterMark.style.display = 'none';
-				Array.from(document.getElementsByClassName('fragments')).forEach((e)=>{ e.style.display = 'block'; });
-			});
-		}, 'downloadlist-zipped');	
-	}
+	io.github.shunshun94.ytsheet.addSkin.drawDownloadButton('downloadlist-picture', '画像形式', (e) => {
+		io.github.shunshun94.ytsheet.addSkin.exportPicture.export();
+	}, 'downloadlist-zipped');
 
 	if(['蛮族', '動物', '幻獣', '人族'].includes(document.getElementsByClassName('taxa')[0].innerText.trim().replace('分類：', ''))) {
 		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton('downloadlist-revenant', 'レブナント化したデータを出力', (e) => {
