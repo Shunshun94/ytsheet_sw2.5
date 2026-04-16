@@ -257,9 +257,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 						json.data.status[i + io.github.shunshun94.ytsheet.addSkin.store.elements.hpCells.length].max = value;
 					}
 				});
-				const totalFragments = Array.from(document.getElementsByClassName('flagments-count')).reduce((sum, span) => {
-					return sum + parseInt(span.textContent);
-				}, 0);
+				const totalFragments = io.github.shunshun94.ytsheet.addSkin.flagments.getTotalFragments();
 				const registBonusByFragments = Math.min(4, Math.ceil(totalFragments / 5));
 				json.data.params = json.data.params.map((param) => {
 					if( param.label.includes('抵抗修正') ) { param.value = String(registBonusByFragments); }
@@ -279,7 +277,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 	io.github.shunshun94.ytsheet.addSkin.drawDownloadButton(
 		'downloadlist-hiyoko-ccfolia-json-with-dice-roll',
 		'ココフォリア用独自コマデータ',
-		generateHiyokoCcfoliaJson,
+		(e)=> { generateHiyokoCcfoliaJson(false); },
 		'downloadlist-ccfolia',
 		false,
 		'剣のかけらの修正値を考慮し、イニシアティブ値とメモ欄をカスタムしたココフォリア用のコマデータを出力します',
