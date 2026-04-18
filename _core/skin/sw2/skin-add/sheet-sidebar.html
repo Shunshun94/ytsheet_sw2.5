@@ -1,4 +1,4 @@
-<div style="position:absolute;bottom:4px;left:4px;" id="appendTextConsole"></div>
+<div style="position:absolute;bottom:4px;left:4px;" id="appendTextConsole"><a href="https://github.com/Shunshun94/shared/tree/master/other/io/github/shunshun94/ytsheet/addSkin" target="_blank">追加機能のソースコード</a></div>
 <script src="https://shunshun94.github.io/shared/jquery/com/hiyoko/util/v2/utils.js"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/common.js"></script>
@@ -15,18 +15,7 @@ if( generateType === 'SwordWorld2PC') {
 	io.github.shunshun94.ytsheet.addSkin.drawTopMenuButton('チェック', `https://shunshun94.github.io/shared/other/io/github/shunshun94/trpg/sw2/ytsheet/validation/index.html?target=${ encodeURIComponent(location.href) }`);
 
 	// Discord共有用リンク
-	const markdownLink = document.createElement('li');
-	markdownLink.setAttribute('class', 'link-tag');
-	const markdownLinkBase = document.createElement('span');
-	markdownLinkBase.appendChild(document.createTextNode('Discord共有用リンク'));
-	markdownLinkBase.appendChild(document.createElement('br'));
-	const markdownLinkInput = document.createElement('input');
-	markdownLinkInput.type = 'text';
-	markdownLinkInput.value = `[${document.getElementById('character-name').textContent}](${location.href})`;
-	markdownLinkInput.onclick = (e) => { e.target.select(); };
-	markdownLinkBase.appendChild(markdownLinkInput);
-	markdownLink.appendChild(markdownLinkBase);
-	document.getElementById('downloadlist').getElementsByTagName('ul')[0].appendChild(markdownLink);
+	io.github.shunshun94.ytsheet.addSkin.drawTextForCopy('share-as-markdown', 'Discord共有用リンク', `[${document.getElementById('character-name').textContent}](${location.href})`);
 }
 
 if ( generateType === 'SwordWorld2Enemy' ) {
@@ -34,7 +23,8 @@ if ( generateType === 'SwordWorld2Enemy' ) {
 		io.github.shunshun94.ytsheet.addSkin.exportPicture.export();
 	}, 'downloadlist-zipped');
 
-	if(['蛮族', '動物', '幻獣', '人族'].includes(document.getElementsByClassName('taxa')[0].innerText.trim().replace('分類：', ''))) {
+	const taxa = io.github.shunshun94.ytsheet.addSkin.store.taxa.get();
+	if(['蛮族', '動物', '幻獣', '人族'].includes(taxa)) {
 		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton(
             'downloadlist-revenant',
             'レブナント化したデータを出力',
@@ -46,7 +36,7 @@ if ( generateType === 'SwordWorld2Enemy' ) {
         );
 	}
 
-	if((document.getElementsByClassName('taxa')[0].innerText.trim().replace('分類：', '')) === '動物') {
+	if(taxa === '動物') {
 		io.github.shunshun94.ytsheet.addSkin.drawDownloadButton(
             'downloadlist-magi-replica',
             'マギレプリカ化したデータを出力',
