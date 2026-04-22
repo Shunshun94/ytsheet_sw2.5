@@ -1850,11 +1850,7 @@ print textRuleArea( $text_rule,'「容姿・経歴・その他メモ」「履歴
 print <<"HTML";
   </main>
   <footer>
-<<<<<<< HEAD
-    <p class="notes">(C)Group SNE「ソード・ワールド2.5」</p>
-=======
     <p class="notes">(C)Group SNE「ソード・ワールド@{[ $::SW2_0 ? '2.0' : '2.5' ]}」</p>
->>>>>>> c6705130be72afd02b105392cf3bdde52de1c555
     <p class="copyright">©<a href="https://yutorize.work">ゆとらいず工房</a>「ゆとシートⅡ」ver.${main::ver}</p>
   </footer>
   <script src="${main::core_dir}/skin/sw2/js/lib/quickInsertionForSW25.js?${main::ver}" defer></script>
