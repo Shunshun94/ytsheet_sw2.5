@@ -97,6 +97,10 @@ foreach (
   'schoolArtsNote',
   'schoolMagicNote',
   'schoolQnA',
+  'skillRankB_effect',
+  'skillRankA_effect',
+  'skillRankS_effect',
+  'skillRankSS_effect',
 ){
   $pc{$_} =~ s/&lt;br&gt;/\n/g;
 }
@@ -234,7 +238,7 @@ print <<"HTML";
         <div>
           <dl id="category">
             <dt>カテゴリ
-            <dd><select name="category" oninput="checkCategory();">@{[ option 'category','magic|<魔法／練技・呪歌など>','god|<神格＋特殊神聖魔法>','school|<流派＋秘伝>' ]}</select>
+            <dd><select name="category" oninput="checkCategory();">@{[ option 'category','magic|<魔法／練技・呪歌など>','god|<神格＋特殊神聖魔法>','school|<流派＋秘伝>','skill|<特殊能力（蛮族向け）>' ]}</select>
           </dl>
         </div>
         <dl id="player-name">
@@ -440,6 +444,63 @@ print <<"HTML";
           <textarea name="schoolQnA">$pc{schoolQnA}</textarea>
         </details>
       </div>
+      <!-- 特殊能力 -->
+      <div class="data-area in-toc" id="data-skill" data-content-title="基本データ">
+        <div class="box input-data base">
+          <dl class="name">
+            <dt>名称
+            <dd>「@{[ input 'skillName','','setName' ]}」
+          </dl>
+          <dl class="action">
+            <dt>動作種別
+            <dd>
+              @{[ checkbox 'skillActionPassive','常時' ]}
+              @{[ checkbox 'skillActionMinor','補助動作' ]}
+              @{[ checkbox 'skillActionSetup','戦闘準備' ]}
+              @{[ checkbox 'skillActionMajor','主動作' ]}
+          </dl>
+          <dl class="resist">
+            <dt>抵抗
+            <dd>
+              @{[ input 'skillResist','','','list="list-resist"' ]}
+          </dl>
+          <dl class="action-base-value">
+            <dt>基準値
+            <dd>
+              @{[ input 'skillActionBaseValue','','','list="list-skill-action-base-value"' ]}
+          </dl>
+          <dl class="resist-base-value">
+            <dt>抵抗基準値
+            <dd>
+              @{[ input 'skillResistBaseValue','','','list="list-skill-resist-base-value"' ]}
+          </dl>
+          <dl class="rank">
+            <dt>ランク
+            <dd>
+              @{[ radios 'skillRankMode','checkRankMode','0=>ランク分けなし','1=>ランク分けあり' ]}
+          </dl>
+        </div>
+        <section class="details box">
+          <h2 class="in-toc" data-content-title="詳細"><span class="for-ranks">ランクごとの</span>詳細</h2>
+          <dl class="ranks">
+HTML
+foreach my $rank ('B', 'A', 'S', 'SS') {
+  print <<"HTML";
+            <dt class="rank" data-rank="${rank}">${rank}</dt>
+            <dd class="rank" data-rank="${rank}">
+              <dl class="details">
+                <dt class="summary">概要</dt>
+                <dd class="summary">@{[ input "skillRank${rank}_summary" ]}</dd>
+                <dt class="effect">効果</dt>
+                <dd class="effect">@{[ textarea "skillRank${rank}_effect" ]}</dd>
+              </dl>
+            </dd>
+HTML
+}
+print <<"HTML";
+          </dl>
+        </section>
+      </div>
     </section>
       
       @{[ colorCostomForm ]}
@@ -458,16 +519,19 @@ my $text_rule = <<"HTML";
         　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
         　地方特産品　　：<code>[特]</code>：<img class="i-icon" src="${set::icon_dir}item_local.png"><br>
 HTML
-if (!$::SW2_0) {
+if ($::SW2_0) {
   $text_rule .= <<~"HTML";
-        　流派アイテム　：<code>[流]</code>：<img class="i-icon" src="${set::icon_dir}wp_school.png"><br>
-        　アルフレイム大陸由来の流派アイテム：<code>[ア]</code>：<img class="i-icon" src="${set::icon_dir}wp_school_a.png"><br>
-        　テラスティア大陸由来の流派アイテム：<code>[テ]</code>：<img class="i-icon" src="${set::icon_dir}wp_school_t.png"><br>
+        　流派装備　　　：<code>[流]</code>：<img class="i-icon" src="${set::icon_dir}wp_school.png"><br>
   HTML
 }
 else {
   $text_rule .= <<~"HTML";
-        　流派装備　　　：<code>[流]</code>：<img class="i-icon" src="${set::icon_dir}wp_school.png"><br>
+        　流派アイテム　：<code>[流]</code>：<img class="i-icon" src="${set::icon_dir}wp_school.png"><br>
+        　アルフレイム大陸由来の流派アイテム：<code>[ア]</code>：<img class="i-icon" src="${set::icon_dir}wp_school_a.png"><br>
+        　テラスティア大陸由来の流派アイテム：<code>[テ]</code>：<img class="i-icon" src="${set::icon_dir}wp_school_t.png"><br>
+        　高揚の楽素：<code>[⤴]</code><code>[↑]</code>：<i class="s-icon uplift">⤴</i><br>
+        　鎮静の楽素：<code>[⤵]</code><code>[↓]</code>：<i class="s-icon calm">⤵</i><br>
+        　魅惑の楽素：<code>[♡]</code>：<i class="s-icon heart">♡</i><br>
   HTML
 }
 print textRuleArea( $text_rule,'「効果」「備考」「由来・逸話など」' );
@@ -706,6 +770,26 @@ print <<"HTML";
     <option value="生命・精神抵抗力判定-2">
     <option value="ほとんどの行為判定-4">
     <option value="〈盾〉の防護点、回避力の有利な修正無効">
+  </datalist>
+  <datalist id="list-skill-action-base-value">
+    <option value="―">
+    <option value="フィジカルマスター技能レベル＋器用度ボーナス">
+    <option value="フィジカルマスター技能レベル＋敏捷度ボーナス">
+    <option value="フィジカルマスター技能レベル＋筋力ボーナス">
+    <option value="フィジカルマスター技能レベル＋生命力ボーナス">
+    <option value="フィジカルマスター技能レベル＋知力ボーナス">
+    <option value="フィジカルマスター技能レベル＋精神力ボーナス">
+    <option value="冒険者レベル＋器用度ボーナス">
+    <option value="冒険者レベル＋敏捷度ボーナス">
+    <option value="冒険者レベル＋筋力ボーナス">
+    <option value="冒険者レベル＋生命力ボーナス">
+    <option value="冒険者レベル＋知力ボーナス">
+    <option value="冒険者レベル＋精神力ボーナス">
+  </datalist>
+  <datalist id="list-skill-resist-base-value">
+    <option value="―">
+    <option value="生命抵抗力">
+    <option value="精神抵抗力">
   </datalist>
   <script>
 @{[ &commonJSVariable ]}

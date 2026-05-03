@@ -1578,7 +1578,6 @@ function calcMagic() {
       const id = classData[key].id;
       if(!lv[id]){ continue; }
       const magicName = classData[key].magic.jName || '＊＊魔法';
-      console.log(key, values[magicName]?.[num-1]);
       inputs += `<label class="check-button"><input type="checkbox" name="paletteMagic${num}Check${id}" value="1" onchange="setChatPalette()" data-magic-name="${magicName}" ${values[magicName]?.[num-1||'']}><span>${magicName}</span></label>`;
     }
     document.querySelector(`#palette-magic-row${num} .palette-magic-checklist`).innerHTML = inputs;
@@ -1763,22 +1762,22 @@ function calcAttack() {
     if(!display){ errorAccClass[name] = true; }
     else {
       rows.push({
-        name: `${name}技能`,
+        name: `${name}技能${lv[id]}レベル`,
         reqd: (
           ( classData[name]?.reqdHalf ? reqdStrHalf
             : classData[name]?.accUnlock?.reqd ? stt['total'+classData[name]?.accUnlock?.reqd]
             : reqdStr
           )
-          + equipMod.WeaponReqd ? `+${equipMod.WeaponReqd}` : ''
+          + (equipMod.WeaponReqd ? `+${equipMod.WeaponReqd}` : '')
         ),
         acc: (
           classData[name]?.accUnlock?.acc === 'power' ? magicPowers[id]
-          : lv[id] + bonus.Dex + (classData[name]?.accUnlock?.mod || 0)
+          : (lv[id] + bonus.Dex + (classData[name]?.accUnlock?.mod || 0))
         ),
         crit: classData[name]?.critMod || '',
         dmg: (
           classData[name]?.accUnlock?.dmg === 'power' ? magicPowers[id]
-          : lv[id] + bonus.Str
+          : (lv[id] + bonus.Str)
         ),
       });
     }
@@ -1956,7 +1955,7 @@ function calcDefense() {
     if(!display){ errorEvaClass[name] = true; }
     else {
       rows.push({
-        name: `${name}技能`,
+        name: `${name}技能${lv[id]}レベル`,
         reqd: classData[name]?.reqdHalf ? reqdStrHalf : reqdStr,
         eva : lv[id] + bonus.Agi + (classData[name]?.evaUnlock?.mod || 0),
       });

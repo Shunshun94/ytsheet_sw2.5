@@ -1715,6 +1715,10 @@ input[type="submit"]:hover {
     font-family: var(--base-font-family-min);
     font-weight: bold;
     font-size: 150%;
+    & rt {
+      font-family: inherit;
+      font-weight: inherit;
+    }
   }
   & .name::before {
     display: block;

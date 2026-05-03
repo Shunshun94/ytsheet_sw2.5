@@ -350,7 +350,7 @@ sub palettePreset {
     # 宣言特技
     require $set::data_feats;
     my @declarationFeats = ();
-    foreach ('1bat', @set::feats_lv) {
+    foreach (setAcquiredFeatsLvs(\%::pc)) {
       my $level = $_;
       last if $level ne '1+' && $level > $::pc{level};
       my $featName = $::pc{"combatFeatsLv${level}"};
@@ -557,12 +557,7 @@ sub palettePreset {
     if($magicText){
       $text .= "###\n" if $bot{TKY};
       $text .= "### ■魔法系\n";
-      $text .= "//魔力修正=".($::pc{magicPowerAdd}+$::pc{magicPowerEquip})."\n" if $magicText =~ /行使/;
-      $text .= "//行使修正=".($::pc{magicCastAdd }+$::pc{magicCastEquip })."\n" if $magicText =~ /{行使修正}/;
-      $text .= "//魔法C=10\n" if $magicText =~ /{魔法C}/;
-      $text .= "//魔法D修正=".($::pc{magicDamageAdd}+$::pc{magicDamageEquip})."\n" if $magicText =~ /{魔法D修正}/;
-      $text .= "//物理魔法D修正=".($::pc{magicDamageAdd}||0)."\n" if $magicText =~ /{物理魔法D修正}/;
-      $text .= "//回復量修正=0\n" if $magicText =~ /{回復量修正}/;
+      $text .= "<<BUFF-VAR:魔法系>>";
     }
     $text .= $magicText;
     
@@ -574,19 +569,8 @@ sub palettePreset {
               $::pc{'weapon'.$_.'Crit'}.$::pc{'weapon'.$_.'Dmg'} eq '';
       $text .= "###\n" if $bot{TKY};
       $text .= "### ■武器攻撃系\n";
-      $text .= "//命中修正=0\n";
-      $text .= "//C修正=0\n";
-      $text .= "//追加D修正=0\n";
-      $text .= "//必殺効果=0\n";
-      $text .= "//クリレイ=0\n";
+      $text .= "<<BUFF-VAR:武器攻撃系>>";
       last;
-    }
-    
-    foreach (1 .. $::pc{weaponNum}){
-      if($::pc{'weapon'.$_.'Category'} eq 'ガン'){
-        $text .= "//ガン追加D修正=0\n";
-        last;
-      }
     }
     
     foreach (1 .. $::pc{weaponNum}){
@@ -736,6 +720,27 @@ sub palettePreset {
     
     #
     $text .= "###\n" if $bot{YTC} || $bot{TKY};
+    # バフ変数セット
+    if($text =~ /<<BUFF-VAR:魔法系>>/){
+      my $vars;
+      $vars .= "//魔力修正=".($::pc{magicPowerAdd}+$::pc{magicPowerEquip})."\n" if $text =~ /{魔力修正}|行使/;
+      $vars .= "//行使修正=".($::pc{magicPowerAdd}+$::pc{magicPowerEquip})."\n" if $text =~ /{行使修正}/;
+      $vars .= "//魔法C=10\n" if $text =~ /{魔法C}/;
+      $vars .= "//魔法D修正=".($::pc{magicDamageAdd}+$::pc{magicDamageEquip})."\n" if $text =~ /{魔法D修正}/;
+      $vars .= "//物理魔法D修正=".($::pc{magicDamageAdd}||0)."\n" if $text =~ /{物理魔法D修正}/;
+      $vars .= "//回復量修正=0\n" if $text =~ /{回復量修正}/;
+      $text =~ s/<<BUFF-VAR:魔法系>>/$vars/;
+    }
+    if($text =~ /<<BUFF-VAR:武器攻撃系>>/){
+      my $vars;
+      $vars .= "//命中修正=0\n" if $text =~ /{命中修正}/;
+      $vars .= "//C修正=0\n" if $text =~ /{C修正}/;
+      $vars .= "//追加D修正=0\n" if $text =~ /{追加D修正}/;
+      $vars .= "//必殺効果=0\n" if $text =~ /{必殺効果}/;
+      $vars .= "//クリレイ=0\n" if $text =~ /{クリレイ}/;
+      $vars .= "//ガン追加D修正=0\n" if $text =~ /{ガン追加D修正}/;
+      $text =~ s/<<BUFF-VAR:武器攻撃系>>/$vars/;
+    }
   }
   ## 魔物
   elsif($type eq 'm') {
