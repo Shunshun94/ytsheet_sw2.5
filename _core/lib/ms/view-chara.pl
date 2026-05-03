@@ -240,7 +240,7 @@ else {
     (removeTags removeRuby($pc{characterName}||"“$pc{aka}”")) .
     ($::in{log} ? " 【".($selectedLogName||$pc{updateTime})."】" : '')
   );
-  $SHEET->param(encodedNameLetter => uri_escape_utf8 removeTags removeRuby($pc{characterName}).($pc{aka}?"“$pc{aka}”":""));
+  $SHEET->param(encodedNameLetter => uri_escape_utf8 removeTags $pc{characterName}.$pc{characterNameRuby});
 }
 
 ### OGP --------------------------------------------------

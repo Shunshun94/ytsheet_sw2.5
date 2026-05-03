@@ -278,7 +278,7 @@ print <<"HTML";
           <dl id="aka">
             <dt>二つ名
             <dd>@{[ input 'aka','text',"setName" ]}
-            <dt class="ruby">フリガナ
+            <dt class="ruby">二つ名のフリガナ
             <dd>@{[ input 'akaRuby','text',"setName" ]}
           </dl>
         </div>
@@ -695,7 +695,7 @@ print <<"HTML";
 HTML
 foreach my $num ('TMPL',1 .. $pc{mysticArtsNum}){
   print '<template id="mystic-arts-template">' if($num eq 'TMPL');
-  print '<li id="mystic-arts-row'.$num.'"><span class="handle"></span>'.input('mysticArts'.$num).inputHonor('mysticArts'.$num.'Pt');
+  print '<li id="mystic-arts-row'.$num.'"><span class="handle"></span>《'.input('mysticArts'.$num)."》".inputHonor('mysticArts'.$num.'Pt');
   print '</template>' if($num eq 'TMPL');
 }
 print <<"HTML";
@@ -709,7 +709,7 @@ HTML
 $pc{mysticMagicNum} ||= 0;
 foreach my $num ('TMPL',1 .. $pc{mysticMagicNum}){
   print '<template id="mystic-magic-template">' if($num eq 'TMPL');
-  print '<li id="mystic-magic-row'.$num.'"><span class="handle"></span>'.input('mysticMagic'.$num).inputHonor('mysticMagic'.$num.'Pt');
+  print '<li id="mystic-magic-row'.$num.'"><span class="handle"></span>【'.input('mysticMagic'.$num).'】'.inputHonor('mysticMagic'.$num.'Pt');
   print '</template>' if($num eq 'TMPL');
 }
 print <<"HTML";
@@ -1815,12 +1815,15 @@ sub chatPaletteFormOptional {
 }
 
 # ヘルプ
-my $text_rule= <<"HTML";
-  アイコン<br>
-  　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
-  　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
-  　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
-  　地方特産品　　：<code>[特]</code>：<img class="i-icon" src="${set::icon_dir}item_local.png"><br>
+my $text_rule = <<"HTML";
+        アイコン<br>
+        　魔法のアイテム：<code>[魔]</code>：<img class="i-icon" src="${set::icon_dir}wp_magic.png"><br>
+        　刃武器　　　　：<code>[刃]</code>：<img class="i-icon" src="${set::icon_dir}wp_edge.png"><br>
+        　打撃武器　　　：<code>[打]</code>：<img class="i-icon" src="${set::icon_dir}wp_blow.png"><br>
+        　地方特産品　　：<code>[特]</code>：<i class="i-icon" data-kind="特"><span class="raw">[特]</span></i><br>
+        　高揚の楽素：<code>[⤴]</code><code>[↑]</code>：<i class="s-icon uplift">⤴</i><br>
+        　鎮静の楽素：<code>[⤵]</code><code>[↓]</code>：<i class="s-icon calm">⤵</i><br>
+        　魅惑の楽素：<code>[♡]</code>：<i class="s-icon heart">♡</i><br>
 HTML
 if($::SW2_0){
   $text_rule .= <<~"HTML";
@@ -1843,6 +1846,9 @@ else {
     　主動作型　：<code>[主]</code>：<i class="s-icon major  "><span class="raw">[主]</span></i><br>
     　補助動作型：<code>[補]</code>：<i class="s-icon minor  "><span class="raw">[補]</span></i><br>
     　宣言型　　：<code>[宣]</code>：<i class="s-icon active "><span class="raw">[宣]</span></i><br>
+    　高揚の楽素：<code>[⤴]</code><code>[↑]</code>：<i class="s-icon uplift">⤴</i><br>
+    　鎮静の楽素：<code>[⤵]</code><code>[↓]</code>：<i class="s-icon calm">⤵</i><br>
+    　魅惑の楽素：<code>[♡]</code>：<i class="s-icon heart">♡</i><br>
   HTML
 }
 print textRuleArea( $text_rule,'「容姿・経歴・その他メモ」「履歴（自由記入）」「所持品」「収支履歴」' );

@@ -30,16 +30,6 @@ sub data_calc {
     $pc{lvCaster} = $pc{'lv'.$id} if ($pc{lvCaster} < $pc{'lv'.$id} && $classData{$class}{magic}{jName});
     $lvCastersTotal += $pc{'lv'.$id} if $classData{$class}{magic}{jName};
   }
-  ## 技能自由記入
-  foreach my $num (1 .. $pc{freeClassNum}){
-    if($pc{"freeClass${num}Name"} && $pc{"freeClass${num}Lv"}){
-      $pc{level} = $pc{"freeClass${num}Lv"} if ($pc{level} < $pc{"freeClass${num}Lv"});
-      if($pc{"freeClass${num}Magic"}){
-        $lvCastersTotal += $pc{"freeClass${num}Lv"};
-        $pc{lvCaster} = $pc{"freeClass${num}Lv"} if ($pc{lvCaster} < $pc{"freeClass${num}Lv"});
-      }
-    }
-  }
 
   ### スカレンセジ最大レベル算出 --------------------------------------------------
   my $smax = max($pc{lvSco},$pc{lvRan},$pc{lvSag});
