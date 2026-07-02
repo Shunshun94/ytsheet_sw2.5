@@ -6,7 +6,7 @@ use open ":utf8";
 
 #require $set::data_item;
 
-sub data_calc {
+sub dataCalc {
   my %pc = %{$_[0]};
   my %NL;
   

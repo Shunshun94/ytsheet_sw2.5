@@ -9,11 +9,11 @@ my %impulses;
 $awakens{@$_[0]} = @$_[1] foreach(@data::awakens);
 $impulses{@$_[0]} = @$_[1] foreach(@data::impulses);
 
-sub data_calc {
+sub dataCalc {
   my %pc = %{$_[0]};
   ### アップデート --------------------------------------------------
   if($pc{ver}){
-    %pc = data_update_chara(\%pc);
+    %pc = upgradeCharaData(\%pc);
   }
   
   ### 能力値 --------------------------------------------------

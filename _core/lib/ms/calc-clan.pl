@@ -3,11 +3,11 @@ use strict;
 #use warnings;
 use utf8;
 
-sub data_calc {
+sub dataCalc {
   my %pc = %{$_[0]};
   ### アップデート --------------------------------------------------
   #if($pc{ver}){
-  #  %pc = data_update_clan(\%pc);
+  #  %pc = upgradeClanData(\%pc);
   #}
 
   ### レベル・成長 --------------------------------------------------

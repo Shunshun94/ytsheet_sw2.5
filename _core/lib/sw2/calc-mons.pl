@@ -5,7 +5,7 @@ use utf8;
 
 require $set::data_mons;
 
-sub data_calc {
+sub dataCalc {
   my %pc = %{$_[0]};
 
   ####  --------------------------------------------------

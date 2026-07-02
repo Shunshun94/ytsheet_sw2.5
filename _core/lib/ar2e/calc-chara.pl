@@ -6,12 +6,12 @@ use utf8;
 require $set::data_races;
 require $set::data_class;
 
-sub data_calc {
+sub dataCalc {
   my %pc = %{$_[0]};
   my %st;
   ### アップデート --------------------------------------------------
   if($pc{ver}){
-    %pc = data_update_chara(\%pc);
+    %pc = upgradeCharaData(\%pc);
   }
   
 
