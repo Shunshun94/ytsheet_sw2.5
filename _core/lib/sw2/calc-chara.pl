@@ -856,7 +856,7 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   $NL{name}  = ($pc{aka} ? "“$pc{aka}”" : "").$pc{characterName};
   $NL{rank}  = $pc{honorRank} >= $pc{honorRankBarbaros} ? $pc{rank} : $pc{rankBarbaros};
@@ -893,7 +893,7 @@ sub dataCalc {
   }
   $classlv .= '|'.$freeclass if $freeclass;
 
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{name}<>$NL{playerName}<>$pc{group}<>"
     . "$pc{expTotal}<>$NL{rank}<>$NL{race}<>$NL{gender}<>$NL{age}<>$NL{faith}<>"

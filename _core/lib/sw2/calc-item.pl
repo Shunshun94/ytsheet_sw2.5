@@ -24,7 +24,7 @@ sub dataCalc {
   $pc{$_} = escapePcData($pc{$_}) foreach (keys %pc);
   $pc{tags} = normalizeHashtags($pc{tags});
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   $NL{type} = $pc{magic} ? '[ma]' : '';
   foreach ('itemName','author','category','price','age','summary'){
@@ -35,7 +35,7 @@ sub dataCalc {
   $NL{author}  = substr($NL{author} , 0,  25).'..' if length($NL{author} ) >  25;
   $NL{sub}     = substr($NL{sub}    , 0,  40).'..' if length($NL{sub}    ) >  40;
   $NL{summary} = substr($NL{summary}, 0,  35).'..' if length($NL{summary}) >  35;
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{itemName}<>$NL{author}<>"
     . "$NL{category}<>$NL{price}<>$NL{age}<>$NL{summary}<>$NL{type}<>"

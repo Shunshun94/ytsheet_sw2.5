@@ -121,7 +121,7 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   foreach ('characterName','playerName','class','style','styleSub','works','country','clanEgendermotion','age','height','weight'){
     $NL{$_} = $pc{$_} =~ s/[|｜]([^|｜]+?)《.+?》/$1/gr;
@@ -138,7 +138,7 @@ sub dataCalc {
   $NL{age}    = substr($NL{age}   , 0, 20).'..' if length($NL{age}   ) > 20;
   $NL{height} = substr($NL{height}, 0, 20).'..' if length($NL{height}) > 20;
   $NL{weight} = substr($NL{weight}, 0, 20).'..' if length($NL{weight}) > 20;
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{characterName}<>$NL{playerName}<>$pc{group}<>"
     . $pc{"image".imageSuffix($pc{mainImage})}."<> $pc{tags} <>$pc{hide}<>"

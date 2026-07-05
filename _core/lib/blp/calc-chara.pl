@@ -62,7 +62,7 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   foreach ('characterName','playerName','factor','factorCore','factorStyle','gender','age','ageApp','belong','missing'){
     $NL{$_} = $pc{$_} =~ s/[|｜]([^|｜]+?)《.+?》/$1/gr;
@@ -78,7 +78,7 @@ sub dataCalc {
   $NL{ageApp}  = substr($NL{ageApp} , 0, 20).'..' if length($NL{ageApp} ) > 20;
   $NL{belong}  = substr($pc{belong} , 0, 30).'..' if length($pc{belong} ) > 30;
   $NL{missing} = substr($pc{missing}, 0, 30).'..' if length($pc{missing}) > 30;
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{characterName}<>$NL{playerName}<>$pc{group}<>"
     . "$NL{factor}<>$NL{factorCore}<>$NL{factorStyle}<>"

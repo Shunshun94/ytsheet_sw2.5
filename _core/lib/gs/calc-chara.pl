@@ -234,7 +234,7 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   $NL{$_} = $pc{$_} foreach ('characterName','playerName','gender','age','rank','faith');
   $NL{race}     = ($pc{race}     && $pc{raceFree}    ) ? "$pc{race}($pc{raceFree})"         : $pc{race}     || $pc{raceFree};
@@ -255,7 +255,7 @@ sub dataCalc {
   foreach my $class (@data::class_list){
     $classlv .= $pc{'lv'.$data::class{$class}{id}}.'/';
   }
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{characterName}<>$NL{playerName}<>$pc{group}<>"
     . $pc{"image".imageSuffix($pc{mainImage})}."<> $pc{tags} <>$pc{hide}<>$pc{lastSession}<>"

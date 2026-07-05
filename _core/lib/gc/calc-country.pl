@@ -61,13 +61,13 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   foreach ('countryName','playerName','lordName'){
     $NL{$_} = $pc{$_} =~ s/[|｜]([^|｜]+?)《.+?》/$1/gr;
     $NL{$_} = removeTags unescapeTags $NL{$_} =~ s/^\s|\s$//gr;
   }
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{countryName}<>$NL{playerName}<>$pc{group}<>"
     . $pc{"image".imageSuffix($pc{mainImage})}."<> $pc{tags} <>$pc{hide}<>"

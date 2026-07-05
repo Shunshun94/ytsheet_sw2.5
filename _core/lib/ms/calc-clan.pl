@@ -35,7 +35,7 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   foreach ('clanName','leaderName','base','belong'){
     $NL{$_} = $pc{$_} =~ s/[|｜]([^|｜]+?)《.+?》/$1/gr;
@@ -47,7 +47,7 @@ sub dataCalc {
   $NL{belong} = substr($pc{belong}, 0, 30).'..' if length($pc{belong}) > 30;
   $NL{rule}   = substr($pc{rule}  , 0, 50).'..' if length($pc{rule}  ) > 50;
   $NL{leaderName} = substr($NL{leaderName}, 0, 108).'..' if length($NL{leaderName}) > 108;
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{clanName}<>$pc{playerName}<>$pc{group}<>"
     . $pc{"image".imageSuffix($pc{mainImage})}."<> $pc{tags} <>$pc{hide}<>$pc{lastSession}<>"

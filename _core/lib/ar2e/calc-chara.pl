@@ -277,7 +277,7 @@ sub dataCalc {
     if($pc{"history${i}Gm"} && $pc{"history${i}Title"}){ $pc{lastSession} = removeTags unescapeTags $pc{"history${i}Title"}; last; }
   }
 
-  ### newline --------------------------------------------------
+  ### updatedLine --------------------------------------------------
   my %NL;
   $NL{name} = ($pc{aka} ? "“$pc{aka}”" : "").$pc{characterName};
   $NL{race} = $pc{race} eq 'free' ? $pc{raceFree} : $pc{race};
@@ -301,7 +301,7 @@ sub dataCalc {
   $NL{classTitle}   = substr($NL{classTitle}  , 0, 20).'..' if length($NL{classTitle}  ) > 20;
   $NL{homeArea}  = substr($NL{homeArea} , 0,  30).'..' if length($NL{homeArea} ) >  30;
   $NL{guildName} = substr($NL{guildName}, 0, 108).'..' if length($NL{guildName}) > 108;
-  $::newline =
+  $::updatedLine =
     "$pc{id}<>$::file<>"
     . "$pc{birthTime}<>$::now<>$NL{name}<>$NL{playerName}<>$pc{group}<>"
     . $pc{"image".imageSuffix($pc{mainImage})}."<> $pc{tags} <>$pc{hide}<>"

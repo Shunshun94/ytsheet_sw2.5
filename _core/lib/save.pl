@@ -102,7 +102,7 @@ elsif($mode eq 'save'){
   if(!$file){ error('404:シートが存在しないか、編集権限がありません。'); }
 }
 
-our $newline;
+our $updatedLine;
 require $set::lib_calc_char;
 my $dataDir = $set::char_dir;
 
@@ -235,7 +235,7 @@ elsif($mode eq 'save'){
   });
 }
 ### 一覧データ更新 --------------------------------------------------
-updateListFile($newline);
+updateListFile($updatedLine);
 
 ### 画像アップデート --------------------------------------------------
 my %newImageData;
@@ -500,12 +500,12 @@ sub updatePassFile {
 }
 
 sub updateListFile {
-  my $newline  = shift;
+  my $updatedLine  = shift;
 
   overwriteFile($set::listfile, sub {
     my ($READ, $WRITE) = @_;
 
-    print $WRITE "$newline\n";
+    print $WRITE "$updatedLine\n";
     
     foreach (<$READ>){
       if(index($_, "$pc{id}<") == 0){ next; }
