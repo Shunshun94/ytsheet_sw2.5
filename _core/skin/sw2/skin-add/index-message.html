@@ -1,0 +1,37 @@
+<aside class="attention" style="max-width:90%;padding:8px;">
+<div class="onlyEnjoy"><a href="../sw2.5/">SW2.5 用</a> / <a href="../sw2.0/">SW2.0 用</a></div>
+<h2 style="margin-left:0px;">注意書き</h2>
+<h3 style="margin-top:8px;">利用方法</h3>
+<div>ログインしないとデータの登録はできません。サーバのメンバーなら Discord のアカウントでログインできます</div>
+<div>質問・要望などは Discord サーバ上か Twitter でツール管理者に送ってください</div>
+<h3 style="margin-top:8px;">データについて</h3>
+<div class="notPrivate">ルールブックやサプリメントの魔物データ・アイテムデータをそのまま登録しないでください</div>
+<div class="notPrivate">キャラクター画像は著作権・肖像権的に問題ないものを使用してください</div>
+<div class="notPrivate"><strong>この辺のルール違反があった場合は特に予告なく削除します</strong></div>
+<div class="notPrivate">アニメやゲームのスクショの場合、管理側で判断がつかない場合があります。<br/>
+判断がつかない場合、安全側に倒すために削除することがほとんどとなります。<br/>
+大丈夫な根拠がある場合はキャラクターシートのその他メモ欄などを使って説明頂けると助かります</div>
+<div class="private" style="display:none;">エネミーデータのみ作成・編集することを想定しています。<br/>ルールブックやサプリメント掲載の魔物データをそのまま登録してください。<br/>その際には記法なども可能な限り公式に揃えてください。</div>
+<div class="private" style="padding-top:1em;display:none;">管理者が関わっている複数のコミュニティで共用するものとして作っています。<br/>制作者欄は空欄にしておいたほうが精神衛生上いいかもしれません。<br/>また、互いの作ったデータを利用できるようにする前提なのでデータは全て開示し、一覧に表示してください。</div>
+<div class="private" style="padding-top:1em;display:none;">おまけ：<a href="./InfiniteColosseumRandomEnemy">インフィニットコロッセオのランダムエネミー生成ツール</a></div>
+<h2 style="margin-left:0px;">連絡先</h2>
+<h3 style="margin-top:8px;">ゆとシートの作者支援</h3>
+<div><a href="https://fantia.jp/yutorize" target="_blank">Fantia</a> / <a href="https://yutorize.fanbox.cc/" target="_blank">PIXIV FANBOX</a><br/>
+<a href="https://amzn.to/2PUvE0Z" target="_blank">Amazon ギフト券</a> / <a href="https://amzn.to/2Q21tVZ" target="_blank">欲しいものリスト</a></div>
+<h3 style="margin-top:8px;">ソースコード</h3>
+<div><a href="https://github.com/Shunshun94/ytsheet_sw2.5/tree/forEnjoySwServer" target="_blank">GitHub</a></div>
+<h3 style="margin-top:8px;">ツール管理者</h3>
+<div><a href="https://twitter.com/Shunshun94" target="_blank">連絡先</a> / <a href="https://amzn.asia/8mNqdKy" target="_blank">欲しいものリスト</a></div>
+<script>
+    if(! document.getElementsByTagName('h1')[0].textContent.includes('遊びつくそう')) {
+        document.getElementsByClassName('onlyEnjoy')[0].style.display = 'none';
+    }
+    if( location.href.includes('official_data') ) {
+        if( ! location.href.includes('type=m') ) {
+            location.href = `${location.href.replace(/\?type=./, '?')}?type=m`.replace(/\?\?/, '?');
+        }
+        Array.from(document.getElementsByClassName('notPrivate')).forEach( e => e.style.display = 'none' );
+        Array.from(document.getElementsByClassName('private')).forEach( e => e.style.display = 'block' );
+    }
+</script>
+</aside>

@@ -1604,6 +1604,10 @@ print <<HTML;
 HTML
 print renderChatPaletteForm();
 
+print <<HTML;
+  <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/sw25_edit_character.js"></script>
+HTML
+
 print renderEditPageEnd(
   notes => '(C)Group SNE「ソード・ワールド'.($::SW2_0 ? '2.0' : '2.5').'」',
   extraHtml => renderDataList(),
