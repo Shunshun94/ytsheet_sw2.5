@@ -507,7 +507,6 @@ sub renderEditPageEnd {
     </dialog>
 
     $extraHtml
-    <script src="https://shunshun94.github.io/shared/other/io/github/shunshun94/ytsheet/addSkin/sw25_edit_character.js"></script>
   </body>
   </html>
   HTML
