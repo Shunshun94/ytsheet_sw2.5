@@ -657,6 +657,21 @@ sub replaceModificationNotation {
 
   return $sourceText;
 }
+sub replaceProstheticBodyNotation {
+  my $sourceText = shift // '';
+
+  $sourceText =~ s#
+      [\@＠]魔動義体[:：]
+      (
+        器(?:用度?)?(?:増強)?  |
+        敏(?:捷度?)?(?:増強)?  |
+        筋(?:力)?(?:増強)?
+      )
+      ([＋+][0-9]+[\/／][0-9]+)
+    #<i class="term-em">魔動義体:$1$2</i>#gx;
+
+  return $sourceText;
+}
 
 my @weapons;
 if($pc{forbiddenMode}){
@@ -715,7 +730,7 @@ else {
       DMG      => addNum($pc{'weapon'.$_.'Dmg'}),
       DMGTOTAL => $pc{'weapon'.$_.'DmgTotal'},
       OWN      => $pc{'weapon'.$_.'Own'},
-      NOTE     => replaceModificationNotation($pc{'weapon'.$_.'Note'}),
+      NOTE     => replaceProstheticBodyNotation(replaceModificationNotation($pc{'weapon'.$_.'Note'})),
       NOTESPAN => $pc{'weapon'.$_.'NoteSpan'},
       NOTEOFF  => $pc{'weapon'.$_.'NoteOff'},
       CLOSE    => ($pc{'weapon'.$_.'NameOff'} || $first ? 0 : 1),
@@ -897,7 +912,7 @@ else {
       TH   => $th,
       EVA  => $pc{"defenseTotal${i}Eva"},
       DEF  => $pc{"defenseTotal${i}Def"},
-      NOTE => $pc{"defenseTotal${i}Note"},
+      NOTE => replaceProstheticBodyNotation($pc{"defenseTotal${i}Note"}),
     } );
   }
   $SHEET->param(ArmourTotals => \@total);
@@ -1156,6 +1171,18 @@ foreach my $color ('Red','Gre','Bla','Whi','Gol'){
     }
     my $effectName = $name;
     my $pointName = $effects{$name}{pointName};
+    my $rankName  = $effects{$name}{rankName};
+    my $rankValue = '';
+    if(exists $effects{$name}{rank}){
+      foreach (@{$effects{$name}{rank}}){
+        if($pc{"effect${box}PtTotal"} >= $_->[0]){
+          $rankValue = $_->[1];
+        }
+        else {
+          last;
+        }
+      }
+    }
     if($freeMode) {
       ($effectName,$pointName) = split(/\s?[@＠]\s?/, $pc{"effect${box}NameFree"});
     }
@@ -1169,11 +1196,18 @@ foreach my $color ('Red','Gre','Bla','Whi','Gol'){
         }
       }
     }
+    my $notes;
+    if($rankName){
+      $notes .= "${rankName}：<b>${rankValue}</b>";
+    }
+    if($pointName){
+      $notes .= "　<wbr>" if($notes);
+      $notes .= qq|${pointName}：<b>$pc{"effect${box}PtTotal"}</b>|;
+    }
     push(@boxes, {
       SORT => $sort,
       NAME => $effectName,
-      PTNAME => $pointName,
-      TOTAL => $pc{"effect${box}PtTotal"},
+      NOTES => $notes,
       HEAD0 => $freeMode ? $pc{"effect${box}-1"   } : $effects{$name}{header}[0],
       HEAD1 => $freeMode ? $pc{"effect${box}-1Pt1"} : $effects{$name}{header}[1],
       HEAD2 => $freeMode ? $pc{"effect${box}-1Pt2"} : $effects{$name}{header}[2],

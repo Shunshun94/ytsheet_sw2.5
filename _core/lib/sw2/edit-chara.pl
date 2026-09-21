@@ -758,6 +758,7 @@ print <<"HTML";
                 @{[ selectBox "effect${box}Name","changeEffect(this)",'DEF==>各種影響表（穢れや侵蝕など）',@effectNames ]}
                 @{[ input "effect${box}NameFree",'','','placeholder="例: 穢れ＠穢れ度"' ]}
             </h2>
+            <dl class="effect-rank"><dt>$effects{$name}{rankName}<dd></dl>
             <dl class="effect-points"><dt>$effects{$name}{pointName}<dd>0</dl>
             <table class="edit-table side-margin">
               <thead>
@@ -1015,6 +1016,7 @@ print <<"HTML";
         <ul class="annotate">
           <li>Ｃ値は自動計算されません。
           <li>備考欄に<code>\@防護点+1</code>や<code>\@回避力+1</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>有効な項目は、装飾品欄と同様です。
+          <li>備考欄に<code>\@魔動義体：器用度+2/15</code>や<code>\@魔動義体：筋力+3/18</code>のように記述すると、対応した能力値で計算されます。
           <li>備考欄に<code>〈レッサー・アームスフィアⅠ〉</code>のように記述すると、対応した筋力で計算されます。
           <li id="artisan-annotate" @{[ display $pc{masteryArtisan} ]}>備考欄に<code>〈魔器〉</code>と記入すると魔器習熟が反映されます。
           <li data-race-ability-only="巨人化">備考欄に<code>［巨人化］</code>と記述すると、［巨人化］後の筋力で計算されます。
@@ -1103,6 +1105,7 @@ print <<"HTML";
           <li>防具の備考欄に<code>\@敏捷度-6</code>や<code>\@精神抵抗力+2</code>のように記述すると、<span class="text-em">常時</span>有効な上昇効果が自動計算されます。<br>
             有効な項目は、装飾品欄と同様です。<br>
             <code>\@</code>による修正は合算のチェックに関わらず計算されるため、予備装備や切り替えが想定されるものは注意してください。<br>
+          <li>合計行の備考欄に<code>\@魔動義体：敏捷度+2/15</code>のように記述すると、対応した敏捷度で計算されます。
           <li data-race-ability-only="巨人化">合計行の備考欄に<code>［巨人化］</code>と記述すると、［巨人化］後の敏捷度で計算されます。
         </ul>
       </div>

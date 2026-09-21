@@ -552,9 +552,6 @@ function setLanguageDefault(){
   else { document.getElementById("language-default").innerHTML = ''; }
 }
 // ステータス計算 ----------------------------------------
-let reqdStr = 0;
-let reqdMnd = 0;
-let reqdStrHalf = 0;
 let stt = {};
 let bonus = {}
 function calcStt() {
@@ -622,10 +619,10 @@ function calcStt() {
     document.getElementById(`stt-${i[1].toLowerCase()}-value`).innerHTML = `<span>${modStatus(raceMod)}${stt[i[1]]}</span>`;
 
     // 増強
-    stt['add'+i[0]] = Number(form['sttAdd'+i[0]].value);
+    stt['add'+i[0]] = Number(form['sttAdd'+i[0]].value) + (equipMod[i[0]] || 0);
 
     // 合計
-    stt['total'+i[1]] = stt[i[1]] + stt['add'+i[0]] + (equipMod[i[0]] || 0);
+    stt['total'+i[1]] = stt[i[1]] + stt['add'+i[0]];
     document.getElementById(`stt-equip-${i[0]}-value`).textContent = equipMod[i[0]];
 
     // ボーナス
@@ -643,10 +640,6 @@ function calcStt() {
     if(value < 0){ return `<span class="small">${value}=</span>` }
     return ''
   }
-  
-  reqdStr = stt.totalStr;
-  reqdMnd = stt.totalMnd;
-  reqdStrHalf = Math.ceil(reqdStr / 2);
   
   checkFeats();
   calcSubStt();
@@ -1663,8 +1656,8 @@ function calcParts(){
     }
     // コア
     if(form.partCore.value == num){
-      hp += subStt.hpBase + subStt.hpAutoAdd - stt.addD - (equipMod.D ?? 0) + Number(form.sttPartD.value||0);
-      mp += subStt.mpBase + subStt.mpAutoAdd - stt.addF - (equipMod.F ?? 0) + Number(form.sttPartF.value||0);
+      hp += subStt.hpBase + subStt.hpAutoAdd - stt.addD + Number(form.sttPartD.value||0);
+      mp += subStt.mpBase + subStt.mpAutoAdd - stt.addF + Number(form.sttPartF.value||0);
       if(raceAbilities.includes('蠍人の身体')){
         def = 0;
         hp += subStt.hpAccessory;
@@ -1747,16 +1740,17 @@ function calcAttack() {
       }
       if(!isUnlock){ display = false }
     }
+
     if(!display){ errorAccClass[name] = true; }
     else {
+      let maxReqd = stt.totalStr;
+      if(classData[name]?.accUnlock?.reqd){ maxReqd = stt['total'+classData[name]?.accUnlock?.reqd]; }
+      if(classData[name]?.reqdHalf){ maxReqd = Math.ceil(maxReqd / 2); }
+
       rows.push({
         name: `${name}技能${lv[id]}レベル`,
         reqd: (
-          ( classData[name]?.reqdHalf ? reqdStrHalf
-            : classData[name]?.accUnlock?.reqd ? stt['total'+classData[name]?.accUnlock?.reqd]
-            : reqdStr
-          )
-          + (equipMod.WeaponReqd ? `+${equipMod.WeaponReqd}` : '')
+          maxReqd + (equipMod.WeaponReqd ? `+${equipMod.WeaponReqd}` : '')
         ),
         acc: (
           classData[name]?.accUnlock?.acc === 'power' ? magicPowers[id]
@@ -1836,28 +1830,38 @@ function calcWeapon() {
     const weaponReqdRaw = form["weapon"+i+"Reqd"]?.value?.toString();
     const weaponReqd = (weaponReqdRaw.match(/^(\d+)w$/i) ? safeEval(RegExp.$1) : safeEval(weaponReqdRaw)) || 0;
     const classLv = lv[ classData[className]?.id ] || 0;
-    let dex = (partNum ? stt.Dex+Number(form.sttPartA.value || 0) : stt.totalDex);
-    let str = (partNum ? stt.Str+Number(form.sttPartC.value || 0) : stt.totalStr);
+    let dex = stt.Dex;
+    let str = stt.Str;
     let accBase = 0;
     let dmgBase = 0;
-    const giantize = note.match(/［巨人化］/) ? 12 : 0;
-    const constStr
+    if(note.match(/［巨人化］/)){ str += 12; }
+    {
+      let [, mod, min] = note.match(/[\@＠]魔動義体[:：]器(?:用度?)?[+＋]([0-9]+)[\/／]([0-9]+)/) ?? [];
+      if(mod && min){
+        dex = Math.max(dex+Number(mod), Number(min));
+      }
+    }
+    {
+      let [, mod, min] = note.match(/[\@＠]魔動義体[:：]筋(?:力)?[+＋]([0-9]+)[\/／]([0-9]+)/) ?? [];
+      if(mod && min){
+        str = Math.max(str+Number(mod), Number(min));
+      }
+    }
+    dex += partNum ? Number(form.sttPartA.value || 0) : stt.addA;
+    str += partNum ? Number(form.sttPartC.value || 0) : stt.addC;
+    str
       = note.match(/〈レッサー・?アームスフィアⅠ〉/) ? 1
       : note.match(/〈レッサー・?アームスフィアⅡ〉/) ? 5
       : note.match(/〈レッサー・?アームスフィアⅢ〉/) ? 10
       : note.match(/〈アームスフィア〉/) ? 20
-      : 0;
+      : str;
     // 技能選択のエラーチェック
     form["weapon"+i+"Class"].classList.toggle('error', errorAccClass[className] == true); 
     // 必筋チェック
-    let maxReqd
-      = constStr ? constStr
-      : giantize && classData[className]?.reqdHalf ? Math.ceil((reqdStr+12) / 2)
-      : giantize ? (reqdStr+12)
-      : classData[className]?.reqdHalf ? reqdStrHalf
-      : /^\d+w$/i.test(weaponReqdRaw) ? reqdMnd
-      : classData[className]?.accUnlock?.reqd ? stt['total'+classData[className]?.accUnlock?.reqd]
-      : reqdStr;
+    let maxReqd = str;
+    if(classData[className]?.accUnlock?.reqd){ maxReqd = stt['total'+classData[className]?.accUnlock?.reqd]; }
+    if(classData[className]?.reqdHalf       ){ maxReqd = Math.ceil(maxReqd / 2); }
+    if(/^\d+w$/i.test(weaponReqdRaw)        ){ maxReqd = stt.totalMnd; }
     form["weapon"+i+"Reqd"].classList.toggle('error', weaponReqd > maxReqd + (equipMod.WeaponReqd||0));
     // 基礎命中
     if(classData[className]?.accUnlock?.acc === 'power'){
@@ -1872,8 +1876,7 @@ function calcWeapon() {
     else if(category === 'ガン')      { dmgBase = magicPowers['Mag']; }
     else if(classData[className]?.accUnlock?.dmg === 'power')
                                       { dmgBase = magicPowers[classData[className].id] }
-    else if(constStr)                 { dmgBase = classLv + parseInt(constStr / 6); }
-    else if(classLv)                  { dmgBase = classLv + parseInt((str + giantize) / 6); }
+    else if(classLv)                  { dmgBase = classLv + parseInt((str) / 6); }
 
     // 戦闘特技
     if(!partNum || partNum == form.partCore.value) {
@@ -1944,7 +1947,7 @@ function calcDefense() {
     else {
       rows.push({
         name: `${name}技能${lv[id]}レベル`,
-        reqd: classData[name]?.reqdHalf ? reqdStrHalf : reqdStr,
+        reqd: classData[name]?.reqdHalf ? Math.ceil(stt.totalStr / 2) : stt.totalStr,
         eva : lv[id] + bonus.Agi + (classData[name]?.evaUnlock?.mod || 0),
       });
     }
@@ -2069,17 +2072,24 @@ function calcArmour(evaAdd,defBase) {
     form['evasionClass'+i].classList.toggle('error', errorEvaClass[className] == true); 
 
     // 最大必筋
-    const maxReqd
-     = (giantize && classData[className]?.reqdHalf) ? Math.ceil((reqdStr+12) / 2)
-     : (giantize) ? (reqdStr+12)
-     : (classData[className]?.reqdHalf) ? reqdStrHalf : reqdStr;
+    let maxReqd = stt.totalStr + giantize;
+    if(classData[className]?.reqdHalf){
+      maxReqd = Math.ceil(maxReqd / 2);
+    }
 
     // 計算
     const classLv = lv[classData[className]?.id] || 0;
 
     let eva = (classData[className]?.evaUnlock?.mod || 0);
     let def = 0;
-    let agi = (partNum ? stt.Agi+Number(form.sttPartB.value || 0) : stt.totalAgi+giantize);
+    let agi = stt.Agi + giantize;
+    {
+      let [, mod, min] = form[`defenseTotal${i}Note`].value.match(/[\@＠]魔動義体[:：]敏(?:捷度?)?[+＋]([0-9]+)[\/／]([0-9]+)/) ?? [];
+      if(mod && min){
+        agi = Math.max(agi+Number(mod), Number(min));
+      }
+    }
+    agi += partNum ? Number(form.sttPartB.value || 0) : stt.addB;
     if(!partNum || partNum == form.partCore.value) {
       def += defBase;
       eva += evaAdd;
@@ -2406,6 +2416,7 @@ function checkEffect(obj,box){
   const name = box.querySelector('select').value;
   const eData = SET.effects?.[name] || {};
   box.querySelector("h2 .select-input").classList.toggle("free", name.match(/^自由記入/));
+  box.querySelector(".effect-rank dt   ").textContent = eData?.rankName || '';
   box.querySelector(".effect-points dt ").textContent = eData?.pointName || '';
   box.querySelector("thead th.text     ").textContent = eData?.header?.[0] || '';
   box.querySelector("thead th.num1 span").textContent = eData?.header?.[1] || '';
@@ -2515,6 +2526,14 @@ function calcEffect(obj){
     form.sin.value = total;
   }
   box.querySelector(".effect-points dd").textContent = total;
+  let rank = '';
+  (SET.effects?.[name]?.rank || []).forEach(data => {
+    if(total >= data[0]){
+      rank = data[1];
+    }
+    else { return; }
+  });
+  box.querySelector(".effect-rank dd").textContent = rank;
 }
 function checkSin(){
   form.sin.readOnly = false;

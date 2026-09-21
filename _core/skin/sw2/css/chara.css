@@ -473,10 +473,15 @@ dl#level {
 }
 
 /* Effects */
+.effects > h2 {
+  align-items: start;
+}
 .effects > h2 > small.notes {
   line-height: 1;
+  padding-top: 0.1em;
   border-bottom-width: 1px;
   border-bottom-style: solid;
+  text-align: right;
   > b {
     font-size: 140%;
   }

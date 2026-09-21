@@ -593,8 +593,12 @@ sub dataCalc {
       $acc = $pc{'magicPower'.$id};
     }
     else {
-      my $dex = $pc{sttDex} + ($partNum ? $pc{sttPartA} : $pc{sttAddA}+$pc{sttEquipA});
+      my $dex = $pc{sttDex};
       my $own_dex = $pc{"weapon${_}Own"} ? 2 : 0; # 専用化補正
+      if($pc{"weapon${_}Note"} =~ /[\@＠]魔動義体[:：]器(?:用度?)?[+＋]([0-9]+)[\/／]([0-9]+)/){
+        $dex = max($dex+$1, $2);
+      }
+      $dex += $partNum ? $pc{sttPartA} : $pc{sttAddA}+$pc{sttEquipA};
       if($lv){ $acc = $lv + int(($dex+$own_dex) / 6) }
     }
     $acc += $classData{$class}{accUnlock}{mod};
@@ -610,12 +614,17 @@ sub dataCalc {
     }
     $acc += $pc{"weapon${_}Acc"}; # 武器の修正値
     ## ダメージ
-    my $str = $pc{sttStr} + ($partNum ? $pc{sttPartC} : $pc{sttAddC}+$pc{sttEquipC});
+    my $str = $pc{sttStr};
     if($pc{"weapon${_}Note"} =~ /［巨人化］/){ $str += 12; }
+    if($pc{"weapon${_}Note"} =~ /[\@＠]魔動義体[:：]筋(?:力)?[+＋]([0-9]+)[\/／]([0-9]+)/){
+      $str = max($str+$1, $2);
+    }
+    $str += $partNum ? $pc{sttPartC} : $pc{sttAddC}+$pc{sttEquipC};
     if   ($pc{"weapon${_}Note"} =~ /〈レッサー・?アームスフィアⅠ〉/){ $str = 1; }
     elsif($pc{"weapon${_}Note"} =~ /〈レッサー・?アームスフィアⅡ〉/){ $str = 5; }
     elsif($pc{"weapon${_}Note"} =~ /〈レッサー・?アームスフィアⅢ〉/){ $str = 10; }
     elsif($pc{"weapon${_}Note"} =~ /〈アームスフィア〉/){ $str = 20; }
+  
     my $dmg = 0;
     $dmg = $pc{"weapon${_}Dmg"};
     if   ($category eq 'クロスボウ'){
@@ -665,8 +674,13 @@ sub dataCalc {
     my $partName = $pc{"evasionPart${i}Name"} = $pc{"part${partNum}Name"};
 
     ## 基礎値
-    my $agi = $pc{sttAgi} + ($partNum ? $pc{sttPartB} : $pc{sttAddB}+$pc{sttEquipB});
+    my $agi = $pc{sttAgi};
     if($pc{"defenseTotal${i}Note"} =~ /［巨人化］/){ $agi -= 6; }
+    if($pc{"defenseTotal${i}Note"} =~ /[\@＠]魔動義体[:：]敏(?:捷度?)?[+＋]([0-9]+)[\/／]([0-9]+)/){
+      $agi = max($agi+$1, $2);
+    }
+    $agi += $partNum ? $pc{sttPartB} : $pc{sttAddB}+$pc{sttEquipB};
+
     my $eva = $classData{$class}{evaUnlock}{mod};
     my $def = 0;
     ## 部位（コア含）
