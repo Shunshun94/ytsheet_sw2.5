@@ -271,6 +271,11 @@ main nav ul li {
     .current &::before {
       background-color: var(--icon--current-color);
     }
+    .thin {
+      display: inline-block;
+      font-size: 85%;
+      transform: scaleY(calc(1/0.85));
+    }
   }
   .night &:not(.current) a {
     color: #ddd !important;
@@ -307,6 +312,9 @@ main nav ul li {
         margin: auto;
         width : 3rem;
         height: 3rem;
+      }
+      .thin {
+        transform: none;
       }
     }
   }
