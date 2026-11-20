@@ -409,17 +409,12 @@ sub palettePreset {
       }
       $text .= "\n";
     }
-<<<<<<< HEAD
-    if (@raceAbilities) {
-      $text .= "$_\n" foreach (@raceAbilities);
-=======
     if (keys %declarationCrafts) {
       foreach my $craftType (keys %declarationCrafts) {
         foreach (@{$declarationCrafts{$craftType}}) {
           $text .= "$_\n";
         }
       }
->>>>>>> c8db13ff (✨ 追加: [SW2] 白き神域ニーフェルギ)
       $text .= "\n";
     }
     $text .= appendPaletteInsert('feats');
