@@ -100,6 +100,12 @@ my %pows = (
     80  => '.+－死の嵐－|その他の5ランク(以下)?すべて',
     100 => '.+－神殺の槍－|その他の5ランク(以下)?すべて',
   },
+  Wit => {
+     0  =>  2,
+    10  =>  5,
+    20  =>  8,
+    30  =>  9,
+  },
   Bar => {
     10  => '終律：春の強風|終律：冬の寒風',
     20  => '終律：獣の咆吼|終律：蛇穴の苦鳴',
@@ -348,7 +354,7 @@ sub palettePreset {
     }
     $text .= appendPaletteInsert('drug');
 
-    # 宣言特技・種族特徴
+    # 宣言特技・闘理・種族特徴
     require $set::data_feats;
     my @declarationFeats = ();
     foreach (setAcquiredFeatsLvs(\%::pc)) {
@@ -370,27 +376,31 @@ sub palettePreset {
       next unless $artsName;
       push(@declarationFeats, [$marks, $artsName]);
     }
-    my @raceAbilities;
-    #{
-    #  if($::pc{raceAbility} =~ /［HP変換］/ && $bot{YTC}){ push(@raceAbilities, "\@HP-{変換量} MP+{変換量} [補]［HP変換］\n//変換量=") }
-    #  if($::pc{raceAbility} =~ /［巨人化］/ && $bot{YTC}){ push(@raceAbilities, "\@HP+12/+12 [主]［巨人化］") }
-    #  if($::pc{raceAbility} =~ /［切り裂く風］/){
-    #    push(@raceAbilities, '2d+{冒険者}+{生命B} [主]［切り裂く風］');
-    #    push(@raceAbilities, "$sym{'@'}MP-4", 'k10[10]+{冒険者}+{生命B}［切り裂く風］ダメージ',"k10+{冒険者}+{生命B}$sym{'//'} ［切り裂く風］半減ダメージ");
-    #    push(@raceAbilities, "$sym{'@'}MP-8", 'k30[10]+{冒険者}+{生命B}［切り裂く風］ダメージ',"k30+{冒険者}+{生命B}$sym{'//'} ［切り裂く風］半減ダメージ") if $::pc{level} > 6;
-    #    push(@raceAbilities, "$sym{'@'}MP-16",'k50[10]+{冒険者}+{生命B}［切り裂く風］ダメージ',"k50+{冒険者}+{生命B}$sym{'//'} ［切り裂く風］半減ダメージ") if $::pc{level} > 11;
-    #  }
-    #  if($::pc{raceAbility} =~ /［石化の視線］/){
-    #    push(@raceAbilities, '2d+{冒険者}+{精神B} [補]［石化の視線］',setChoice(1,'器用度-6（命中-1）,敏捷度-6（回避-1）'),"$sym{'@'}MP-5");
-    #  }
-    #}
-    if (@declarationFeats || @raceAbilities) {
+    my %declarationCrafts;
+    if($::pc{lvVit}){
+      $declarationCrafts{'闘理'} = [];
+      if($::pc{lvVit} >=  1){ push(@{$declarationCrafts{'闘理'}}, '[宣][準]【捌きⅠ】', '[宣]【不意蹴り】') }
+      if($::pc{lvVit} >=  2){ push(@{$declarationCrafts{'闘理'}}, '[宣]【隙を突く】', '[宣]【賦活】') }
+      if($::pc{lvVit} >=  3){ push(@{$declarationCrafts{'闘理'}}, '[宣]【足払い蹴り】', '[宣]【浸透打】') }
+      if($::pc{lvVit} >=  4){ push(@{$declarationCrafts{'闘理'}}, '[宣]【押し当て】', '[宣]【折り投げ】') }
+      if($::pc{lvVit} >=  5){ push(@{$declarationCrafts{'闘理'}}, '[宣]【関節蹴り】') }
+      if($::pc{lvVit} >=  6){ push(@{$declarationCrafts{'闘理'}}, '[宣]【深衝波】') }
+      if($::pc{lvVit} >=  7){ push(@{$declarationCrafts{'闘理'}}, '[宣]【再観察】', '[宣]【旋風脚】') }
+      if($::pc{lvVit} >=  8){ push(@{$declarationCrafts{'闘理'}}, '[宣]【牙打ち】', '[宣][準]【捌きⅡ】') }
+      if($::pc{lvVit} >=  9){ push(@{$declarationCrafts{'闘理'}}, '[宣]【破魔波】', '[宣]【脳ゆらし】') }
+      if($::pc{lvVit} >= 10){ push(@{$declarationCrafts{'闘理'}}, '[宣]【捌ききる】') }
+
+    }
+    if (@declarationFeats || keys %declarationCrafts) {
       $text .= "###\n" if $bot{TKY};
       $text .= "### ■";
-      if(@declarationFeats){ $text .= '宣言特技' }
-      if(@declarationFeats && @raceAbilities){ $text .= '・' }
-      if(@raceAbilities){ $text .= '種族特徴' }
-      $text .= "\n";
+      my $headline;
+      if(@declarationFeats){ $headline .= '宣言特技' }
+      foreach (keys %declarationCrafts){
+        $headline .= '・' if $headline;
+        $headline .= $_;
+      }
+      $text .= $headline . "\n";
     }
     if (@declarationFeats) {
       foreach (@declarationFeats) {
@@ -399,8 +409,17 @@ sub palettePreset {
       }
       $text .= "\n";
     }
+<<<<<<< HEAD
     if (@raceAbilities) {
       $text .= "$_\n" foreach (@raceAbilities);
+=======
+    if (keys %declarationCrafts) {
+      foreach my $craftType (keys %declarationCrafts) {
+        foreach (@{$declarationCrafts{$craftType}}) {
+          $text .= "$_\n";
+        }
+      }
+>>>>>>> c8db13ff (✨ 追加: [SW2] 白き神域ニーフェルギ)
       $text .= "\n";
     }
     $text .= appendPaletteInsert('feats');
@@ -1133,7 +1152,7 @@ sub paletteProperties {
 
       if(!$partNum || $partNum eq $::pc{partCore}) {
         $evaMod += $::pc{evasiveManeuver} + $::pc{mindsEye};
-        if($::pc{evasiveManeuver} == 2 && $id ne 'Fen' && $id ne 'Bat'){ $evaMod -= 1 }
+        if($::pc{evasiveManeuver} == 2 && $id ne 'Fen' && $id ne 'Bat' && $id ne 'Vit'){ $evaMod -= 1 }
         if($::pc{mindsEye} && $id ne 'Fen'){ $evaMod -= $::pc{mindsEye} }
       }
       else {
